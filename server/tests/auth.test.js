@@ -116,7 +116,25 @@ describe('GET /api/auth/verify-email', () => {
 
     const updatedUser = await userModel.findById(user._id);
     expect(updatedUser.isEmailVerified).toBe(true);
-    expect(updatedUser.emailVerificationToken).toBeNull();
+    // Note: We now keep the token for reload handling, but clear the expiry
+    expect(updatedUser.emailVerificationExpires).toBeUndefined();
+  });
+
+  it('should handle reloads by showing "Already Verified"', async () => {
+    const user = await userModel.create({
+      name: 'Reload User',
+      email: 'reload@example.com',
+      password: 'HashedPassword123!',
+      emailVerificationToken: 'reload-token',
+      isEmailVerified: true, // Already verified
+    });
+
+    const res = await request(app)
+      .get('/api/auth/verify-email')
+      .query({ token: 'reload-token' });
+
+    expect(res.statusCode).toEqual(200);
+    expect(res.text).toContain('Already Verified');
   });
 
   it('should fail with invalid token', async () => {
