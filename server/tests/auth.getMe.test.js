@@ -9,10 +9,14 @@ import config from '../config/config.js';
 let mongoServer;
 
 beforeAll(async () => {
-    mongoServer = await MongoMemoryServer.create();
-    const uri = mongoServer.getUri();
-    await mongoose.connect(uri);
-});
+  mongoServer = await MongoMemoryServer.create({
+    instance: {
+      launchTimeoutMS: 60000,
+    }
+  });
+  const uri = mongoServer.getUri();
+  await mongoose.connect(uri);
+}, 120000);
 
 afterAll(async () => {
     await mongoose.disconnect();

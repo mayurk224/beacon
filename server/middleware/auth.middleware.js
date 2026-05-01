@@ -3,6 +3,12 @@ import config from "../config/config.js";
 
 export const protect = (req, res, next) => {
     try {
+        // Ensure cookie-parser is installed and configured
+        if (!req.cookies) {
+            console.error("Cookie-parser middleware not configured");
+            return res.status(500).json({ message: "Internal server error" });
+        }
+
         const token = req.cookies.accessToken;
 
         if (!token) {
