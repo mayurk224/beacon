@@ -9,6 +9,6 @@ authRoutes.post('/signup', signupLimiter, signupValidation, signup);
 authRoutes.post('/login', loginLimiter, loginValidation, login);
 authRoutes.post('/logout', logout);
 authRoutes.post('/refresh-token', refreshToken);
-authRoutes.post('/verify-email', verifyEmailValidation, verifyEmail);
+authRoutes.get('/verify-email', verifyEmailValidation, verifyEmail);
 
 export default authRoutes;
