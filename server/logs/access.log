@@ -72,6 +72,26 @@
 ::ffff:127.0.0.1 - - [2026-05-01T13:10:08.524Z] "GET /api/auth/me HTTP/1.1" 401 38 "-" "-" - 0.508 ms
 ::ffff:127.0.0.1 - - [2026-05-01T13:10:08.535Z] "GET /api/auth/me HTTP/1.1" 404 28 "-" "-" - 3.174 ms
 ::ffff:127.0.0.1 - - [2026-05-01T13:10:08.545Z] "GET /api/auth/me HTTP/1.1" 401 38 "-" "-" - 0.866 ms
+::ffff:127.0.0.1 - - [2026-05-01T14:06:37.849Z] "GET /api/auth/me HTTP/1.1" 401 26 "-" "-" - 2.784 ms
+::ffff:127.0.0.1 - - [2026-05-01T14:06:37.866Z] "GET /api/auth/me HTTP/1.1" 401 38 "-" "-" - 1.263 ms
+::1 - - [2026-05-01T14:09:29.931Z] "POST /api/auth/signup HTTP/1.1" 201 224 "-" "PostmanRuntime/7.51.1" - 2984.947 ms
+::1 - - [2026-05-01T14:09:44.684Z] "GET /api/auth/verify-email?token=b3e056d1f963b79a7f72c6967e32366b0fa261ed102d7244b6fc3fe841a68626 HTTP/1.1" 500 4666 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" - 66.003 ms
+::1 - - [2026-05-01T14:09:45.048Z] "GET /favicon.ico HTTP/1.1" 404 150 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" - 16.232 ms
+::1 - - [2026-05-01T14:09:50.296Z] "GET /api/auth/verify-email?token=b3e056d1f963b79a7f72c6967e32366b0fa261ed102d7244b6fc3fe841a68626 HTTP/1.1" 404 5030 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" - 6.372 ms
+::1 - - [2026-05-01T14:10:07.818Z] "POST /api/auth/resend-verification HTTP/1.1" 400 4695 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" - 9.886 ms
+::1 - - [2026-05-01T14:10:12.388Z] "POST /api/auth/resend-verification HTTP/1.1" 400 4695 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" - 6.620 ms
+::1 - - [2026-05-01T14:10:27.404Z] "POST /api/auth/signup HTTP/1.1" 201 224 "-" "PostmanRuntime/7.51.1" - 2817.544 ms
+::1 - - [2026-05-01T14:10:35.640Z] "GET /api/auth/verify-email?token=d66a548a351c1b127f002f45d677619486b5de949945812943b84873434624dc HTTP/1.1" 500 4666 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" - 19.468 ms
+::1 - - [2026-05-01T14:16:18.589Z] "POST /api/auth/signup HTTP/1.1" 201 224 "-" "PostmanRuntime/7.51.1" - 2859.499 ms
+::1 - - [2026-05-01T14:16:26.886Z] "GET /api/auth/verify-email?token=4aafb9d0da351069026abd8e968f9dc26edcfe1e78b9ca42cdd596a1af79b3ad HTTP/1.1" 200 4771 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" - 40.905 ms
+::1 - - [2026-05-01T14:16:33.445Z] "GET /api/auth/verify-email?token=4aafb9d0da351069026abd8e968f9dc26edcfe1e78b9ca42cdd596a1af79b3ad HTTP/1.1" 404 5030 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" - 5.002 ms
+::1 - - [2026-05-01T14:16:41.165Z] "POST /api/auth/resend-verification HTTP/1.1" 400 4695 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" - 9.546 ms
+::1 - - [2026-05-01T14:19:12.518Z] "POST /api/auth/signup HTTP/1.1" 201 224 "-" "PostmanRuntime/7.51.1" - 2758.504 ms
+::1 - - [2026-05-01T14:19:21.835Z] "GET /api/auth/verify-email?token=971ac099b555ac9774115a6860b2c909ac6ba8159d12f191564f8454b4cd85cf HTTP/1.1" 200 4771 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" - 39.148 ms
+::1 - - [2026-05-01T14:19:24.778Z] "GET /api/auth/verify-email?token=971ac099b555ac9774115a6860b2c909ac6ba8159d12f191564f8454b4cd85cf HTTP/1.1" 200 4760 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" - 4.055 ms
+::1 - - [2026-05-01T14:19:26.827Z] "GET /api/auth/verify-email?token=971ac099b555ac9774115a6860b2c909ac6ba8159d12f191564f8454b4cd85cf HTTP/1.1" 304 - "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" - 3.157 ms
+::1 - - [2026-05-01T14:19:27.826Z] "GET /api/auth/verify-email?token=971ac099b555ac9774115a6860b2c909ac6ba8159d12f191564f8454b4cd85cf HTTP/1.1" 304 - "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" - 5.639 ms
+::1 - - [2026-05-01T14:20:16.798Z] "POST /api/auth/resend-verification HTTP/1.1" 404 5000 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" - 36.372 ms
 ::ffff:127.0.0.1 - - [2026-05-01T14:07:55.888Z] "POST /api/auth/google HTTP/1.1" 400 36 "-" "-" - 45.898 ms
 ::ffff:127.0.0.1 - - [2026-05-01T14:08:25.661Z] "POST /api/auth/google HTTP/1.1" 200 123 "-" "-" - 269.117 ms
 ::ffff:127.0.0.1 - - [2026-05-01T14:08:25.716Z] "POST /api/auth/google HTTP/1.1" 400 36 "-" "-" - 1.444 ms

@@ -25,7 +25,7 @@ app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 
 app.use(
   cors({
-    origin: "http://localhost:5173", // Your React app URL
+    origin: config.CLIENT_URL || "http://localhost:5173", // Your React app URL
     credentials: true, // CRITICAL: Allows cookies to be sent
   }),
 );

@@ -3,6 +3,8 @@ import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import { validationResult } from "express-validator";
 import userModel from "../models/user.model.js";
+import { sendVerificationEmail, sendResetPasswordEmail } from "../services/mail.service.js";
+import buildVerifyPage from "../utils/verifyPage.js";
 import config from "../config/config.js";
 import { OAuth2Client } from "google-auth-library";
 
@@ -45,7 +47,6 @@ export const signup = async (req, res) => {
     }
 
     // 🔹 3. Hash password
-    // Using 12 rounds for better security (standard is 10-12)
     const salt = await bcrypt.genSalt(12);
     const hashedPassword = await bcrypt.hash(password, salt);
 
@@ -59,29 +60,179 @@ export const signup = async (req, res) => {
       password: hashedPassword,
       emailVerificationToken: emailToken,
       emailVerificationExpires: Date.now() + 1000 * 60 * 60, // 1 hour
+      isEmailVerified: false,
     });
 
-    // 🔹 6. Prepare response (avoid sending sensitive fields)
-    const userResponse = {
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      isEmailVerified: user.isEmailVerified,
-      createdAt: user.createdAt,
-    };
+     // 🔹 6. Send verification email
+     await sendVerificationEmail({ name: user.name, email: user.email, token: emailToken });
 
-    // 🔹 7. Success Response
+     // 🔹 7. Prepare response (avoid sending sensitive fields)
+     const userResponse = {
+       _id: user._id,
+       name: user.name,
+       email: user.email,
+       isEmailVerified: user.isEmailVerified,
+       createdAt: user.createdAt,
+     };
+
+     // 🔹 8. Success Response
     return res.status(201).json({
       message: "Account created successfully. Please verify your email.",
       user: userResponse,
     });
   } catch (error) {
     console.error("Signup Error:", error);
-    // Generic error message to avoid leaking server details
     return res.status(500).json({ message: "An unexpected error occurred. Please try again later." });
   }
 };
 
+export const verifyEmail = async (req, res) => {
+  try {
+    const { token } = req.query;
+
+    if (!token) {
+      return res.status(400).send(buildVerifyPage({
+        success: false,
+        title: 'Invalid Link',
+        message: 'Verification token is missing.',
+      }));
+    }
+
+    // Find user by verification token
+    // We first search by token alone to handle reloads/already verified cases gracefully
+    const user = await userModel.findOne({
+      emailVerificationToken: token
+    });
+
+    if (!user) {
+      return res.status(404).send(buildVerifyPage({
+        success: false,
+        title: 'Invalid Link',
+        message: 'This verification link is invalid. It may have been replaced by a newer link.',
+        showResend: true,
+      }));
+    }
+
+    // Case 1: Already Verified (handles reloads)
+    if (user.isEmailVerified) {
+      return res.status(200).send(buildVerifyPage({
+        success: true, // We show success because they ARE verified
+        title: 'Already Verified',
+        message: 'Your email is already verified. You can log in to your Beacon account.',
+        showResend: false,
+      }));
+    }
+
+    // Case 2: Link Expired
+    if (user.emailVerificationExpires < Date.now()) {
+      return res.status(410).send(buildVerifyPage({
+        success: false,
+        title: 'Link Expired',
+        message: 'This verification link has expired. Please request a new one.',
+        showResend: true,
+      }));
+    }
+
+    // Case 3: Fresh Verification
+    // Mark email as verified
+    user.isEmailVerified = true;
+    // Note: We keep the token in the DB temporarily so reloads show "Already Verified"
+    // instead of "Invalid Link", but we can clear the expiry.
+    user.emailVerificationExpires = undefined;
+    await user.save();
+
+    // 🔹 Optional: Auto login after verification
+    // We wrap this in try-catch so that even if token generation fails,
+    // the user still sees the success page (since they are verified in DB)
+    try {
+      if (config.ACCESS_TOKEN_SECRET) {
+        const accessToken = generateAccessToken(user._id);
+        res.cookie("accessToken", accessToken, {
+          httpOnly: true,
+          secure: config.NODE_ENV === "production",
+          sameSite: "Strict",
+          maxAge: 15 * 60 * 1000,
+        });
+      }
+    } catch (tokenError) {
+      console.error("Auto-login failed after verification:", tokenError);
+    }
+
+    return res.status(200).send(buildVerifyPage({
+      success: true,
+      title: 'Email Verified',
+      message: 'Your email has been verified successfully. You can now log in to your Beacon account.',
+      showResend: false,
+    }));
+
+  } catch (error) {
+    console.error("Email Verification Error:", error);
+    return res.status(500).send(buildVerifyPage({
+      success: false,
+      title: 'Error',
+      message: 'An error occurred during verification. Please try again.',
+    }));
+  }
+};
+
+export const resendVerificationController = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).send(buildVerifyPage({
+        success: false,
+        title: 'Error',
+        message: 'Email is required to resend verification.',
+        showResend: true,
+      }));
+    }
+
+    const user = await userModel.findOne({ email: email.toLowerCase() });
+
+    if (!user) {
+      return res.status(404).send(buildVerifyPage({
+        success: false,
+        title: 'User Not Found',
+        message: 'No account found with this email address.',
+        showResend: true,
+      }));
+    }
+
+    if (user.isEmailVerified) {
+      return res.status(400).send(buildVerifyPage({
+        success: false,
+        title: 'Already Verified',
+        message: 'This email is already verified. You can log in to your account.',
+        showResend: false,
+      }));
+    }
+
+    // Generate new token and update user
+    const newToken = crypto.randomBytes(32).toString("hex");
+    user.emailVerificationToken = newToken;
+    user.emailVerificationExpires = Date.now() + 1000 * 60 * 60; // 1 hour
+    await user.save();
+
+    // Send new verification email
+    await sendVerificationEmail({ name: user.name, email: user.email, token: newToken });
+
+    return res.status(200).send(buildVerifyPage({
+      success: true,
+      title: 'Email Sent',
+      message: `A new verification link has been sent to ${user.email}. Please check your inbox.`,
+      showResend: false,
+    }));
+  } catch (error) {
+    console.error("Resend Verification Error:", error);
+    return res.status(500).send(buildVerifyPage({
+      success: false,
+      title: 'Error',
+      message: 'An error occurred while resending the verification email. Please try again later.',
+      showResend: true,
+    }));
+  }
+};
 export const login = async (req, res) => {
   try {
     // 🔹 1. Validation
@@ -257,69 +408,6 @@ export const refreshToken = async (req, res) => {
   }
 };
 
-export const verifyEmail = async (req, res) => {
-  try {
-    // 🔹 1. Check for validation errors from express-validator
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({
-        message: "Validation failed",
-        errors: errors.array().map(err => ({ field: err.path, message: err.msg }))
-      });
-    }
-
-    const token = req.body?.token || req.query?.token;
-
-    if (!token || typeof token !== "string") {
-      return res.status(400).json({ message: "Invalid verification link" });
-    }
-
-    // 🔹 2. Find user by token
-    const user = await userModel.findOne({
-      emailVerificationToken: token,
-      emailVerificationExpires: { $gt: Date.now() },
-    });
-
-    if (!user) {
-      console.warn(`Failed email verification attempt with token: ${token}`);
-      return res.status(400).json({
-        message: "Token invalid or expired",
-      });
-    }
-
-    // 🔹 3. Mark verified
-    user.isEmailVerified = true;
-    user.emailVerificationToken = undefined;
-    user.emailVerificationExpires = undefined;
-
-    await user.save();
-
-    // 🔹 4. Audit Log
-    console.info(`Email verified successfully for user: ${user.email} (ID: ${user._id})`);
-
-    // 🔹 5. (Optional) Auto login after verification
-    const accessToken = jwt.sign(
-      { userId: user._id },
-      config.ACCESS_TOKEN_SECRET,
-      { expiresIn: "15m" }
-    );
-
-    res.cookie("accessToken", accessToken, {
-      httpOnly: true,
-      secure: config.NODE_ENV === "production",
-      sameSite: "Strict",
-      maxAge: 15 * 60 * 1000,
-    });
-
-    // 🔹 6. Redirect to frontend
-    return res.redirect(`${config.CLIENT_URL}/email-verified`);
-
-  } catch (error) {
-    console.error("Verify Email Error:", error);
-    return res.status(500).json({ message: "Internal server error" });
-  }
-};
-
 export const forgotPassword = async (req, res) => {
   try {
     // 🔹 1. Validation
@@ -337,7 +425,7 @@ export const forgotPassword = async (req, res) => {
 
     // 🔹 2. Prevent email enumeration attack
     if (!user) {
-      console.info(`Forgot password attempt for non-existent email: ${normalizedEmail}`);
+      console.info(`Forgot password attempt for non-existent email address`);
       return res.status(200).json({
         message: "If this email exists, a reset link has been sent",
       });
@@ -357,11 +445,13 @@ export const forgotPassword = async (req, res) => {
 
     await user.save();
 
-    // 🔹 5. Send email (mock for now)
-    const resetLink = `${config.CLIENT_URL}/reset-password?token=${resetToken}`;
+    // 🔹 5. Send Reset Email
+    await sendResetPasswordEmail({ 
+      name: user.name, 
+      email: user.email, 
+      resetToken: resetToken 
+    });
 
-    console.log(`Password reset link generated for ${normalizedEmail}`);
-    console.debug(`Reset token: ${resetToken.substring(0, 8)}...`);
     console.info(`Password reset token generated for user: ${user._id}`);
 
     return res.status(200).json({
@@ -400,7 +490,7 @@ export const resetPassword = async (req, res) => {
     });
 
     if (!user) {
-      console.warn(`Invalid or expired password reset attempt with token: ${token.substring(0, 5)}...`);
+      console.warn(`Invalid or expired password reset attempt`);
       return res.status(400).json({
         message: "Token invalid or expired",
       });
