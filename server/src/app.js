@@ -3,8 +3,12 @@ import cors from "cors";
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
 import authRoutes from "../routes/auth.routes.js";
+import { setupLogger } from "../utils/logger.js";
 
 const app = express();
+
+// HTTP Request Logger
+setupLogger(app);
 
 // Security Headers
 app.use(helmet());

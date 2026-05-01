@@ -3,15 +3,16 @@ import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import { validationResult } from "express-validator";
 import userModel from "../models/user.model.js";
+import config from "../config/config.js";
 
 const generateAccessToken = (userId) => {
-  return jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET, {
+  return jwt.sign({ userId }, config.ACCESS_TOKEN_SECRET, {
     expiresIn: "15m",
   });
 };
 
 const generateRefreshToken = (userId) => {
-  return jwt.sign({ userId }, process.env.REFRESH_TOKEN_SECRET, {
+  return jwt.sign({ userId }, config.REFRESH_TOKEN_SECRET, {
     expiresIn: "7d",
   });
 };
@@ -213,7 +214,7 @@ export const refreshToken = async (req, res) => {
     // 🔹 1. Verify token
     let payload;
     try {
-      payload = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+      payload = jwt.verify(refreshToken, config.REFRESH_TOKEN_SECRET);
     } catch (err) {
       return res.status(401).json({ message: "Invalid or expired refresh token" });
     }
@@ -241,7 +242,7 @@ export const refreshToken = async (req, res) => {
     // 🔹 5. Set new cookie
     res.cookie("accessToken", newAccessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: config.NODE_ENV === "production",
       sameSite: "Strict",
       maxAge: 15 * 60 * 1000,
     });
@@ -252,3 +253,52 @@ export const refreshToken = async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+
+export const verifyEmail = async (req, res) => {
+  try {
+    const { token } = req.query;
+
+    if (!token) {
+      return res.status(400).json({ message: "Invalid verification link" });
+    }
+
+    // 🔹 1. Find user by token
+    const user = await userModel.findOne({
+      emailVerificationToken: token,
+      emailVerificationExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        message: "Token invalid or expired",
+      });
+    }
+
+    // 🔹 2. Mark verified
+    user.isEmailVerified = true;
+    user.emailVerificationToken = undefined;
+    user.emailVerificationExpires = undefined;
+
+    await user.save();
+
+    // 🔹 3. (Optional) Auto login after verification
+    const accessToken = jwt.sign(
+      { userId: user._id },
+      config.ACCESS_TOKEN_SECRET,
+      { expiresIn: "15m" }
+    );
+
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: config.NODE_ENV === "production",
+      sameSite: "Strict",
+    });
+
+    // 🔹 4. Redirect to frontend
+    return res.redirect(`${config.CLIENT_URL}/email-verified`);
+
+  } catch (error) {
+    console.error("Verify Email Error:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+}
