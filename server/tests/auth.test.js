@@ -94,3 +94,103 @@ describe('POST /api/auth/signup', () => {
     expect(res.statusCode).toEqual(400);
   });
 });
+
+describe('GET /api/auth/verify-email', () => {
+  it('should verify email successfully with valid token', async () => {
+    // Create a user with a token
+    const user = await userModel.create({
+      name: 'Verify User',
+      email: 'verify@example.com',
+      password: 'HashedPassword123!',
+      emailVerificationToken: 'valid-token',
+      emailVerificationExpires: Date.now() + 3600000,
+      isEmailVerified: false,
+    });
+
+    const res = await request(app)
+      .get('/api/auth/verify-email')
+      .query({ token: 'valid-token' });
+
+    expect(res.statusCode).toEqual(200);
+    expect(res.text).toContain('Email Verified');
+
+    const updatedUser = await userModel.findById(user._id);
+    expect(updatedUser.isEmailVerified).toBe(true);
+    // Note: We now keep the token for reload handling, but clear the expiry
+    expect(updatedUser.emailVerificationExpires).toBeUndefined();
+  });
+
+  it('should handle reloads by showing "Already Verified"', async () => {
+    const user = await userModel.create({
+      name: 'Reload User',
+      email: 'reload@example.com',
+      password: 'HashedPassword123!',
+      emailVerificationToken: 'reload-token',
+      isEmailVerified: true, // Already verified
+    });
+
+    const res = await request(app)
+      .get('/api/auth/verify-email')
+      .query({ token: 'reload-token' });
+
+    expect(res.statusCode).toEqual(200);
+    expect(res.text).toContain('Already Verified');
+  });
+
+  it('should fail with invalid token', async () => {
+    const res = await request(app)
+      .get('/api/auth/verify-email')
+      .query({ token: 'invalid-token' });
+
+    expect(res.statusCode).toEqual(404);
+    expect(res.text).toContain('Link Expired');
+  });
+
+  it('should fail with expired token', async () => {
+    await userModel.create({
+      name: 'Expired User',
+      email: 'expired@example.com',
+      password: 'HashedPassword123!',
+      emailVerificationToken: 'expired-token',
+      emailVerificationExpires: Date.now() - 3600000,
+      isEmailVerified: false,
+    });
+
+    const res = await request(app)
+      .get('/api/auth/verify-email')
+      .query({ token: 'expired-token' });
+
+    expect(res.statusCode).toEqual(404);
+    expect(res.text).toContain('Link Expired');
+  });
+});
+
+describe('POST /api/auth/resend-verification', () => {
+  it('should resend verification email successfully', async () => {
+    await userModel.create({
+      name: 'Resend User',
+      email: 'resend@example.com',
+      password: 'HashedPassword123!',
+      isEmailVerified: false,
+    });
+
+    const res = await request(app)
+      .post('/api/auth/resend-verification')
+      .send({ email: 'resend@example.com' });
+
+    expect(res.statusCode).toEqual(200);
+    expect(res.text).toContain('Email Sent');
+
+    const updatedUser = await userModel.findOne({ email: 'resend@example.com' });
+    expect(updatedUser.emailVerificationToken).not.toBeNull();
+  });
+
+  it('should fail if email not found', async () => {
+    const res = await request(app)
+      .post('/api/auth/resend-verification')
+      .send({ email: 'nonexistent@example.com' });
+
+    expect(res.statusCode).toEqual(404);
+    expect(res.text).toContain('User Not Found');
+  });
+});

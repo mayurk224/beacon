@@ -36,14 +36,6 @@ export const loginValidation = [
         .withMessage('Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character'),
 ];
 
-export const verifyEmailValidation = [
-    check('token')
-        .trim()
-        .notEmpty().withMessage('Verification token is required')
-        .isLength({ min: 32 }).withMessage('Invalid token format')
-        .isHexadecimal().withMessage('Invalid token characters')
-];
-
 export const forgotPasswordValidation = [
     body('email')
         .trim()

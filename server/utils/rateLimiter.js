@@ -38,6 +38,17 @@ export const forgotPasswordLimiter = rateLimit({
 });
 
 /**
+ * Creates a rate limiter middleware for resending verification emails.
+ */
+export const resendLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000, // 1 hour
+    max: config.NODE_ENV === 'test' ? 100 : 5, // Limit each IP to 5 resend requests per hour
+    message: { message: 'Too many resend requests, please try again after an hour' },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+/**
  * General purpose rate limiter can be added here as well.
  */
 export const apiLimiter = rateLimit({
