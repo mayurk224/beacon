@@ -1,0 +1,5 @@
+::1 - - [2026-05-01T10:58:29.257Z] "GET /health HTTP/1.1" 200 43 "-" "Mozilla/5.0 (Windows NT; Windows NT 10.0; en-IN) WindowsPowerShell/5.1.26100.8115" - 4.215 ms
+::1 - - [2026-05-01T10:59:16.784Z] "GET /non-existent-route HTTP/1.1" 404 157 "-" "Mozilla/5.0 (Windows NT; Windows NT 10.0; en-IN) WindowsPowerShell/5.1.26100.8115" - 3.459 ms
+::1 - - [2026-05-01T10:59:42.282Z] "GET /health HTTP/1.1" 200 43 "-" "curl/8.18.0" - 2.387 ms
+::1 - - [2026-05-01T11:00:21.039Z] "GET /health HTTP/1.1" 200 43 "-" "curl/8.18.0" - 2.910 ms
+::1 - - [2026-05-01T11:00:32.710Z] "GET /non-existent-route HTTP/1.1" 404 157 "-" "curl/8.18.0" - 1.421 ms
