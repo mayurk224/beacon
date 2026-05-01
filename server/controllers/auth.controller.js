@@ -427,3 +427,25 @@ export const resetPassword = async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+
+export const getMe = async (req, res) => {
+  try {
+    // 🔹 userId comes from auth middleware (decoded JWT)
+    const userId = req.userId;
+
+    const user = await userModel.findById(userId)
+      .select("-password -refreshTokens -passwordResetToken -emailVerificationToken");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.status(200).json({
+      user,
+    });
+
+  } catch (error) {
+    console.error("GetMe Error:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
