@@ -137,6 +137,12 @@ export const login = async (req, res) => {
     const refreshToken = generateRefreshToken(user._id);
 
     // 🔹 7. Save refresh token (for logout / revoke)
+    // Cleanup expired tokens (older than 7 days)
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    user.refreshTokens = user.refreshTokens.filter(
+      (token) => token.createdAt > sevenDaysAgo
+    );
+
     user.refreshTokens.push({ token: refreshToken });
     user.lastLoginAt = new Date();
     await user.save();
@@ -222,10 +228,17 @@ export const refreshToken = async (req, res) => {
       return res.status(401).json({ message: "Token revoked or user not found" });
     }
 
-    // 🔹 3. Generate new access token
+    // 🔹 3. Cleanup expired tokens (older than 7 days)
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    user.refreshTokens = user.refreshTokens.filter(
+      (token) => token.createdAt > sevenDaysAgo
+    );
+    await user.save();
+
+    // 🔹 4. Generate new access token
     const newAccessToken = generateAccessToken(user._id);
 
-    // 🔹 4. Set new cookie
+    // 🔹 5. Set new cookie
     res.cookie("accessToken", newAccessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
