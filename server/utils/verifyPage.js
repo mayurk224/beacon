@@ -1,5 +1,7 @@
+import config from "../config/config.js"
+
 const buildVerifyPage = ({ success, title, message, showResend = false }) => {
-  const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173'
+  const clientUrl = config.CLIENT_URL || 'http://localhost:5173'
   const loginUrl = `${clientUrl}/signin`
 
   return `
@@ -164,13 +166,13 @@ const buildVerifyPage = ({ success, title, message, showResend = false }) => {
     <!-- status icon -->
     <div class="icon-wrap ${success ? 'success' : 'error'}">
       ${success
-        ? `<svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+      ? `<svg width="32" height="32" viewBox="0 0 32 32" fill="none">
                     <path d="M8 16.5L13.5 22L24 11" stroke="#528dff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
            </svg>`
-        : `<svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+      : `<svg width="32" height="32" viewBox="0 0 32 32" fill="none">
              <path d="M11 11L21 21M21 11L11 21" stroke="#c73e3a" stroke-width="2.5" stroke-linecap="round"/>
            </svg>`
-      }
+    }
     </div>
  
     <h1>${title}</h1>

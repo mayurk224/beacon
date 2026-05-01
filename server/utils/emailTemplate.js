@@ -1,5 +1,7 @@
+import config from "../config/config.js"
+
 export const verificationEmailTemplate = ({ name, verificationUrl, expiryHours = 24 }) => {
-  const loginUrl = `${process.env.CLIENT_URL || 'http://localhost:5173'}/signin`
+  const loginUrl = `${config.CLIENT_URL || 'http://localhost:5173'}/signin`
 
   return `
 <!DOCTYPE html>
