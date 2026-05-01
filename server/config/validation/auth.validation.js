@@ -1,4 +1,4 @@
-import { body, query } from 'express-validator';
+import { body, query, check } from 'express-validator';
 
 export const signupValidation = [
     body('name')
@@ -37,7 +37,7 @@ export const loginValidation = [
 ];
 
 export const verifyEmailValidation = [
-    body('token')
+    check('token')
         .trim()
         .notEmpty().withMessage('Verification token is required')
         .isLength({ min: 32 }).withMessage('Invalid token format')

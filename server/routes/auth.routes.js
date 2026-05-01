@@ -9,6 +9,7 @@ authRoutes.post('/signup', signupLimiter, signupValidation, signup);
 authRoutes.post('/login', loginLimiter, loginValidation, login);
 authRoutes.post('/logout', logout);
 authRoutes.post('/refresh-token', refreshToken);
+authRoutes.get('/verify-email', verifyEmailValidation, verifyEmail);
 authRoutes.post('/verify-email', verifyEmailValidation, verifyEmail);
 authRoutes.post('/forgot-password', forgotPasswordLimiter, forgotPasswordValidation, forgotPassword);
 authRoutes.post('/reset-password', resetPasswordValidation, resetPassword);
