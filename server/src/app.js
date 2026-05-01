@@ -4,6 +4,7 @@ import helmet from "helmet";
 import cookieParser from "cookie-parser";
 import authRoutes from "../routes/auth.routes.js";
 import { setupLogger } from "../utils/logger.js";
+import config from "../config/config.js";
 
 const app = express();
 
@@ -42,7 +43,7 @@ app.use((err, req, res, next) => {
   console.error("Global Error Handler:", err);
   res.status(err.status || 500).json({
     message: err.message || "Internal Server Error",
-    error: process.env.NODE_ENV === "development" ? err : {},
+    error: config.NODE_ENV === "development" ? err : {},
   });
 });
 
