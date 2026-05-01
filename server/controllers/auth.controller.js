@@ -265,7 +265,7 @@ export const verifyEmail = async (req, res) => {
       });
     }
 
-    const { token } = req.query;
+    const { token } = req.body;
 
     if (!token || typeof token !== "string") {
       return res.status(400).json({ message: "Invalid verification link" });
@@ -313,6 +313,116 @@ export const verifyEmail = async (req, res) => {
 
   } catch (error) {
     console.error("Verify Email Error:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const forgotPassword = async (req, res) => {
+  try {
+    // 🔹 1. Validation
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        message: "Validation failed",
+        errors: errors.array().map(err => ({ field: err.path, message: err.msg }))
+      });
+    }
+
+    const { email } = req.body;
+    const normalizedEmail = email.toLowerCase();
+    const user = await userModel.findOne({ email: normalizedEmail });
+
+    // 🔹 2. Prevent email enumeration attack
+    if (!user) {
+      console.info(`Forgot password attempt for non-existent email: ${normalizedEmail}`);
+      return res.status(200).json({
+        message: "If this email exists, a reset link has been sent",
+      });
+    }
+
+    // 🔹 3. Generate reset token
+    const resetToken = crypto.randomBytes(32).toString("hex");
+
+    // 🔹 4. Hash token before saving (Security Best Practice)
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(resetToken)
+      .digest("hex");
+
+    user.passwordResetToken = hashedToken;
+    user.passwordResetExpires = Date.now() + 1000 * 60 * 15; // 15 min
+
+    await user.save();
+
+    // 🔹 5. Send email (mock for now)
+    const resetLink = `${config.CLIENT_URL}/reset-password?token=${resetToken}`;
+
+    console.log(`Password reset link for ${normalizedEmail}:`, resetLink);
+    console.info(`Password reset token generated for user: ${user._id}`);
+
+    return res.status(200).json({
+      message: "If this email exists, a reset link has been sent",
+    });
+
+  } catch (error) {
+    console.error("Forgot Password Error:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  try {
+    // 🔹 1. Validation
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        message: "Validation failed",
+        errors: errors.array().map(err => ({ field: err.path, message: err.msg }))
+      });
+    }
+
+    const { token, newPassword } = req.body;
+
+    // 🔹 2. Hash incoming token to compare with stored hash
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(token)
+      .digest("hex");
+
+    // 🔹 3. Find valid token
+    const user = await userModel.findOne({
+      passwordResetToken: hashedToken,
+      passwordResetExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      console.warn(`Invalid or expired password reset attempt with token: ${token.substring(0, 5)}...`);
+      return res.status(400).json({
+        message: "Token invalid or expired",
+      });
+    }
+
+    // 🔹 4. Hash new password (12 rounds)
+    const salt = await bcrypt.genSalt(12);
+    user.password = await bcrypt.hash(newPassword, salt);
+
+    // 🔹 5. Cleanup tokens
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+
+    // 🔹 6. Invalidate all sessions (IMPORTANT)
+    user.refreshTokens = [];
+
+    await user.save();
+
+    console.info(`Password successfully reset for user: ${user._id}`);
+
+    return res.status(200).json({
+      message: "Password reset successful",
+    });
+
+  } catch (error) {
+    console.error("Reset Password Error:", error);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
