@@ -140,7 +140,7 @@ export const login = async (req, res) => {
     // Cleanup expired tokens (older than 7 days)
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
     user.refreshTokens = user.refreshTokens.filter(
-      (token) => token.createdAt > sevenDaysAgo
+      (token) => token.createdAt && token.createdAt > sevenDaysAgo
     );
 
     user.refreshTokens.push({ token: refreshToken });
@@ -231,7 +231,7 @@ export const refreshToken = async (req, res) => {
     // 🔹 3. Cleanup expired tokens (older than 7 days)
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
     user.refreshTokens = user.refreshTokens.filter(
-      (token) => token.createdAt > sevenDaysAgo
+      (token) => token.createdAt && token.createdAt > sevenDaysAgo
     );
     await user.save();
 
