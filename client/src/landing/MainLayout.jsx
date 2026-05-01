@@ -1,31 +1,28 @@
 import { LayoutDashboard } from "lucide-react";
 import React from "react";
 import { Link } from "react-router-dom";
+import Navbar from "./Navbar";
+import Hero from "./Hero";
+import About from "./About";
+import Choose from "./Choose";
 
 const MainLayout = () => {
   return (
-    <section className="w-full h-screen bg-[#1A1A1A] flex items-center justify-center">
+    <section className="w-full h-full bg-black text-white ">
       
-      <div className="w-full max-w-xl text-center px-6 py-10 bg-[#111] rounded-2xl shadow-lg border border-zinc-800">
-        
-        <h1 className="text-3xl font-semibold text-white mb-4">
-          Landing Page Coming Soon
-        </h1>
-
-        <p className="text-zinc-400 mb-8">
-          We're working on something clean and powerful. Stay tuned.
-        </p>
-
-        <Link
-          to="/home"
-          className="inline-flex items-center gap-2 bg-zinc-900 hover:bg-zinc-800 text-white px-5 py-3 rounded-xl transition-all duration-200 border border-zinc-700"
-        >
-          <LayoutDashboard size={18} />
-          Go to Main UI
-        </Link>
-
+      <div className="w-full h-[65px] fixed z-50">
+        <Navbar/>
       </div>
 
+      {/* all the sections */}
+      <div>
+          <Hero/>
+          <About/>
+          <Choose/>
+      </div>
+
+
+   
     </section>
   );
 };
