@@ -101,3 +101,19 @@
 ::ffff:127.0.0.1 - - [2026-05-01T14:22:10.323Z] "POST /api/auth/google HTTP/1.1" 400 36 "-" "-" - 2.665 ms
 ::ffff:127.0.0.1 - - [2026-05-01T14:22:10.383Z] "POST /api/auth/google HTTP/1.1" 200 124 "-" "-" - 30.764 ms
 ::ffff:127.0.0.1 - - [2026-05-01T14:22:10.416Z] "POST /api/auth/google HTTP/1.1" 401 39 "-" "-" - 1.213 ms
+::1 - - [2026-05-01T17:08:02.306Z] "OPTIONS /api/auth/signup HTTP/1.1" 204 0 "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" - 1.818 ms
+::1 - - [2026-05-01T17:08:03.662Z] "POST /signup HTTP/1.1" 500 67 "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" - 1353.968 ms
+::1 - - [2026-05-01T17:22:00.037Z] "OPTIONS /api/auth/signup HTTP/1.1" 204 0 "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" - 1.416 ms
+::1 - - [2026-05-01T17:22:00.768Z] "POST /signup HTTP/1.1" 409 49 "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" - 728.813 ms
+::1 - - [2026-05-01T17:22:26.644Z] "OPTIONS /api/auth/signup HTTP/1.1" 204 0 "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" - 0.251 ms
+::1 - - [2026-05-01T17:22:33.884Z] "POST /signup HTTP/1.1" 201 224 "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" - 7238.257 ms
+::1 - - [2026-05-01T17:22:51.797Z] "GET /verify-email?token=%5BREDACTED%5D HTTP/1.1" 200 4771 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" - 1717.379 ms
+::1 - - [2026-05-01T17:22:51.949Z] "GET /favicon.ico HTTP/1.1" 404 150 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" - 1.097 ms
+::ffff:127.0.0.1 - - [2026-05-01T17:38:20.862Z] "POST /google HTTP/1.1" 200 123 "-" "-" - 66.089 ms
+::ffff:127.0.0.1 - - [2026-05-01T17:38:20.888Z] "POST /google HTTP/1.1" 400 36 "-" "-" - 1.190 ms
+::ffff:127.0.0.1 - - [2026-05-01T17:38:20.909Z] "POST /google HTTP/1.1" 200 124 "-" "-" - 8.438 ms
+::ffff:127.0.0.1 - - [2026-05-01T17:38:20.919Z] "POST /google HTTP/1.1" 401 39 "-" "-" - 0.508 ms
+::1 - - [2026-05-01T17:50:47.112Z] "OPTIONS /api/auth/google HTTP/1.1" 204 0 "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" - 3.832 ms
+::1 - - [2026-05-01T17:50:52.641Z] "POST /google HTTP/1.1" 200 134 "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" - 5519.324 ms
+::1 - - [2026-05-01T17:51:44.081Z] "OPTIONS /api/auth/google HTTP/1.1" 204 0 "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" - 0.207 ms
+::1 - - [2026-05-01T17:51:44.242Z] "POST /google HTTP/1.1" 200 134 "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" - 158.777 ms
