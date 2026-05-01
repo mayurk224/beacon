@@ -26,6 +26,18 @@ export const loginLimiter = rateLimit({
 });
 
 /**
+ * Creates a rate limiter middleware for forgot password requests.
+ * Limits IPs to 3 requests per 15 minutes to prevent spam/enumeration.
+ */
+export const forgotPasswordLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: config.NODE_ENV === 'test' ? 100 : 3,
+    message: { message: 'Too many forgot password requests, please try again after 15 minutes' },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+/**
  * General purpose rate limiter can be added here as well.
  */
 export const apiLimiter = rateLimit({

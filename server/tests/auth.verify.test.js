@@ -46,8 +46,8 @@ describe('Email Verification API', () => {
     const { token } = await setupTestUser();
 
     const res = await request(app)
-      .post(`/api/auth/verify-email?token=${token}`)
-      .send();
+      .post('/api/auth/verify-email')
+      .send({ token });
 
     // The current implementation redirects
     expect(res.statusCode).toEqual(302);
@@ -62,7 +62,7 @@ describe('Email Verification API', () => {
   it('should fail if token is missing', async () => {
     const res = await request(app)
       .post('/api/auth/verify-email')
-      .send();
+      .send({});
 
     expect(res.statusCode).toEqual(400);
     expect(res.body.message).toEqual('Validation failed');
@@ -73,8 +73,8 @@ describe('Email Verification API', () => {
     await setupTestUser();
 
     const res = await request(app)
-      .post('/api/auth/verify-email?token=too-short')
-      .send();
+      .post('/api/auth/verify-email')
+      .send({ token: 'too-short' });
 
     expect(res.statusCode).toEqual(400);
     expect(res.body.message).toEqual('Validation failed');
@@ -87,31 +87,30 @@ describe('Email Verification API', () => {
     });
 
     const res = await request(app)
-      .post(`/api/auth/verify-email?token=${token}`)
-      .send();
+      .post('/api/auth/verify-email')
+      .send({ token });
 
     expect(res.statusCode).toEqual(400);
     expect(res.body.message).toEqual('Token invalid or expired');
   });
 
-  it('should protect against NoSQL injection via token query param', async () => {
+  it('should protect against NoSQL injection via token in body', async () => {
     await setupTestUser();
 
     const res = await request(app)
       .post('/api/auth/verify-email')
-      .query({ 'token[$ne]': 'null' })
-      .send();
+      .send({ token: { $ne: 'null' } })
 
     expect(res.statusCode).toEqual(400);
-    // Should fail validation because 'token' is missing or in wrong format
+    // Should fail validation because 'token' is an object, not a string
   });
 
   it('should set an access token cookie on success', async () => {
     const { token } = await setupTestUser();
 
     const res = await request(app)
-      .post(`/api/auth/verify-email?token=${token}`)
-      .send();
+      .post('/api/auth/verify-email')
+      .send({ token });
 
     expect(res.statusCode).toEqual(302);
     expect(res.headers['set-cookie']).toBeDefined();
