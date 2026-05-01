@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer'
-import { verificationEmailTemplate } from '../utils/emailTemplate.js'
+import { verificationEmailTemplate, passwordResetEmailTemplate } from '../utils/emailTemplate.js'
 import config from '../config/config.js';
 
 const transporter = nodemailer.createTransport({
@@ -24,6 +24,19 @@ export const sendVerificationEmail = async ({ name, email, token}) => {
         from: `"Beacon. " <${config.GOOGLE_USER}>`,
         to: email,
         subject: 'Verify your email address — Beacon.',
+        html,
+    })
+}
+
+export const sendResetPasswordEmail = async ({ name, email, resetToken }) => {
+    const resetUrl = `${config.CLIENT_URL}/reset-password?token=${resetToken}`
+
+    const html = passwordResetEmailTemplate({ name, resetUrl, expiryMinutes: 15 })
+
+    await transporter.sendMail({
+        from: `"Beacon Security" <${config.GOOGLE_USER}>`,
+        to: email,
+        subject: 'Reset your password — Beacon.',
         html,
     })
 }

@@ -23,7 +23,9 @@
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.6.1",
-    "nodemailer": "^8.0.7"
+    "nodemailer": "^8.0.7",
+    "morgan": "^1.10.1",
+    "rotating-file-stream": "^3.2.9"
   },
   "devDependencies": {
     "jest": "^30.3.0",
