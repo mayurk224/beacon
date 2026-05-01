@@ -1,9 +1,18 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
 import rateLimit from 'express-rate-limit';
-import { signup } from '../controllers/auth.controller.js';
+import { signup, verifyEmailController, resendVerificationController } from '../controllers/auth.controller.js';
 
 const authRoutes = Router();
+
+// Rate limiting for resending verification
+const resendLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000, // 1 hour
+    max: 5, // Limit each IP to 5 resend requests per hour
+    message: { message: 'Too many resend requests, please try again after an hour' },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
 
 // Rate limiting for signup to prevent brute-force/DoS
 const signupLimiter = rateLimit({
@@ -39,5 +48,10 @@ const signupValidation = [
 ];
 
 authRoutes.post('/signup', signupLimiter, signupValidation, signup);
+
+authRoutes.get("/verify-email",verifyEmailController )
+
+authRoutes.post("/resend-verification", resendLimiter, resendVerificationController)
+
 
 export default authRoutes;
