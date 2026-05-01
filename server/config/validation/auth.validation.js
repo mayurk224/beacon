@@ -1,4 +1,4 @@
-import { body } from 'express-validator';
+import { body, query } from 'express-validator';
 
 export const signupValidation = [
     body('name')
@@ -34,4 +34,12 @@ export const loginValidation = [
         .isLength({ min: 8 }).withMessage('Password must be at least 8 characters')
         .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
         .withMessage('Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character'),
+];
+
+export const verifyEmailValidation = [
+    query('token')
+        .trim()
+        .notEmpty().withMessage('Verification token is required')
+        .isLength({ min: 32 }).withMessage('Invalid token format')
+        .isHexadecimal().withMessage('Invalid token characters')
 ];

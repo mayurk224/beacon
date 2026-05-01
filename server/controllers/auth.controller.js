@@ -256,32 +256,45 @@ export const refreshToken = async (req, res) => {
 
 export const verifyEmail = async (req, res) => {
   try {
+    // 🔹 1. Check for validation errors from express-validator
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        message: "Validation failed",
+        errors: errors.array().map(err => ({ field: err.path, message: err.msg }))
+      });
+    }
+
     const { token } = req.query;
 
-    if (!token) {
+    if (!token || typeof token !== "string") {
       return res.status(400).json({ message: "Invalid verification link" });
     }
 
-    // 🔹 1. Find user by token
+    // 🔹 2. Find user by token
     const user = await userModel.findOne({
       emailVerificationToken: token,
       emailVerificationExpires: { $gt: Date.now() },
     });
 
     if (!user) {
+      console.warn(`Failed email verification attempt with token: ${token}`);
       return res.status(400).json({
         message: "Token invalid or expired",
       });
     }
 
-    // 🔹 2. Mark verified
+    // 🔹 3. Mark verified
     user.isEmailVerified = true;
     user.emailVerificationToken = undefined;
     user.emailVerificationExpires = undefined;
 
     await user.save();
 
-    // 🔹 3. (Optional) Auto login after verification
+    // 🔹 4. Audit Log
+    console.info(`Email verified successfully for user: ${user.email} (ID: ${user._id})`);
+
+    // 🔹 5. (Optional) Auto login after verification
     const accessToken = jwt.sign(
       { userId: user._id },
       config.ACCESS_TOKEN_SECRET,
@@ -295,11 +308,11 @@ export const verifyEmail = async (req, res) => {
       maxAge: 15 * 60 * 1000,
     });
 
-    // 🔹 4. Redirect to frontend
+    // 🔹 6. Redirect to frontend
     return res.redirect(`${config.CLIENT_URL}/email-verified`);
 
   } catch (error) {
     console.error("Verify Email Error:", error);
     return res.status(500).json({ message: "Internal server error" });
   }
-}
+};

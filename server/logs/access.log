@@ -3,3 +3,15 @@
 ::1 - - [2026-05-01T10:59:42.282Z] "GET /health HTTP/1.1" 200 43 "-" "curl/8.18.0" - 2.387 ms
 ::1 - - [2026-05-01T11:00:21.039Z] "GET /health HTTP/1.1" 200 43 "-" "curl/8.18.0" - 2.910 ms
 ::1 - - [2026-05-01T11:00:32.710Z] "GET /non-existent-route HTTP/1.1" 404 157 "-" "curl/8.18.0" - 1.421 ms
+::ffff:127.0.0.1 - - [2026-05-01T11:33:55.356Z] "POST /api/auth/verify-email?token=acad15895c572f5ec2acb8f38a321b3eac723ce49383306e2a43f9595f6f5050 HTTP/1.1" 302 46 "-" "-" - 17.488 ms
+::ffff:127.0.0.1 - - [2026-05-01T11:33:55.375Z] "POST /api/auth/verify-email HTTP/1.1" 400 39 "-" "-" - 1.201 ms
+::ffff:127.0.0.1 - - [2026-05-01T11:33:55.389Z] "POST /api/auth/verify-email?token=invalidtoken HTTP/1.1" 400 38 "-" "-" - 2.443 ms
+::ffff:127.0.0.1 - - [2026-05-01T11:33:55.401Z] "POST /api/auth/verify-email?token=ebd4c29641ecc374f89ccf2329fe854798e997289690a02defd4a1024be790eb HTTP/1.1" 400 38 "-" "-" - 2.538 ms
+::ffff:127.0.0.1 - - [2026-05-01T11:33:55.412Z] "POST /api/auth/verify-email?token%5B%24ne%5D HTTP/1.1" 400 39 "-" "-" - 0.475 ms
+::ffff:127.0.0.1 - - [2026-05-01T11:33:55.428Z] "POST /api/auth/verify-email?token=2813fdc11af8a36e86122c06dd7347b1f329c451c67f9b76596a90d335da706c HTTP/1.1" 302 46 "-" "-" - 6.268 ms
+::ffff:127.0.0.1 - - [2026-05-01T11:35:54.710Z] "POST /api/auth/verify-email?token=58d9308dcfeb1dd9a29ef0d68e6c8a33dde339b2612792a0c030411f7385c937 HTTP/1.1" 302 46 "-" "-" - 32.456 ms
+::ffff:127.0.0.1 - - [2026-05-01T11:35:54.738Z] "POST /api/auth/verify-email HTTP/1.1" 400 209 "-" "-" - 3.522 ms
+::ffff:127.0.0.1 - - [2026-05-01T11:35:54.752Z] "POST /api/auth/verify-email?token=too-short HTTP/1.1" 400 148 "-" "-" - 0.957 ms
+::ffff:127.0.0.1 - - [2026-05-01T11:35:54.778Z] "POST /api/auth/verify-email?token=d5f4702bc63b80219bcadfa03dd688a6aee4b33c8a8585fa0d81ff8d502ce97b HTTP/1.1" 400 38 "-" "-" - 12.777 ms
+::ffff:127.0.0.1 - - [2026-05-01T11:35:54.792Z] "POST /api/auth/verify-email?token%5B%24ne%5D=null HTTP/1.1" 400 209 "-" "-" - 1.246 ms
+::ffff:127.0.0.1 - - [2026-05-01T11:35:54.814Z] "POST /api/auth/verify-email?token=4b7996f33d46662209a11f10daefbe9ade2f82969777baeb1365d00a10f831c9 HTTP/1.1" 302 46 "-" "-" - 9.162 ms
