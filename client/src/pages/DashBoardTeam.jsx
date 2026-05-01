@@ -186,7 +186,8 @@ const DashBoardTeam = () => {
 
   const handleInvite = () => {
     const emails = inviteEmails.split(',').map(e => e.trim()).filter(e => e);
-    console.log('Inviting:', { emails, role: inviteRole });
+    // Secure logging: Redacted emails in log
+    console.log(`Inviting ${emails.length} team members with role: ${inviteRole}`);
     setShowInviteModal(false);
     setInviteEmails('');
     setInviteRole('editor');

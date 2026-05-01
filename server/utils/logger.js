@@ -20,14 +20,31 @@ const accessLogStream = createStream('access.log', {
     path: logDirectory,
 });
 
-// Custom tokens for morgan if needed, but 'combined' and 'dev' are requested.
-// However, the user wants specific fields: timestamps, HTTP method, URL, status code, response time, and user agent.
-// 'combined' format: :remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"
-// 'dev' format: :method :url :status :response-time ms - :res[content-length]
+// Define custom morgan tokens for redaction
+export const redactUrl = (urlStr, host = 'localhost') => {
+    try {
+        const url = new URL(urlStr, `http://${host}`);
+        const sensitiveParams = ['token', 'password', 'code', 'state'];
+        
+        sensitiveParams.forEach(param => {
+            if (url.searchParams.has(param)) {
+                url.searchParams.set(param, '[REDACTED]');
+            }
+        });
+        
+        return url.pathname + url.search;
+    } catch (e) {
+        return urlStr; // Return as is if URL parsing fails
+    }
+};
+
+morgan.token('redacted-url', (req) => {
+    return redactUrl(req.url, req.headers.host);
+});
 
 // Custom format to ensure all requested fields are present:
 // timestamps, HTTP method, URL, status code, response time, and user agent.
-const customFormat = ':remote-addr - :remote-user [:date[iso]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent" - :response-time ms';
+const customFormat = ':remote-addr - :remote-user [:date[iso]] ":method :redacted-url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent" - :response-time ms';
 
 export const setupLogger = (app) => {
     const isProduction = config.NODE_ENV === 'production';
@@ -37,10 +54,19 @@ export const setupLogger = (app) => {
 
     // Log to console
     if (isProduction) {
-        app.use(morgan('combined'));
+        // In production, we still want to redact URLs even for the combined format
+        app.use(morgan(':remote-addr - :remote-user [:date[clf]] ":method :redacted-url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"'));
     } else {
         // Using a custom format for console in dev that includes everything requested
         // but still looks good in the console.
-        app.use(morgan('dev'));
+        app.use(morgan(':method :redacted-url :status :response-time ms - :res[content-length]'));
     }
 };
+
+/**
+ * SECURE LOGGING CHECKLIST:
+ * 1. REDACT URLs: Use redactUrl() for any URL logging to strip tokens/passwords.
+ * 2. NO PII: Avoid logging emails, phone numbers, or real names. Use User IDs.
+ * 3. NO CREDENTIALS: Never log passwords, API keys, or full auth tokens.
+ * 4. ERROR HANDLING: Avoid logging full error objects that might contain req bodies.
+ */

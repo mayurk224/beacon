@@ -425,7 +425,7 @@ export const forgotPassword = async (req, res) => {
 
     // 🔹 2. Prevent email enumeration attack
     if (!user) {
-      console.info(`Forgot password attempt for non-existent email: ${normalizedEmail}`);
+      console.info(`Forgot password attempt for non-existent email address`);
       return res.status(200).json({
         message: "If this email exists, a reset link has been sent",
       });
@@ -490,7 +490,7 @@ export const resetPassword = async (req, res) => {
     });
 
     if (!user) {
-      console.warn(`Invalid or expired password reset attempt with token: ${token.substring(0, 5)}...`);
+      console.warn(`Invalid or expired password reset attempt`);
       return res.status(400).json({
         message: "Token invalid or expired",
       });
