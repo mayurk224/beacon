@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import axios from 'axios';
 import {
   Bolt,
   AlertCircle,
@@ -9,6 +10,7 @@ import {
   Mail,
   Lock,
   Loader2,
+  CheckCircle,
 } from 'lucide-react';
 
 const SignUp = () => {
@@ -17,28 +19,64 @@ const SignUp = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [passwordConfirmation, setPasswordConfirmation] = useState('');
 
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setError('');
-    setIsLoading(true);
-
-    setTimeout(() => {
-      if (name && email && password.length >= 6) {
-        localStorage.setItem('isAuthenticated', 'true');
-        navigate('/home');
-      } else {
-        setError('Please fill all fields correctly (min 6 char password).');
-      }
-      setIsLoading(false);
-    }, 1000);
+  const validateForm = () => {
+    if (!name || !email || !password || !passwordConfirmation) {
+      setError('All fields are required.');
+      return false;
+    }
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters long.');
+      return false;
+    }
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!passwordRegex.test(password)) {
+      setError('Password must contain uppercase, lowercase, number, and special character.');
+      return false;
+    }
+    if (password !== passwordConfirmation) {
+      setError('Passwords do not match.');
+      return false;
+    }
+    return true;
   };
 
- const handleGoogleSignIn = () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
+
+    if (!validateForm()) return;
+
+    setIsLoading(true);
+
+    try {
+      const response = await axios.post('http://localhost:3000/api/auth/signup', {
+        name,
+        email,
+        password,
+        passwordConfirmation,
+      });
+
+      setSuccess(response.data.message || 'Account created successfully!');
+      setTimeout(() => {
+        navigate('/signin');
+      }, 2000);
+    } catch (err) {
+      const msg = err.response?.data?.message || err.response?.data?.errors?.[0]?.message || 'Failed to create account. Please try again.';
+      setError(msg);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = () => {
     setIsLoading(true);
     window.location.href =
       'https://accounts.google.com/o/oauth2/v2/auth?client_id=YOUR_CLIENT_ID&redirect_uri=YOUR_REDIRECT_URI&response_type=code&scope=email profile';
@@ -61,6 +99,14 @@ const SignUp = () => {
 
         {/* Card */}
         <div className="bg-[#121415] border border-[#424753] rounded-lg p-6 flex flex-col gap-4 shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
+
+          {/* Success */}
+          {success && (
+            <div className="bg-[#162d1b] border border-[#2b5c32] rounded p-3 flex gap-2">
+              <CheckCircle className="w-5 h-5 text-[#b4ffab]" />
+              <p className="text-[13px] text-[#b4ffab]">{success}</p>
+            </div>
+          )}
 
           {/* Error */}
           {error && (
@@ -134,6 +180,24 @@ const SignUp = () => {
               </div>
             </div>
 
+            {/* Password Confirmation */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[11px] uppercase text-[#c2c6d6]">
+                Confirm Password
+              </label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8c909f]" />
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={passwordConfirmation}
+                  onChange={(e) => setPasswordConfirmation(e.target.value)}
+                  className="w-full bg-[#1a1c1d] border border-[#424753] rounded pl-9 pr-3 py-2 text-[13px] focus:border-[#afc6ff] outline-none"
+                  placeholder="••••••••"
+                  required
+                />
+              </div>
+            </div>
+
             {/* Submit */}
             <button
               type="submit"
@@ -153,7 +217,7 @@ const SignUp = () => {
           </div>
 
           {/* Google */}
-           <button
+          <button
             onClick={handleGoogleSignIn}
             disabled={isLoading}
             className="w-full bg-white hover:bg-gray-100 text-gray-800 text-[14px] font-medium rounded py-2.5 transition-colors flex items-center justify-center gap-3 border border-gray-300"

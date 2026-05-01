@@ -1,13 +1,18 @@
 import express from "express";
 import cors from "cors";
+import helmet from "helmet";
+import authRoutes from "../routes/auth.routes.js";
 
 const app = express();
 
-// Middleware to parse JSON bodies
-app.use(express.json());
+// Security Headers
+app.use(helmet());
 
-// Middleware to handle URL-encoded data (from HTML forms)
-app.use(express.urlencoded({ extended: true }));
+// Middleware to parse JSON bodies
+app.use(express.json({ limit: "10kb" })); // Limit body size to prevent DoS
+
+// Middleware to handle URL-encoded data
+app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 
 app.use(
   cors({
@@ -19,6 +24,18 @@ app.use(
 // Health check route
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "ok", message: "Server is awake" });
+});
+
+// Import and use the auth routes
+app.use("/api/auth", authRoutes);
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+  console.error("Global Error Handler:", err);
+  res.status(err.status || 500).json({
+    message: err.message || "Internal Server Error",
+    error: process.env.NODE_ENV === "development" ? err : {},
+  });
 });
 
 export default app;
