@@ -265,7 +265,7 @@ export const verifyEmail = async (req, res) => {
       });
     }
 
-    const { token } = req.body;
+    const token = req.body?.token || req.query?.token;
 
     if (!token || typeof token !== "string") {
       return res.status(400).json({ message: "Invalid verification link" });
@@ -357,7 +357,8 @@ export const forgotPassword = async (req, res) => {
     // 🔹 5. Send email (mock for now)
     const resetLink = `${config.CLIENT_URL}/reset-password?token=${resetToken}`;
 
-    console.log(`Password reset link for ${normalizedEmail}:`, resetLink);
+    console.log(`Password reset link generated for ${normalizedEmail}`);
+    console.debug(`Reset token: ${resetToken.substring(0, 8)}...`);
     console.info(`Password reset token generated for user: ${user._id}`);
 
     return res.status(200).json({
