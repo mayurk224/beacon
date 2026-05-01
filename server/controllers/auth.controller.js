@@ -18,7 +18,13 @@ const generateRefreshToken = (userId) => {
   });
 };
 
-const client = new OAuth2Client(config.GOOGLE_CLIENT_ID);
+let googleClient;
+const getGoogleClient = () => {
+  if (!googleClient) {
+    googleClient = new OAuth2Client(config.GOOGLE_CLIENT_ID);
+  }
+  return googleClient;
+};
 
 export const signup = async (req, res) => {
   try {
@@ -462,6 +468,7 @@ export const googleAuth = async (req, res) => {
     }
 
     // 🔹 1. Verify token with Google
+    const client = getGoogleClient();
     const ticket = await client.verifyIdToken({
       idToken: credential,
       audience: config.GOOGLE_CLIENT_ID,
