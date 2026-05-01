@@ -6,6 +6,7 @@ import userModel from "../models/user.model.js";
 import { sendVerificationEmail, sendResetPasswordEmail } from "../services/mail.service.js";
 import buildVerifyPage from "../utils/verifyPage.js";
 import config from "../config/config.js";
+import { OAuth2Client } from "google-auth-library";
 
 const generateAccessToken = (userId) => {
   return jwt.sign({ userId }, config.ACCESS_TOKEN_SECRET, {
@@ -18,6 +19,8 @@ const generateRefreshToken = (userId) => {
     expiresIn: "7d",
   });
 };
+
+const client = new OAuth2Client(config.GOOGLE_CLIENT_ID);
 
 export const signup = async (req, res) => {
   try {
@@ -537,5 +540,92 @@ export const getMe = async (req, res) => {
   } catch (error) {
     console.error("GetMe Error:", error);
     return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const googleAuth = async (req, res) => {
+  try {
+    const { credential } = req.body; // ID token from frontend
+
+    if (!credential) {
+      return res.status(400).json({ message: "No credential provided" });
+    }
+
+    // 🔹 1. Verify token with Google
+    const ticket = await client.verifyIdToken({
+      idToken: credential,
+      audience: config.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+
+    const { email, name, picture, sub: googleId, email_verified } = payload;
+
+    if (!email_verified) {
+      return res.status(401).json({ message: "Google email not verified" });
+    }
+
+    // 🔹 2. Find user
+    let user = await userModel.findOne({ email });
+
+    // 🔹 3. Create or update user
+    if (!user) {
+      user = await userModel.create({
+        name,
+        email,
+        avatar: picture,
+        authProvider: "google",
+        providerId: googleId,
+        isEmailVerified: true,
+      });
+    } else {
+      // If user exists, ensure they are linked to Google or allow login
+      // Update avatar if it's missing
+      if (!user.avatar) user.avatar = picture;
+      
+      // If the user was previously local, we can "upgrade" them or just allow login
+      // since Google verified the email.
+      if (user.authProvider === "local") {
+        user.authProvider = "google";
+        user.providerId = googleId;
+      }
+      user.isEmailVerified = true;
+      await user.save();
+    }
+
+    // 🔹 4. Generate tokens
+    const accessToken = generateAccessToken(user._id);
+    const refreshToken = generateRefreshToken(user._id);
+
+    user.refreshTokens.push({ token: refreshToken });
+    await user.save();
+
+    // 🔹 5. Set cookies
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: config.NODE_ENV === "production",
+      sameSite: "Strict",
+      maxAge: 15 * 60 * 1000,
+    });
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: config.NODE_ENV === "production",
+      sameSite: "Strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return res.status(200).json({
+      message: "Google login successful",
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+    });
+
+  } catch (error) {
+    console.error("Google Auth Error:", error);
+    return res.status(401).json({ message: "Invalid Google token" });
   }
 };

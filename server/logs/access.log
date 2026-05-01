@@ -92,3 +92,8 @@
 ::1 - - [2026-05-01T14:19:26.827Z] "GET /api/auth/verify-email?token=971ac099b555ac9774115a6860b2c909ac6ba8159d12f191564f8454b4cd85cf HTTP/1.1" 304 - "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" - 3.157 ms
 ::1 - - [2026-05-01T14:19:27.826Z] "GET /api/auth/verify-email?token=971ac099b555ac9774115a6860b2c909ac6ba8159d12f191564f8454b4cd85cf HTTP/1.1" 304 - "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" - 5.639 ms
 ::1 - - [2026-05-01T14:20:16.798Z] "POST /api/auth/resend-verification HTTP/1.1" 404 5000 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" - 36.372 ms
+::ffff:127.0.0.1 - - [2026-05-01T14:07:55.888Z] "POST /api/auth/google HTTP/1.1" 400 36 "-" "-" - 45.898 ms
+::ffff:127.0.0.1 - - [2026-05-01T14:08:25.661Z] "POST /api/auth/google HTTP/1.1" 200 123 "-" "-" - 269.117 ms
+::ffff:127.0.0.1 - - [2026-05-01T14:08:25.716Z] "POST /api/auth/google HTTP/1.1" 400 36 "-" "-" - 1.444 ms
+::ffff:127.0.0.1 - - [2026-05-01T14:08:25.764Z] "POST /api/auth/google HTTP/1.1" 200 124 "-" "-" - 16.870 ms
+::ffff:127.0.0.1 - - [2026-05-01T14:08:25.781Z] "POST /api/auth/google HTTP/1.1" 401 39 "-" "-" - 0.919 ms

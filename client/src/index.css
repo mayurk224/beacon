@@ -1,6 +1,5 @@
 @import "tailwindcss";
-
-
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap');
 
 
 *{
@@ -12,6 +11,10 @@ html,body{
     height: 100%;
 }
 
+
+.cyber {
+  font-family: 'Orbitron', sans-serif;
+}
 
 /* main animation home dashboar */
  .pulse-glow {
