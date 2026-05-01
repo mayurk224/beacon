@@ -72,6 +72,17 @@ const userSchema = new mongoose.Schema(
       default: true,
     },
 
+    // 🔹 Account Lockout
+    loginAttempts: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
+
+    lockUntil: {
+      type: Number,
+    },
+
     // 🔹 Security
     twoFactorEnabled: {
       type: Boolean,

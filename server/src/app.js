@@ -1,12 +1,16 @@
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
+import cookieParser from "cookie-parser";
 import authRoutes from "../routes/auth.routes.js";
 
 const app = express();
 
 // Security Headers
 app.use(helmet());
+
+// Cookie Parser
+app.use(cookieParser());
 
 // Middleware to parse JSON bodies
 app.use(express.json({ limit: "10kb" })); // Limit body size to prevent DoS

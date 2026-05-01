@@ -1,43 +1,13 @@
 import { Router } from 'express';
-import { body } from 'express-validator';
-import rateLimit from 'express-rate-limit';
-import { signup } from '../controllers/auth.controller.js';
+import { login, signup, logout, refreshToken } from '../controllers/auth.controller.js';
+import { loginValidation, signupValidation } from '../config/validation/auth.validation.js';
+import { signupLimiter, loginLimiter } from '../utils/rateLimiter.js';
 
 const authRoutes = Router();
 
-// Rate limiting for signup to prevent brute-force/DoS
-const signupLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 10, // Limit each IP to 10 signup requests per window
-    message: { message: 'Too many accounts created from this IP, please try again after 15 minutes' },
-    standardHeaders: true,
-    legacyHeaders: false,
-});
-
-const signupValidation = [
-    body('name')
-        .trim()
-        .notEmpty().withMessage('Name is required')
-        .isLength({ max: 100 }).withMessage('Name must be under 100 characters')
-        .escape(),
-    body('email')
-        .trim()
-        .notEmpty().withMessage('Email is required')
-        .isEmail().withMessage('Invalid email format')
-        .normalizeEmail(),
-    body('password')
-        .isLength({ min: 8 }).withMessage('Password must be at least 8 characters')
-        .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
-        .withMessage('Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character'),
-    body('passwordConfirmation')
-        .custom((value, { req }) => {
-            if (value !== req.body.password) {
-                throw new Error('Password confirmation does not match password');
-            }
-            return true;
-        }),
-];
-
 authRoutes.post('/signup', signupLimiter, signupValidation, signup);
+authRoutes.post('/login', loginLimiter, loginValidation, login);
+authRoutes.post('/logout', logout);
+authRoutes.post('/refresh-token', refreshToken);
 
 export default authRoutes;
