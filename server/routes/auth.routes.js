@@ -8,7 +8,8 @@ import {
     forgotPassword, 
     resetPassword, 
     getMe, 
-    resendVerificationController 
+    resendVerificationController,
+    googleAuth
 } from '../controllers/auth.controller.js';
 import { 
     loginValidation, 
@@ -46,5 +47,6 @@ authRoutes.post('/reset-password', resetPasswordValidation, resetPassword);
 
 // --- User Profile ---
 authRoutes.get('/me', protect, getMe);
+authRoutes.post('/google', googleAuth);
 
 export default authRoutes;

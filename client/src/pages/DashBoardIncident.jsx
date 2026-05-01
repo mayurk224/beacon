@@ -830,12 +830,6 @@ const DashBoardIncident = () => {
           </div>
         </div>
       </div>
-
-      {/* FAB Action - Bottom right */}
-      <Link to="/home/create_incident" className="fixed bottom-6 right-6 w-12 h-12 sm:w-14 sm:h-14 bg-[#4F8CFF] text-white rounded-full flex items-center justify-center shadow-[0_8px_24px_rgba(79,140,255,0.4)] hover:scale-110 active:scale-95 transition-all z-50">
-        <Bolt className="w-6 h-6 sm:w-7 sm:h-7" />
-      </Link>
-
       {/* Modals */}
       {showInviteModal && <InviteModal />}
       {showFilterModal && <FilterModal />}
