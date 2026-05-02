@@ -117,3 +117,31 @@
 ::1 - - [2026-05-01T17:50:52.641Z] "POST /google HTTP/1.1" 200 134 "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" - 5519.324 ms
 ::1 - - [2026-05-01T17:51:44.081Z] "OPTIONS /api/auth/google HTTP/1.1" 204 0 "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" - 0.207 ms
 ::1 - - [2026-05-01T17:51:44.242Z] "POST /google HTTP/1.1" 200 134 "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" - 158.777 ms
+::1 - - [2026-05-02T05:23:25.601Z] "POST /resend-verification HTTP/1.1" 200 4764 "-" "PostmanRuntime/7.53.0" - 3667.889 ms
+::1 - - [2026-05-02T07:35:17.176Z] "POST /login HTTP/1.1" 200 139 "-" "PostmanRuntime/7.53.0" - 1276.945 ms
+::1 - - [2026-05-02T07:35:28.602Z] "GET /me HTTP/1.1" 200 442 "-" "PostmanRuntime/7.53.0" - 388.323 ms
+::1 - - [2026-05-02T07:57:56.089Z] "GET /api/user/profile HTTP/1.1" 404 155 "-" "PostmanRuntime/7.53.0" - 6.733 ms
+::1 - - [2026-05-02T07:58:37.005Z] "GET /profile HTTP/1.1" 401 26 "-" "PostmanRuntime/7.53.0" - 14.624 ms
+::1 - - [2026-05-02T07:58:45.746Z] "GET /profile HTTP/1.1" 401 26 "-" "PostmanRuntime/7.53.0" - 1.575 ms
+::ffff:127.0.0.1 - - [2026-05-02T08:35:45.606Z] "GET /profile HTTP/1.1" 500 35 "-" "-" - 21.442 ms
+::ffff:127.0.0.1 - - [2026-05-02T08:35:45.623Z] "GET /profile HTTP/1.1" 401 26 "-" "-" - 0.634 ms
+::ffff:127.0.0.1 - - [2026-05-02T08:35:45.629Z] "GET /profile HTTP/1.1" 401 38 "-" "-" - 0.606 ms
+::ffff:127.0.0.1 - - [2026-05-02T08:35:45.638Z] "GET /profile HTTP/1.1" 404 28 "-" "-" - 2.664 ms
+::ffff:127.0.0.1 - - [2026-05-02T08:35:45.650Z] "GET /profile HTTP/1.1" 500 35 "-" "-" - 4.424 ms
+::ffff:127.0.0.1 - - [2026-05-02T08:37:30.726Z] "POST /signup HTTP/1.1" 201 220 "-" "-" - 3958.868 ms
+::ffff:127.0.0.1 - - [2026-05-02T08:37:30.739Z] "POST /signup HTTP/1.1" 400 133 "-" "-" - 1.938 ms
+::ffff:127.0.0.1 - - [2026-05-02T08:37:30.745Z] "POST /signup HTTP/1.1" 400 260 "-" "-" - 0.981 ms
+::ffff:127.0.0.1 - - [2026-05-02T08:37:34.151Z] "POST /signup HTTP/1.1" 201 220 "-" "-" - 3399.796 ms
+::ffff:127.0.0.1 - - [2026-05-02T08:37:34.160Z] "POST /signup HTTP/1.1" 409 49 "-" "-" - 4.465 ms
+::ffff:127.0.0.1 - - [2026-05-02T08:37:34.167Z] "POST /signup HTTP/1.1" 400 93 "-" "-" - 1.116 ms
+::ffff:127.0.0.1 - - [2026-05-02T08:37:34.174Z] "POST /signup HTTP/1.1" 400 93 "-" "-" - 0.856 ms
+::ffff:127.0.0.1 - - [2026-05-02T08:37:34.190Z] "GET /verify-email?token=%5BREDACTED%5D HTTP/1.1" 200 4771 "-" "-" - 8.434 ms
+::ffff:127.0.0.1 - - [2026-05-02T08:37:34.202Z] "GET /verify-email?token=%5BREDACTED%5D HTTP/1.1" 200 4760 "-" "-" - 2.024 ms
+::ffff:127.0.0.1 - - [2026-05-02T08:37:34.209Z] "GET /verify-email?token=%5BREDACTED%5D HTTP/1.1" 404 5032 "-" "-" - 1.503 ms
+::ffff:127.0.0.1 - - [2026-05-02T08:37:34.222Z] "GET /verify-email?token=%5BREDACTED%5D HTTP/1.1" 410 5016 "-" "-" - 1.960 ms
+::ffff:127.0.0.1 - - [2026-05-02T08:37:37.230Z] "POST /resend-verification HTTP/1.1" 200 4763 "-" "-" - 3000.324 ms
+::ffff:127.0.0.1 - - [2026-05-02T08:37:37.240Z] "POST /resend-verification HTTP/1.1" 404 5000 "-" "-" - 1.897 ms
+::1 - - [2026-05-02T08:38:53.847Z] "GET /profile HTTP/1.1" 401 26 "-" "PostmanRuntime/7.53.0" - 2.726 ms
+::1 - - [2026-05-02T08:46:10.655Z] "GET /profile HTTP/1.1" 401 26 "-" "PostmanRuntime/7.53.0" - 2.279 ms
+::1 - - [2026-05-02T08:46:31.999Z] "POST /login HTTP/1.1" 200 139 "-" "PostmanRuntime/7.53.0" - 469.707 ms
+::1 - - [2026-05-02T08:46:40.834Z] "GET /profile HTTP/1.1" 200 442 "-" "PostmanRuntime/7.53.0" - 45.238 ms
