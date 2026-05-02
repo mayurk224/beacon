@@ -28,12 +28,16 @@ const organizationSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    membersCount: {
+      type: Number,
+      default: 1,
+    }
   },
   {
     timestamps: true,
   }
 );
 
-const Organization = mongoose.model("Organization", organizationSchema);
+const organizationModel = mongoose.model("organization", organizationSchema);
 
-export default Organization;
+export default organizationModel;
