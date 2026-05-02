@@ -304,7 +304,11 @@ export const login = async (req, res) => {
       (token) => token.createdAt && token.createdAt > sevenDaysAgo
     );
 
-    user.refreshTokens.push({ token: refreshToken });
+    user.refreshTokens.push({
+      token: refreshToken,
+      userAgent: req.headers["user-agent"],
+      ip: req.ip,
+    });
     user.lastLoginAt = new Date();
     await user.save();
 
