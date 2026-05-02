@@ -32,11 +32,11 @@ const AdminSidebar = () => {
   };
 
   return (
-    <aside className="h-full w-[240px] border-r border-[#262626] bg-[#0D0D0D] flex flex-col py-6 px-4 z-50">
+    <aside className="h-full w-[240px] border-r border-border-primary bg-surface-bar flex flex-col py-6 px-4 z-50">
       {/* Logo / Brand */}
-      <Link to="/admin" className="mb-10 flex items-center gap-3 px-2 uppercase text-white transition-opacity">
+      <Link to="/admin" className="mb-10 flex items-center gap-3 px-2 uppercase text-primary transition-opacity">
   <div className="flex items-center gap-2 lg:gap-3">
-          <div className="w-8 lg:w-9 h-8 lg:h-9 rounded-lg overflow-hidden bg-neutral-900 flex items-center justify-center">
+          <div className="w-8 lg:w-9 h-8 lg:h-9 rounded-lg overflow-hidden bg-surface-inset flex items-center justify-center">
             <img
               src="/logo.webp"
               alt="logo"
@@ -44,7 +44,7 @@ const AdminSidebar = () => {
             />
           </div>
           <div>
-            <h1 className={`text-white text-sm font-semibold tracking-wide  uppercase`}>
+            <h1 className={`text-primary text-sm font-semibold tracking-wide  uppercase`}>
               Beacon Admin
             </h1>
           </div>
@@ -59,8 +59,8 @@ const AdminSidebar = () => {
             to={path}
             className={`flex items-center gap-3 px-3 py-2 rounded transition-colors duration-150 ${
               isActive(path)
-                ? 'text-[#4F8CFF] bg-[#1A1A1A] font-medium'
-                : 'text-gray-400 hover:text-white hover:bg-[#141414]'
+                ? 'text-brand bg-surface-elevated font-medium'
+                : 'text-muted hover:text-primary hover:bg-surface-card'
             }`}
           >
             <Icon className="w-5 h-5" />
@@ -70,7 +70,7 @@ const AdminSidebar = () => {
       </nav>
 <Link
   to="/home"
-  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1A1A1A] text-gray-300 hover:text-white hover:bg-[#262626] transition-colors"
+  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-surface-elevated text-secondary hover:text-primary hover:bg-border-primary transition-colors"
 >
   <ArrowLeft className="w-4 h-4" />
   Back to User Page

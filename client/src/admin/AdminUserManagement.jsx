@@ -77,7 +77,7 @@ const AdminUserManagement = () => {
   const getRoleBadge = (role) => {
     switch (role) {
       case 'Administrator':
-        return 'bg-[#4F8CFF]/10 text-[#4F8CFF] border border-[#4F8CFF]/30';
+        return 'bg-brand/10 text-brand border border-brand/30';
       case 'Editor':
         return 'bg-zinc-800 text-zinc-300 border border-zinc-700';
       case 'Viewer':
@@ -93,7 +93,7 @@ const AdminUserManagement = () => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row h-[calc(100vh-64px)] overflow-hidden text-[#e2e2e3]">
+    <div className="flex flex-col md:flex-row h-[calc(100vh-64px)] overflow-hidden text-primary">
       
       {/* Main */}
       <main className="flex-1 flex flex-col overflow-hidden w-full">
@@ -104,11 +104,11 @@ const AdminUserManagement = () => {
             <p className="text-xs sm:text-sm text-zinc-400 mt-1">Manage platform users, roles, and administrative permissions.</p>
           </div>
           <div className="flex gap-2">
-            <button className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-[#4F8CFF] text-white text-sm rounded-lg hover:bg-[#3D7BE6] transition-colors">
+            <button className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-brand text-white text-sm rounded-lg hover:bg-brand transition-colors">
               <UserPlus className="w-4 h-4" />
               Add User
             </button>
-            <button className="flex sm:hidden items-center justify-center w-9 h-9 bg-[#4F8CFF] text-white rounded-lg hover:bg-[#3D7BE6] transition-colors">
+            <button className="flex sm:hidden items-center justify-center w-9 h-9 bg-brand text-white rounded-lg hover:bg-brand transition-colors">
               <UserPlus className="w-4 h-4" />
             </button>
             <button className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-zinc-800 border border-zinc-700 text-white text-sm rounded-lg hover:bg-zinc-700 transition-colors">
@@ -125,7 +125,7 @@ const AdminUserManagement = () => {
             <div className="relative flex-1 min-w-0">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 w-4 h-4" />
               <input
-                className="bg-[#0D0D0D] border border-[#262626] text-white text-sm pl-9 pr-4 py-2 w-full rounded-lg outline-none focus:border-[#4F8CFF] transition-colors"
+                className="bg-surface border border-border-primary text-white text-sm pl-9 pr-4 py-2 w-full rounded-lg outline-none focus:border-brand transition-colors"
                 placeholder="Search users..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -135,7 +135,7 @@ const AdminUserManagement = () => {
             {/* Filters - Scrollable on mobile */}
             <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 scrollbar-thin">
               <select
-                className="bg-[#0D0D0D] border border-[#262626] text-white text-sm px-2 sm:px-3 py-2 rounded-lg min-w-[120px] sm:min-w-[140px] outline-none focus:border-[#4F8CFF] transition-colors"
+                className="bg-surface border border-border-primary text-white text-sm px-2 sm:px-3 py-2 rounded-lg min-w-[120px] sm:min-w-[140px] outline-none focus:border-brand transition-colors"
                 value={roleFilter}
                 onChange={(e) => setRoleFilter(e.target.value)}
               >
@@ -145,7 +145,7 @@ const AdminUserManagement = () => {
                 <option>Viewer</option>
               </select>
               <select
-                className="bg-[#0D0D0D] border border-[#262626] text-white text-sm px-2 sm:px-3 py-2 rounded-lg min-w-[120px] sm:min-w-[140px] outline-none focus:border-[#4F8CFF] transition-colors"
+                className="bg-surface border border-border-primary text-white text-sm px-2 sm:px-3 py-2 rounded-lg min-w-[120px] sm:min-w-[140px] outline-none focus:border-brand transition-colors"
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
               >
@@ -166,7 +166,7 @@ const AdminUserManagement = () => {
         <div className="flex-1 overflow-auto">
           <div className="min-w-[640px] lg:min-w-full">
             <table className="w-full text-left border-collapse">
-              <thead className="sticky top-0 bg-[#121415] border-b border-zinc-800 z-10">
+              <thead className="sticky top-0 bg-surface-header border-b border-zinc-800 z-10">
                 <tr>
                   <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs font-semibold text-zinc-500 uppercase tracking-wider">User</th>
                   <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs font-semibold text-zinc-500 uppercase tracking-wider hidden sm:table-cell">Role</th>
@@ -181,8 +181,8 @@ const AdminUserManagement = () => {
                 {users.map((user) => (
                   <tr
                     key={user.id}
-                    className={`hover:bg-[#1A1A1A] transition-colors cursor-pointer group border-l-2 ${
-                      selectedUser?.id === user.id ? 'bg-zinc-900/30 border-l-[#4F8CFF]' : 'border-l-transparent'
+                    className={`hover:bg-surface-elevated transition-colors cursor-pointer group border-l-2 ${
+                      selectedUser?.id === user.id ? 'bg-zinc-900/30 border-l-brand' : 'border-l-transparent'
                     }`}
                     onClick={() => setSelectedUser(user)}
                   >
@@ -279,9 +279,9 @@ const AdminUserManagement = () => {
             onClick={() => setSelectedUser(null)}
           />
           
-          <aside className="fixed md:relative right-0 top-0 h-full w-full sm:w-[400px] md:w-[340px] bg-[#1A1A1A] border-l border-[#262626] flex flex-col shadow-2xl z-50 md:z-auto animate-in slide-in-from-right duration-300">
+          <aside className="fixed md:relative right-0 top-0 h-full w-full sm:w-[400px] md:w-[340px] bg-surface-elevated border-l border-border-primary flex flex-col shadow-2xl z-50 md:z-auto animate-in slide-in-from-right duration-300">
             {/* Header */}
-            <div className="p-4 sm:p-6 border-b border-[#262626] flex justify-between items-center">
+            <div className="p-4 sm:p-6 border-b border-border-primary flex justify-between items-center">
               <h3 className="text-base sm:text-lg font-semibold text-white">User Details</h3>
               <button 
                 onClick={() => setSelectedUser(null)}
@@ -300,14 +300,14 @@ const AdminUserManagement = () => {
                     <img 
                       src={selectedUser.avatar} 
                       alt={selectedUser.name}
-                      className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-[#4F8CFF] object-cover" 
+                      className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-brand object-cover" 
                     />
                   ) : (
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-indigo-900 flex items-center justify-center border-2 border-[#4F8CFF] text-base sm:text-xl text-white font-medium">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-indigo-900 flex items-center justify-center border-2 border-brand text-base sm:text-xl text-white font-medium">
                       {selectedUser.initials}
                     </div>
                   )}
-                  <div className="absolute bottom-0 right-0 w-3.5 h-3.5 sm:w-4 sm:h-4 bg-emerald-500 border-2 border-[#1A1A1A] rounded-full"></div>
+                  <div className="absolute bottom-0 right-0 w-3.5 h-3.5 sm:w-4 sm:h-4 bg-emerald-500 border-2 border-surface-elevated rounded-full"></div>
                 </div>
                 <div className="text-center">
                   <h4 className="text-white text-base sm:text-lg font-semibold">{selectedUser.name}</h4>
@@ -317,7 +317,7 @@ const AdminUserManagement = () => {
 
               {/* Info Cards - Responsive grid */}
               <div className="space-y-3 sm:space-y-4">
-                <div className="bg-[#0D0D0D] border border-[#262626] p-2.5 sm:p-3 rounded">
+                <div className="bg-surface border border-border-primary p-2.5 sm:p-3 rounded">
                   <p className="text-[9px] sm:text-[10px] text-zinc-500 uppercase tracking-widest font-bold flex items-center gap-1 mb-1">
                     <Mail className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                     Email
@@ -325,7 +325,7 @@ const AdminUserManagement = () => {
                   <p className="text-xs sm:text-sm text-white break-all">{selectedUser.email}</p>
                 </div>
 
-                <div className="bg-[#0D0D0D] border border-[#262626] p-2.5 sm:p-3 rounded">
+                <div className="bg-surface border border-border-primary p-2.5 sm:p-3 rounded">
                   <p className="text-[9px] sm:text-[10px] text-zinc-500 uppercase tracking-widest font-bold mb-1">
                     Bio
                   </p>
@@ -335,14 +335,14 @@ const AdminUserManagement = () => {
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 sm:gap-3">
-                  <div className="bg-[#0D0D0D] border border-[#262626] p-2.5 sm:p-3 rounded">
+                  <div className="bg-surface border border-border-primary p-2.5 sm:p-3 rounded">
                     <p className="text-[9px] sm:text-[10px] text-zinc-500 uppercase tracking-widest font-bold flex items-center gap-1 mb-1">
                       <Calendar className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                       Joined
                     </p>
                     <p className="text-[11px] sm:text-xs text-white">{selectedUser.joined}</p>
                   </div>
-                  <div className="bg-[#0D0D0D] border border-[#262626] p-2.5 sm:p-3 rounded">
+                  <div className="bg-surface border border-border-primary p-2.5 sm:p-3 rounded">
                     <p className="text-[9px] sm:text-[10px] text-zinc-500 uppercase tracking-widest font-bold flex items-center gap-1 mb-1">
                       <Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                       Last Active
@@ -351,7 +351,7 @@ const AdminUserManagement = () => {
                   </div>
                 </div>
 
-                <div className="bg-[#0D0D0D] border border-[#262626] p-2.5 sm:p-3 rounded">
+                <div className="bg-surface border border-border-primary p-2.5 sm:p-3 rounded">
                   <p className="text-[9px] sm:text-[10px] text-zinc-500 uppercase tracking-widest font-bold flex items-center gap-1 mb-1">
                     <Shield className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                     Status
@@ -367,8 +367,8 @@ const AdminUserManagement = () => {
             </div>
 
             {/* Actions - Sticky at bottom */}
-            <div className="p-4 sm:p-6 border-t border-[#262626] flex flex-col gap-2 bg-[#1A1A1A]">
-              <button className="w-full bg-[#4F8CFF] text-white py-2 rounded text-sm font-semibold hover:bg-[#3D7BE6] transition-colors">
+            <div className="p-4 sm:p-6 border-t border-border-primary flex flex-col gap-2 bg-surface-elevated">
+              <button className="w-full bg-brand text-white py-2 rounded text-sm font-semibold hover:bg-brand transition-colors">
                 Edit User
               </button>
               <button

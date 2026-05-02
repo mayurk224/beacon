@@ -50,25 +50,26 @@ const SignIn = () => {
   };
 
   return (
-    <div className="bg-[#0c0e0f] text-[#e2e2e3] min-h-screen w-full flex items-center justify-center p-4">
+    <div className="bg-surface-inset text-primary min-h-screen w-full flex items-center justify-center p-4">
       <div className="w-full max-w-[380px] flex flex-col gap-6">
         <div className="flex flex-col items-center gap-2">
           <div className="flex items-center gap-2">
-            <Bolt className="w-7 h-7 text-[#afc6ff]" />
-            <h1 className="text-[24px] leading-[32px] tracking-[-0.02em] font-semibold text-[#e2e2e3]">
+            <Bolt className="w-7 h-7 text-brand-soft" />
+            <h1 className="text-[24px] leading-[32px] tracking-[-0.02em] font-semibold text-primary">
               Beacon
             </h1>
           </div>
-          <p className="text-[13px] leading-[18px] font-medium text-[#c2c6d6]">
+          <p className="text-[13px] leading-[18px] font-medium text-tertiary">
             Sign in to your workspace
           </p>
         </div>
 
-        <div className="bg-[#121415] border border-[#424753] rounded-lg p-6 flex flex-col gap-4 shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
+        {/* Login Card */}
+        <div className="bg-surface-header border border-border-muted rounded-lg p-6 flex flex-col gap-4 shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
           {error && (
-            <div className="bg-[#2D1616] border border-[#5C2B2B] rounded p-3 flex items-start gap-2">
-              <AlertCircle className="w-5 h-5 text-[#ffb4ab] mt-0.5 flex-shrink-0" />
-              <p className="text-[13px] leading-[18px] font-medium text-[#ffb4ab]">
+            <div className="bg-semantic-error/10 border border-semantic-error/25 rounded p-3 flex items-start gap-2">
+              <AlertCircle className="w-5 h-5 text-danger-soft mt-0.5 flex-shrink-0" />
+              <p className="text-[13px] leading-[18px] font-medium text-danger-soft">
                 {error}
               </p>
             </div>
@@ -76,16 +77,16 @@ const SignIn = () => {
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
-              <label className="text-[11px] font-medium text-[#c2c6d6] uppercase tracking-wider">
+              <label className="text-[11px] font-medium text-tertiary uppercase tracking-wider">
                 Email
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8c909f]" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-subtle" />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-[#1a1c1d] border border-[#424753] rounded pl-9 pr-3 py-2 text-[13px] text-[#e2e2e3] focus:border-[#afc6ff] focus:outline-none"
+                  className="w-full bg-surface-elevated border border-border-muted rounded pl-9 pr-3 py-2 text-[13px] text-primary focus:border-brand-soft focus:outline-none"
                   placeholder="name@company.com"
                   required
                 />
@@ -94,19 +95,19 @@ const SignIn = () => {
 
             <div className="flex flex-col gap-1.5">
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8c909f]" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-subtle" />
                 <input
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-[#1a1c1d] border border-[#424753] rounded pl-9 pr-9 py-2 text-[13px] text-[#e2e2e3] focus:border-[#afc6ff] focus:outline-none"
-                  placeholder="********"
+                  className="w-full bg-surface-elevated border border-border-muted rounded pl-9 pr-9 py-2 text-[13px] text-primary focus:border-brand-soft focus:outline-none"
+                  placeholder="••••••••"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8c909f] hover:text-[#e2e2e3]"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-subtle hover:text-primary"
                 >
                   {showPassword ? (
                     <EyeOff className="w-4 h-4" />
@@ -130,7 +131,7 @@ const SignIn = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-[#1a1a1a] text-[#FFF] text-[14px] font-medium rounded py-2.5 mt-2 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full bg-surface-elevated text-primary text-[14px] font-medium rounded py-2.5 mt-2  transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
               Sign In
@@ -138,11 +139,11 @@ const SignIn = () => {
           </form>
 
           <div className="flex items-center gap-4 my-2">
-            <div className="h-px bg-[#424753] flex-1"></div>
-            <span className="text-[11px] font-medium text-[#c2c6d6] uppercase">
+            <div className="h-px bg-border-muted flex-1"></div>
+            <span className="text-[11px] font-medium text-tertiary uppercase">
               Or
             </span>
-            <div className="h-px bg-[#424753] flex-1"></div>
+            <div className="h-px bg-border-muted flex-1"></div>
           </div>
 
           <GoogleSignInButton
@@ -153,11 +154,11 @@ const SignIn = () => {
           />
 
           <div className="text-center mt-2">
-            <p className="text-[12px] text-[#8c909f]">
-              Don&apos;t have an account?{" "}
+            <p className="text-[12px] text-subtle">
+              Don’t have an account?{" "}
               <Link
                 to="/signup"
-                className="text-[#afc6ff] hover:text-[#528dff] font-medium transition-colors"
+                className="text-brand-soft hover:text-brand-strong font-medium transition-colors"
               >
                 Sign up
               </Link>

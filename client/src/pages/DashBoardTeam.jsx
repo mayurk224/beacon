@@ -140,28 +140,28 @@ const DashBoardTeam = () => {
   const getStatusConfig = (status) => {
     switch (status) {
       case 'active':
-        return { color: 'text-emerald-500', bg: 'bg-emerald-500', label: 'Active', shadow: 'shadow-[0_0_8px_rgba(16,185,129,0.5)]' };
+        return { color: 'text-semantic-success', bg: 'bg-semantic-success', label: 'Active', shadow: 'shadow-[0_0_8px_color-mix(in_srgb,var(--semantic-success)_50%,transparent)]' };
       case 'offline':
-        return { color: 'text-neutral-500', bg: 'bg-neutral-600', label: 'Offline', shadow: '' };
+        return { color: 'text-subtle', bg: 'bg-surface-interactive', label: 'Offline', shadow: '' };
       case 'away':
-        return { color: 'text-amber-500', bg: 'bg-amber-500', label: 'Away', shadow: 'shadow-[0_0_8px_rgba(245,158,11,0.3)]' };
+        return { color: 'text-semantic-warning', bg: 'bg-semantic-warning', label: 'Away', shadow: 'shadow-[0_0_8px_color-mix(in_srgb,var(--semantic-warning)_30%,transparent)]' };
       case 'invited':
-        return { color: 'text-amber-500', bg: 'bg-amber-500', label: 'Invited', shadow: 'shadow-[0_0_8px_rgba(245,158,11,0.3)]' };
+        return { color: 'text-semantic-warning', bg: 'bg-semantic-warning', label: 'Invited', shadow: 'shadow-[0_0_8px_color-mix(in_srgb,var(--semantic-warning)_30%,transparent)]' };
       default:
-        return { color: 'text-neutral-500', bg: 'bg-neutral-600', label: 'Unknown', shadow: '' };
+        return { color: 'text-subtle', bg: 'bg-surface-interactive', label: 'Unknown', shadow: '' };
     }
   };
 
   const getRoleBadgeStyle = (role) => {
     switch (role) {
       case 'Admin':
-        return 'border border-primary/30 bg-primary/10 text-primary';
+        return 'border border-brand-muted bg-brand-muted text-brand-strong';
       case 'Editor':
-        return 'border border-neutral-600 bg-surface text-neutral-300';
+        return 'border border-border-primary bg-surface-card text-muted';
       case 'Viewer':
-        return 'border border-neutral-700 bg-transparent text-neutral-500';
+        return 'border border-border-primary bg-transparent text-subtle';
       default:
-        return 'border border-neutral-700 bg-transparent text-neutral-500';
+        return 'border border-border-primary bg-transparent text-subtle';
     }
   };
 
@@ -224,46 +224,46 @@ const DashBoardTeam = () => {
   const roleStats = getRoleStats();
 
   const PermissionsMenu = ({ member, onClose }) => (
-    <div className="absolute right-0 mt-2 w-56 bg-[#1a1a1a] border border-[#262626] rounded-lg shadow-2xl z-50 overflow-hidden">
-      <div className="p-2 border-b border-[#262626]">
+    <div className="absolute right-0 mt-2 w-56 bg-surface-elevated border border-border-primary rounded-lg shadow-2xl z-50 overflow-hidden">
+      <div className="p-2 border-b border-border-primary">
         <div className="px-2 py-1">
-          <p className="text-[12px] font-medium text-[#e2e2e3]">{member.name}</p>
-          <p className="text-[10px] text-[#8c909f]">Current role: {member.userRole}</p>
+          <p className="text-[12px] font-medium text-primary">{member.name}</p>
+          <p className="text-[10px] text-subtle">Current role: {member.userRole}</p>
         </div>
       </div>
       <div className="p-2">
-        <div className="text-[11px] font-medium text-[#8c909f] uppercase tracking-wider px-2 py-1">
+        <div className="text-[11px] font-medium text-subtle uppercase tracking-wider px-2 py-1">
           Change Role
         </div>
         <button
           onClick={() => handleChangeRole(member.id, 'Admin')}
-          className="w-full flex items-center gap-3 px-2 py-2 rounded text-[13px] text-[#e2e2e3] hover:bg-[#262626] transition-colors"
+          className="w-full flex items-center gap-3 px-2 py-2 rounded text-[13px] text-primary hover:bg-surface-interactive transition-colors"
         >
-          <Shield className="w-4 h-4 text-[#afc6ff]" />
+          <Shield className="w-4 h-4 text-brand-soft" />
           <span>Admin</span>
-          {member.userRole === 'Admin' && <CheckCircle className="w-3.5 h-3.5 ml-auto text-[#4ade80]" />}
+          {member.userRole === 'Admin' && <CheckCircle className="w-3.5 h-3.5 ml-auto text-success-bright" />}
         </button>
         <button
           onClick={() => handleChangeRole(member.id, 'Editor')}
-          className="w-full flex items-center gap-3 px-2 py-2 rounded text-[13px] text-[#e2e2e3] hover:bg-[#262626] transition-colors"
+          className="w-full flex items-center gap-3 px-2 py-2 rounded text-[13px] text-primary hover:bg-surface-interactive transition-colors"
         >
-          <Edit2 className="w-4 h-4 text-[#a7caf3]" />
+          <Edit2 className="w-4 h-4 text-chip-sky-bg" />
           <span>Editor</span>
-          {member.userRole === 'Editor' && <CheckCircle className="w-3.5 h-3.5 ml-auto text-[#4ade80]" />}
+          {member.userRole === 'Editor' && <CheckCircle className="w-3.5 h-3.5 ml-auto text-success-bright" />}
         </button>
         <button
           onClick={() => handleChangeRole(member.id, 'Viewer')}
-          className="w-full flex items-center gap-3 px-2 py-2 rounded text-[13px] text-[#e2e2e3] hover:bg-[#262626] transition-colors"
+          className="w-full flex items-center gap-3 px-2 py-2 rounded text-[13px] text-primary hover:bg-surface-interactive transition-colors"
         >
-          <Eye className="w-4 h-4 text-[#8c909f]" />
+          <Eye className="w-4 h-4 text-subtle" />
           <span>Viewer</span>
-          {member.userRole === 'Viewer' && <CheckCircle className="w-3.5 h-3.5 ml-auto text-[#4ade80]" />}
+          {member.userRole === 'Viewer' && <CheckCircle className="w-3.5 h-3.5 ml-auto text-success-bright" />}
         </button>
       </div>
-      <div className="p-2 border-t border-[#262626]">
+      <div className="p-2 border-t border-border-primary">
         <button
           onClick={() => handleRemoveMember(member.id)}
-          className="w-full flex items-center gap-3 px-2 py-2 rounded text-[13px] text-red-400 hover:bg-red-500/10 transition-colors"
+          className="w-full flex items-center gap-3 px-2 py-2 rounded text-[13px] text-semantic-error hover:bg-semantic-error/10 transition-colors"
         >
           <UserX className="w-4 h-4" />
           <span>Remove from team</span>
@@ -273,21 +273,21 @@ const DashBoardTeam = () => {
   );
 
   const FilterModal = () => (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-[#1a1a1a] border border-[#262626] rounded-xl w-full max-w-md shadow-2xl overflow-hidden">
-        <div className="px-5 py-4 border-b border-[#262626] flex items-center justify-between">
-          <h3 className="text-[16px] font-semibold text-[#e2e2e3]">Filter Team Members</h3>
-          <button onClick={() => setShowFilterModal(false)} className="text-[#8c909f] hover:text-[#e2e2e3]">
+    <div className="fixed inset-0 bg-overlay-scrim backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-surface-card border border-border-primary rounded-xl w-full max-w-md shadow-2xl overflow-hidden">
+        <div className="px-5 py-4 border-b border-border-primary flex items-center justify-between">
+          <h3 className="text-[16px] font-semibold text-primary">Filter Team Members</h3>
+          <button onClick={() => setShowFilterModal(false)} className="text-subtle hover:text-primary">
             <X className="w-5 h-5" />
           </button>
         </div>
         <div className="p-5 flex flex-col gap-4">
           <div>
-            <label className="text-[11px] font-medium text-[#8c909f] uppercase tracking-wider">Role</label>
+            <label className="text-[11px] font-medium text-subtle uppercase tracking-wider">Role</label>
             <select 
               value={selectedRoleFilter}
               onChange={(e) => setSelectedRoleFilter(e.target.value)}
-              className="mt-1 w-full bg-[#0D0D0D] border border-[#262626] rounded-lg p-2 text-[13px] text-[#e2e2e3] focus:border-[#afc6ff] focus:outline-none"
+              className="mt-1 w-full bg-surface border border-border-primary rounded-lg p-2 text-[13px] text-primary focus:border-brand-soft focus:outline-none"
             >
               <option value="all">All Roles</option>
               <option value="admin">Admin</option>
@@ -296,11 +296,11 @@ const DashBoardTeam = () => {
             </select>
           </div>
           <div>
-            <label className="text-[11px] font-medium text-[#8c909f] uppercase tracking-wider">Status</label>
+            <label className="text-[11px] font-medium text-subtle uppercase tracking-wider">Status</label>
             <select 
               value={selectedStatusFilter}
               onChange={(e) => setSelectedStatusFilter(e.target.value)}
-              className="mt-1 w-full bg-[#0D0D0D] border border-[#262626] rounded-lg p-2 text-[13px] text-[#e2e2e3] focus:border-[#afc6ff] focus:outline-none"
+              className="mt-1 w-full bg-surface border border-border-primary rounded-lg p-2 text-[13px] text-primary focus:border-brand-soft focus:outline-none"
             >
               <option value="all">All Statuses</option>
               <option value="active">Active</option>
@@ -310,20 +310,20 @@ const DashBoardTeam = () => {
             </select>
           </div>
         </div>
-        <div className="px-5 py-4 border-t border-[#262626] bg-[#141414] flex justify-end gap-3">
+        <div className="px-5 py-4 border-t border-border-primary bg-surface-card flex justify-end gap-3">
           <button 
             onClick={() => {
               setSelectedRoleFilter('all');
               setSelectedStatusFilter('all');
               setShowFilterModal(false);
             }} 
-            className="px-4 py-2 border border-[#262626] rounded-lg text-[13px] text-[#e2e2e3]"
+            className="btn-outline"
           >
             Reset
           </button>
           <button 
             onClick={() => setShowFilterModal(false)} 
-            className="px-4 py-2 bg-[#4F8CFF] text-white rounded-lg text-[13px] font-semibold"
+            className="btn-primary"
           >
             Apply Filters
           </button>
@@ -333,97 +333,97 @@ const DashBoardTeam = () => {
   );
 
   return (
-    <div className="bg-[#121415] text-[#e2e2e3] min-h-screen w-full">
+    <div className="text-primary min-h-screen w-full">
       {/* Main Content */}
       <div className="p-4 sm:p-6 overflow-x-auto">
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
           <div>
-            <h1 className="text-[22px] sm:text-[24px] leading-[30px] sm:leading-[32px] tracking-[-0.02em] font-semibold text-[#e2e2e3] mb-1">
+            <h1 className="text-[22px] sm:text-[24px] leading-7.5 sm:leading-8 tracking-[-0.02em] font-semibold text-primary mb-1">
               Team Management
             </h1>
-            <p className="text-[12px] sm:text-[13px] leading-[18px] font-medium text-[#c2c6d6]">
+            <p className="text-[12px] sm:text-[13px] leading-4.5 font-medium text-tertiary">
               Manage workspace members and role permissions.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             <button 
               onClick={() => setShowFilterModal(true)}
-              className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-[#141414] border border-[#262626] rounded text-[12px] sm:text-[13px] font-medium text-[#afc6ff] hover:bg-[#1a1a1a] transition-colors"
+              className="btn-outline"
             >
               <Filter className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              <span className="hidden xs:inline">Filter</span>
+              <span className="max-md:hidden xs:inline">Filter</span>
             </button>
             <button 
               onClick={handleRefresh}
-              className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-[#141414] border border-[#262626] rounded text-[12px] sm:text-[13px] font-medium text-[#afc6ff] hover:bg-[#1a1a1a] transition-colors"
+              className="btn-outline"
             >
               {isLoading ? <Loader2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
-              <span className="hidden xs:inline">Refresh</span>
+              <span className="max-md:hidden xs:inline">Refresh</span>
             </button>
             <button
               onClick={() => setShowInviteModal(true)}
-              className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-[#afc6ff] text-[#00275f] rounded text-[12px] sm:text-[13px] font-medium hover:bg-[#528dff] transition-colors shadow-sm"
+              className="btn-primary"
             >
               <UserPlus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              <span className="hidden xs:inline">Invite Member</span>
+              <span className="max-md:hidden xs:inline">Invite Member</span>
             </button>
           </div>
         </div>
 
         {/* Stats Cards - Responsive Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6">
-          <div className="bg-[#141414] border border-[#262626] rounded-lg p-3 sm:p-4">
+          <div className="bg-surface-card border border-border-primary rounded-lg p-3 sm:p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] sm:text-[11px] font-medium text-[#8c909f] uppercase tracking-wider">Total</span>
-              <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#afc6ff]" />
+              <span className="text-[10px] sm:text-[11px] font-medium text-subtle uppercase tracking-wider">Total</span>
+              <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-soft" />
             </div>
-            <div className="text-[20px] sm:text-[24px] font-bold text-[#e2e2e3]">{teamMembers.length}</div>
+            <div className="text-[20px] sm:text-[24px] font-bold text-primary">{teamMembers.length}</div>
           </div>
-          <div className="bg-[#141414] border border-[#262626] rounded-lg p-3 sm:p-4">
+          <div className="bg-surface-card border border-border-primary rounded-lg p-3 sm:p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] sm:text-[11px] font-medium text-[#8c909f] uppercase tracking-wider">Admins</span>
-              <Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#afc6ff]" />
+              <span className="text-[10px] sm:text-[11px] font-medium text-subtle uppercase tracking-wider">Admins</span>
+              <Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-soft" />
             </div>
-            <div className="text-[20px] sm:text-[24px] font-bold text-[#e2e2e3]">{roleStats.Admin}</div>
+            <div className="text-[20px] sm:text-[24px] font-bold text-primary">{roleStats.Admin}</div>
           </div>
-          <div className="bg-[#141414] border border-[#262626] rounded-lg p-3 sm:p-4">
+          <div className="bg-surface-card border border-border-primary rounded-lg p-3 sm:p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] sm:text-[11px] font-medium text-[#8c909f] uppercase tracking-wider">Editors</span>
-              <Edit2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#afc6ff]" />
+              <span className="text-[10px] sm:text-[11px] font-medium text-subtle uppercase tracking-wider">Editors</span>
+              <Edit2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-soft" />
             </div>
-            <div className="text-[20px] sm:text-[24px] font-bold text-[#e2e2e3]">{roleStats.Editor}</div>
+            <div className="text-[20px] sm:text-[24px] font-bold text-primary">{roleStats.Editor}</div>
           </div>
-          <div className="bg-[#141414] border border-[#262626] rounded-lg p-3 sm:p-4">
+          <div className="bg-surface-card border border-border-primary rounded-lg p-3 sm:p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] sm:text-[11px] font-medium text-[#8c909f] uppercase tracking-wider">Viewers</span>
-              <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#afc6ff]" />
+              <span className="text-[10px] sm:text-[11px] font-medium text-subtle uppercase tracking-wider">Viewers</span>
+              <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-soft" />
             </div>
-            <div className="text-[20px] sm:text-[24px] font-bold text-[#e2e2e3]">{roleStats.Viewer}</div>
+            <div className="text-[20px] sm:text-[24px] font-bold text-primary">{roleStats.Viewer}</div>
           </div>
         </div>
 
         {/* Search Bar - Responsive */}
         <div className="mb-5">
           <div className="relative max-w-full sm:max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8c909f]" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-subtle" />
             <input
               type="text"
               placeholder="Search team members..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-[#0D0D0D] border border-[#262626] rounded-lg pl-9 pr-3 py-2 text-[13px] text-[#e2e2e3] placeholder:text-[#8c909f] focus:border-[#afc6ff] focus:outline-none transition-colors"
+              className="w-full bg-surface border border-border-primary rounded-lg pl-9 pr-3 py-2 text-[13px] text-primary placeholder:text-subtle focus:border-brand-soft focus:outline-none transition-colors"
             />
           </div>
         </div>
 
         {/* Team List Table - Responsive with overflow-x-auto */}
-        <div className="bg-[#141414] border border-[#262626] rounded-lg overflow-hidden">
+        <div className="bg-surface-card border border-border-primary rounded-lg overflow-hidden">
           <div className="overflow-x-auto">
             {/* Table - Responsive column widths */}
-            <div className="min-w-[800px] md:min-w-full">
+            <div className="min-w-200 md:min-w-full">
               {/* Table Header */}
-              <div className="grid grid-cols-[50px_minmax(150px,1fr)_minmax(180px,1fr)_100px_100px_80px] gap-3 sm:gap-4 p-3 sm:p-4 border-b border-[#262626] bg-[#121415] text-[10px] sm:text-[11px] font-medium text-[#8c909f] uppercase tracking-wider">
+              <div className="grid grid-cols-[50px_minmax(150px,1fr)_minmax(180px,1fr)_100px_100px_80px] gap-3 sm:gap-4 p-3 sm:p-4 border-b border-border-primary bg-surface-header text-[10px] sm:text-[11px] font-medium text-subtle uppercase tracking-wider">
                 <div className="w-8"></div>
                 <div>Member</div>
                 <div>Email / ID</div>
@@ -433,12 +433,12 @@ const DashBoardTeam = () => {
               </div>
 
               {/* Table Body */}
-              <div className="divide-y divide-[#262626]">
+              <div className="divide-y divide-border-primary">
                 {paginatedMembers.length === 0 ? (
                   <div className="text-center py-12">
-                    <AlertCircle className="w-12 h-12 text-[#8c909f] mx-auto mb-3" />
-                    <p className="text-[#c2c6d6]">No team members found</p>
-                    <p className="text-[#8c909f] text-sm mt-1">Try adjusting your filters</p>
+                    <AlertCircle className="w-12 h-12 text-subtle mx-auto mb-3" />
+                    <p className="text-tertiary">No team members found</p>
+                    <p className="text-subtle text-sm mt-1">Try adjusting your filters</p>
                   </div>
                 ) : (
                   paginatedMembers.map((member) => {
@@ -446,24 +446,24 @@ const DashBoardTeam = () => {
                     return (
                       <div
                         key={member.id}
-                        className={`grid grid-cols-[50px_minmax(150px,1fr)_minmax(180px,1fr)_100px_100px_80px] gap-3 sm:gap-4 p-3 sm:p-4 items-center hover:bg-[#1a1a1a] transition-colors group ${
-                          member.status === 'invited' ? 'bg-[#1a1c1d]/50' : ''
+                        className={`grid grid-cols-[50px_minmax(150px,1fr)_minmax(180px,1fr)_100px_100px_80px] gap-3 sm:gap-4 p-3 sm:p-4 items-center hover:bg-surface-elevated transition-colors group ${
+                          member.status === 'invited' ? 'bg-surface-elevated/50' : ''
                         } relative`}
                       >
                         {/* Avatar */}
-                        <Link to={'/home/member_details'} state={{ memberId: member.id }} className="w-8 h-8 rounded-full overflow-hidden border border-[#262626] flex-shrink-0">
+                        <Link to={'/home/member_details'} state={{ memberId: member.id }} className="w-8 h-8 rounded-full overflow-hidden border border-border-primary shrink-0">
                           {member.avatar ? (
                             <img src={member.avatar} alt={member.name} className="w-full h-full object-cover" />
                           ) : member.initial ? (
-                            <div className="w-full h-full bg-[#274b6e] text-[#99bbe4] flex items-center justify-center text-[13px] font-medium">
+                            <div className="w-full h-full bg-surface-panel text-brand-soft flex items-center justify-center text-[13px] font-medium">
                               {member.initial}
                             </div>
                           ) : member.status === 'invited' ? (
-                            <div className="w-full h-full border border-amber-500/50 border-dashed flex items-center justify-center">
-                              <Mail className="w-4 h-4 text-amber-500" />
+                            <div className="w-full h-full border border-semantic-warning/50 border-dashed flex items-center justify-center">
+                              <Mail className="w-4 h-4 text-semantic-warning" />
                             </div>
                           ) : (
-                            <div className="w-full h-full bg-[#333536] text-[#c2c6d6] flex items-center justify-center text-[13px] font-medium">
+                            <div className="w-full h-full bg-surface-interactive text-tertiary flex items-center justify-center text-[13px] font-medium">
                               <User className="w-4 h-4" />
                             </div>
                           )}
@@ -471,24 +471,24 @@ const DashBoardTeam = () => {
 
                         {/* Member Info */}
                         <Link to={'/home/member_details'} state={{ memberId: member.id }} className="block">
-                          <div className={`text-[13px] sm:text-[14px] font-medium text-[#e2e2e3] ${member.status === 'invited' ? 'italic' : ''} truncate`}>
+                          <div className={`text-[13px] sm:text-[14px] font-medium text-primary ${member.status === 'invited' ? 'italic' : ''} truncate`}>
                             {member.name}
                           </div>
-                          <div className="text-[10px] sm:text-[11px] font-mono text-[#8c909f] mt-0.5 truncate">
+                          <div className="text-[10px] sm:text-[11px] font-mono text-subtle mt-0.5 truncate">
                             {member.role}
                           </div>
                           {member.status === 'invited' && member.invitedAt && (
-                            <div className="text-[9px] sm:text-[10px] font-mono text-amber-500/70 mt-0.5">
+                            <div className="text-[9px] sm:text-[10px] font-mono text-semantic-warning/70 mt-0.5">
                               Sent {member.invitedAt}
                             </div>
                           )}
                         </Link>
 
                         {/* Email / ID */}
-                        <Link to={'/home/member_details'} state={{ memberId: member.id }} className="text-[10px] sm:text-[11px] font-mono text-[#c2c6d6] block truncate">
+                        <Link to={'/home/member_details'} state={{ memberId: member.id }} className="text-[10px] sm:text-[11px] font-mono text-tertiary block truncate">
                           {member.email}
                           {member.userId && (
-                            <div className="text-[9px] sm:text-[10px] text-[#8c909f] mt-0.5 truncate">
+                            <div className="text-[9px] sm:text-[10px] text-subtle mt-0.5 truncate">
                               ID: {member.userId}
                             </div>
                           )}
@@ -522,7 +522,7 @@ const DashBoardTeam = () => {
                         <div className="flex justify-end relative">
                           <button
                             onClick={() => setShowPermissionsMenu(showPermissionsMenu === member.id ? null : member.id)}
-                            className="p-1 text-[#8c909f] hover:text-[#e2e2e3] rounded hover:bg-[#262626] transition-colors"
+                            className="p-1 text-subtle hover:text-primary rounded hover:bg-surface-interactive transition-colors"
                           >
                             <MoreVertical className="w-4 h-4" />
                           </button>
@@ -540,7 +540,7 @@ const DashBoardTeam = () => {
 
           {/* Pagination Footer - Responsive */}
           {filteredMembers.length > 0 && (
-            <div className="px-3 sm:px-4 py-3 border-t border-[#262626] bg-[#121415] flex flex-col sm:flex-row justify-between items-center gap-3 text-[10px] sm:text-[11px] font-mono text-[#8c909f]">
+            <div className="px-3 sm:px-4 py-3 border-t border-border-primary bg-surface-header flex flex-col sm:flex-row justify-between items-center gap-3 text-[10px] sm:text-[11px] font-mono text-subtle">
               <div className="text-center sm:text-left">
                 Showing {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, filteredMembers.length)} of {filteredMembers.length} members
               </div>
@@ -548,7 +548,7 @@ const DashBoardTeam = () => {
                 <button
                   onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
-                  className="p-1 rounded hover:text-[#e2e2e3] hover:bg-[#262626] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="p-1 rounded hover:text-primary hover:bg-surface-interactive disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
@@ -568,10 +568,10 @@ const DashBoardTeam = () => {
                       <button
                         key={pageNum}
                         onClick={() => setCurrentPage(pageNum)}
-                        className={`px-2 py-1 rounded text-[11px] sm:text-[12px] transition-colors ${
+                        className={`px-3 py-1 rounded text-[11px] sm:text-[12px] transition-colors ${
                           currentPage === pageNum
-                            ? 'bg-[#4F8CFF] text-white'
-                            : 'text-neutral-400 hover:bg-[#1A1A1A] hover:text-white'
+                            ? 'bg-brand text-on-brand'
+                            : 'text-subtle hover:bg-surface-elevated hover:text-primary'
                         }`}
                       >
                         {pageNum}
@@ -582,7 +582,7 @@ const DashBoardTeam = () => {
                 <button
                   onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages || totalPages === 0}
-                  className="p-1 rounded hover:text-[#e2e2e3] hover:bg-[#262626] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="p-1 rounded hover:text-primary hover:bg-surface-interactive disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   <ChevronRight className="w-4 h-4" />
                 </button>
@@ -594,31 +594,31 @@ const DashBoardTeam = () => {
 
       {/* Invite Modal - Responsive */}
       {showInviteModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#1a1a1a] border border-[#262626] rounded-xl w-full max-w-md shadow-2xl overflow-hidden mx-4">
-            <div className="px-4 sm:px-5 py-4 border-b border-[#262626] flex items-center justify-between">
-              <h3 className="text-[16px] font-semibold text-[#e2e2e3]">Invite New Member</h3>
-              <button onClick={() => setShowInviteModal(false)} className="text-[#8c909f] hover:text-[#e2e2e3]">
+        <div className="fixed inset-0 bg-overlay-scrim backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-surface-card border border-border-primary rounded-xl w-full max-w-md shadow-2xl overflow-hidden mx-4">
+            <div className="px-4 sm:px-5 py-4 border-b border-border-primary flex items-center justify-between">
+              <h3 className="text-[16px] font-semibold text-primary">Invite New Member</h3>
+              <button onClick={() => setShowInviteModal(false)} className="text-subtle hover:text-primary">
                 <X className="w-5 h-5" />
               </button>
             </div>
             <div className="p-4 sm:p-5 flex flex-col gap-4">
               <div className="flex flex-col gap-1.5">
-                <label className="text-[11px] font-medium text-[#8c909f] uppercase tracking-wider">Email Addresses</label>
+                <label className="text-[11px] font-medium text-subtle uppercase tracking-wider">Email Addresses</label>
                 <textarea
                   value={inviteEmails}
                   onChange={(e) => setInviteEmails(e.target.value)}
-                  className="bg-[#0D0D0D] border border-[#262626] rounded p-3 text-[13px] text-[#e2e2e3] placeholder:text-[#8c909f] focus:border-[#afc6ff] focus:outline-none resize-none h-24 font-mono"
+                  className="bg-surface border border-border-primary rounded p-3 text-[13px] text-primary placeholder:text-subtle focus:border-brand-soft focus:outline-none resize-none h-24 font-mono"
                   placeholder="jane@company.com, john@company.com"
                 />
-                <span className="text-[10px] font-mono text-[#8c909f]">Separate multiple emails with commas.</span>
+                <span className="text-[10px] font-mono text-subtle">Separate multiple emails with commas.</span>
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-[11px] font-medium text-[#8c909f] uppercase tracking-wider">Assign Role</label>
+                <label className="text-[11px] font-medium text-subtle uppercase tracking-wider">Assign Role</label>
                 <select
                   value={inviteRole}
                   onChange={(e) => setInviteRole(e.target.value)}
-                  className="bg-[#0D0D0D] border border-[#262626] rounded p-2 text-[13px] text-[#e2e2e3] focus:border-[#afc6ff] focus:outline-none"
+                  className="bg-surface border border-border-primary rounded p-2 text-[13px] text-primary focus:border-brand-soft focus:outline-none"
                 >
                   <option value="admin">Admin - Full access to all resources</option>
                   <option value="editor">Editor - Can view and modify incidents</option>
@@ -626,11 +626,11 @@ const DashBoardTeam = () => {
                 </select>
               </div>
             </div>
-            <div className="px-4 sm:px-5 py-4 border-t border-[#262626] bg-[#141414] flex justify-end gap-3">
-              <button onClick={() => setShowInviteModal(false)} className="px-4 py-2 bg-[#141414] border border-[#262626] rounded text-[13px] font-medium text-[#e2e2e3] hover:bg-[#262626] transition-colors">
+            <div className="px-4 sm:px-5 py-4 border-t border-border-primary bg-surface-card flex justify-end gap-3">
+              <button onClick={() => setShowInviteModal(false)} className="btn-outline">
                 Cancel
               </button>
-              <button onClick={handleInvite} className="px-4 py-2 bg-[#afc6ff] text-[#00275f] rounded text-[13px] font-medium hover:bg-[#528dff] transition-colors shadow-sm flex items-center gap-2">
+              <button onClick={handleInvite} className="btn-primary">
                 <Send className="w-4 h-4" />
                 Send Invites
               </button>

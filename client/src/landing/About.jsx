@@ -17,7 +17,7 @@ const About = () => {
       <div className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
         {/* Card 1 */}
-        <div className="bg-[#171717] rounded-2xl p-6 flex flex-col justify-between lg:h-[540px]">
+        <div className="bg-surface-widget rounded-2xl p-6 flex flex-col justify-between lg:h-[540px]">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-full bg-gray-400" />
             <div className="w-10 h-10 rounded-full bg-gray-500" />

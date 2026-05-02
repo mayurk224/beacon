@@ -32,6 +32,40 @@ import {
 } from 'chart.js';
 import { Line, Bar, Doughnut } from 'react-chartjs-2';
 
+const resolveThemeColor = (variableName, fallback = '') => {
+  if (typeof window === 'undefined') {
+    return fallback;
+  }
+
+  const value = getComputedStyle(document.documentElement).getPropertyValue(variableName).trim();
+  return value || fallback;
+};
+
+const withAlpha = (color, alpha) => {
+  const rgbaMatch = color.match(/rgba?\(([^)]+)\)/i);
+
+  if (rgbaMatch) {
+    const channels = rgbaMatch[1].split(',').map((channel) => channel.trim());
+    if (channels.length >= 3) {
+      return `rgba(${channels[0]}, ${channels[1]}, ${channels[2]}, ${alpha})`;
+    }
+  }
+
+  const hexMatch = color.match(/^#([0-9a-f]{6}|[0-9a-f]{3})$/i);
+  if (hexMatch) {
+    const hex = hexMatch[1];
+    const expandedHex = hex.length === 3
+      ? hex.split('').map((value) => value + value).join('')
+      : hex;
+    const red = parseInt(expandedHex.slice(0, 2), 16);
+    const green = parseInt(expandedHex.slice(2, 4), 16);
+    const blue = parseInt(expandedHex.slice(4, 6), 16);
+    return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+  }
+
+  return color;
+};
+
 // Register ChartJS components
 ChartJS.register(
   CategoryScale,
@@ -53,6 +87,37 @@ const DashBoardAnalytics = () => {
   // Timeframe options
   const timeframes = ['24H', '7D', '30D', 'YTD'];
 
+  const themeColors = {
+    background: resolveThemeColor('--background', '#e9e4d8'),
+    card: resolveThemeColor('--card', '#f4efe4'),
+    surface: resolveThemeColor('--surface', '#e9e4d8'),
+    surfaceElevated: resolveThemeColor('--secondary', '#d8d2c4'),
+    surfaceHeader: resolveThemeColor('--card', '#f4efe4'),
+    border: resolveThemeColor('--border', '#d2cbbb'),
+    foreground: resolveThemeColor('--foreground', '#1e1e1e'),
+    mutedForeground: resolveThemeColor('--muted-foreground', '#5e5a52'),
+    brand: resolveThemeColor('--chart-1', '#f26a4b'),
+    warning: resolveThemeColor('--semantic-warning', '#d97706'),
+    success: resolveThemeColor('--semantic-success', '#16a34a'),
+    danger: resolveThemeColor('--destructive', '#dc2626'),
+    neutral: resolveThemeColor('--chart-3', '#5e5a52'),
+    neutralSoft: resolveThemeColor('--chart-4', '#a89f8f'),
+    chartTwo: resolveThemeColor('--chart-2', '#1e1e1e'),
+  };
+
+  const chartPalette = {
+    brand: themeColors.brand,
+    warning: themeColors.warning,
+    danger: themeColors.danger,
+    neutral: themeColors.neutral,
+    neutralSoft: themeColors.neutralSoft,
+    surface: themeColors.surface,
+    card: themeColors.card,
+    border: themeColors.border,
+    foreground: themeColors.foreground,
+    mutedForeground: themeColors.mutedForeground,
+  };
+
   // Key metrics data
   const keyMetrics = [
     {
@@ -62,7 +127,7 @@ const DashBoardAnalytics = () => {
       icon: Timer,
       trend: '12.4% vs last period',
       trendIcon: TrendingDown,
-      trendColor: 'text-[#10b981]',
+      trendColor: 'text-semantic-success',
       trendDirection: 'down',
     },
     {
@@ -72,7 +137,7 @@ const DashBoardAnalytics = () => {
       icon: Wrench,
       trend: '4.2% vs last period',
       trendIcon: TrendingUp,
-      trendColor: 'text-[#ffb4ab]',
+      trendColor: 'text-danger-soft',
       trendDirection: 'up',
     },
     {
@@ -82,16 +147,16 @@ const DashBoardAnalytics = () => {
       icon: AlertTriangle,
       trend: 'Stable vs last period',
       trendIcon: Minus,
-      trendColor: 'text-[#c2c6d6]',
+      trendColor: 'text-tertiary',
       trendDirection: 'stable',
     },
   ];
 
   // Resolution by team data
   const teamDistribution = [
-    { name: 'Platform', percentage: 54, color: '#528dff' },
-    { name: 'Data Eng', percentage: 32, color: '#f59e0b' },
-    { name: 'Network', percentage: 14, color: '#333536' },
+    { name: 'Platform', percentage: 54, colorVar: '--chart-1' },
+    { name: 'Data Eng', percentage: 32, colorVar: '--semantic-warning' },
+    { name: 'Network', percentage: 14, colorVar: '--chart-3' },
   ];
 
   // Service performance data
@@ -104,10 +169,10 @@ const DashBoardAnalytics = () => {
       mtta: '4m 12s',
       mttr: '1h 45m',
       health: 'Degraded',
-      healthClass: 'bg-red-500/10 border border-red-500/20 text-red-500',
-      statusDot: 'bg-red-500 ring-2 ring-red-500/20 animate-pulse',
-      uptimeColor: 'text-red-500',
-      mttrColor: 'text-red-500',
+      healthClass: 'bg-danger-bg-subtle border border-danger-border-strong text-danger-soft',
+      statusDot: 'bg-danger-soft ring-2 ring-danger-soft/20 animate-pulse',
+      uptimeColor: 'text-danger-soft',
+      mttrColor: 'text-danger-soft',
     },
     {
       id: 'data-pipeline-worker',
@@ -117,9 +182,9 @@ const DashBoardAnalytics = () => {
       mtta: '2m 45s',
       mttr: '32m 10s',
       health: 'Warning',
-      healthClass: 'bg-[#f59e0b]/10 border border-[#f59e0b]/20 text-[#f59e0b]',
-      statusDot: 'bg-[#f59e0b]',
-      uptimeColor: 'text-[#f59e0b]',
+      healthClass: 'bg-semantic-warning/10 border border-semantic-warning/20 text-semantic-warning',
+      statusDot: 'bg-semantic-warning',
+      uptimeColor: 'text-semantic-warning',
       mttrColor: '',
     },
   ];
@@ -131,12 +196,12 @@ const DashBoardAnalytics = () => {
       {
         label: 'Core Services',
         data: [58, 52, 45, 38, 42, 36, 30],
-        borderColor: '#528dff',
-        backgroundColor: 'rgba(82, 141, 255, 0.1)',
+        borderColor: chartPalette.brand,
+        backgroundColor: withAlpha(chartPalette.brand, 0.1),
         borderWidth: 2,
         pointRadius: 3,
-        pointBackgroundColor: '#528dff',
-        pointBorderColor: '#121415',
+        pointBackgroundColor: chartPalette.brand,
+        pointBorderColor: chartPalette.surface,
         pointBorderWidth: 1,
         tension: 0.3,
         fill: true,
@@ -144,12 +209,12 @@ const DashBoardAnalytics = () => {
       {
         label: 'Edge Nodes',
         data: [72, 68, 65, 70, 58, 52, 48],
-        borderColor: '#424753',
-        backgroundColor: 'rgba(66, 71, 83, 0.2)',
+        borderColor: chartPalette.neutral,
+        backgroundColor: withAlpha(chartPalette.neutral, 0.2),
         borderWidth: 1.5,
         pointRadius: 2,
-        pointBackgroundColor: '#424753',
-        pointBorderColor: '#121415',
+        pointBackgroundColor: chartPalette.neutral,
+        pointBorderColor: chartPalette.surface,
         tension: 0.3,
         fill: true,
       },
@@ -163,7 +228,7 @@ const DashBoardAnalytics = () => {
       {
         label: 'Incidents',
         data: [842, 215, 98, 47],
-        backgroundColor: ['#424753', '#f59e0b', '#ffb4ab', '#ff6b6b'],
+        backgroundColor: [chartPalette.neutral, chartPalette.warning, chartPalette.danger, chartPalette.brand],
         borderRadius: 6,
         barPercentage: 0.7,
         categoryPercentage: 0.8,
@@ -177,8 +242,8 @@ const DashBoardAnalytics = () => {
     datasets: [
       {
         data: teamDistribution.map(t => t.percentage),
-        backgroundColor: teamDistribution.map(t => t.color),
-        borderColor: '#1a1c1d',
+        backgroundColor: teamDistribution.map(t => resolveThemeColor(t.colorVar, chartPalette.neutral)),
+        borderColor: chartPalette.surface,
         borderWidth: 2,
         cutout: '70%',
         radius: '90%',
@@ -195,10 +260,10 @@ const DashBoardAnalytics = () => {
         display: false,
       },
       tooltip: {
-        backgroundColor: '#0D0D0D',
-        titleColor: '#e2e2e3',
-        bodyColor: '#c2c6d6',
-        borderColor: '#424753',
+        backgroundColor: chartPalette.card,
+        titleColor: chartPalette.foreground,
+        bodyColor: chartPalette.mutedForeground,
+        borderColor: chartPalette.border,
         borderWidth: 1,
       },
     },
@@ -216,29 +281,29 @@ const DashBoardAnalytics = () => {
       legend: {
         position: 'top',
         labels: {
-          color: '#c2c6d6',
+          color: chartPalette.mutedForeground,
           font: { family: 'monospace', size: 10 },
           boxWidth: 10,
           padding: 10,
         },
       },
       tooltip: {
-        backgroundColor: '#0D0D0D',
-        titleColor: '#e2e2e3',
-        bodyColor: '#c2c6d6',
-        borderColor: '#424753',
+        backgroundColor: chartPalette.card,
+        titleColor: chartPalette.foreground,
+        bodyColor: chartPalette.mutedForeground,
+        borderColor: chartPalette.border,
         borderWidth: 1,
       },
     },
     scales: {
       y: {
-        grid: { color: '#42475320', drawBorder: false },
-        ticks: { color: '#c2c6d6', font: { family: 'monospace', size: 10 }, stepSize: 15 },
-        title: { display: true, text: 'Minutes (MTTR)', color: '#c2c6d6', font: { size: 10, family: 'monospace' } },
+        grid: { color: withAlpha(chartPalette.border, 0.2), drawBorder: false },
+        ticks: { color: chartPalette.mutedForeground, font: { family: 'monospace', size: 10 }, stepSize: 15 },
+        title: { display: true, text: 'Minutes (MTTR)', color: chartPalette.mutedForeground, font: { size: 10, family: 'monospace' } },
       },
       x: {
         grid: { display: false },
-        ticks: { color: '#c2c6d6', font: { family: 'monospace', size: 10 } },
+        ticks: { color: chartPalette.mutedForeground, font: { family: 'monospace', size: 10 } },
       },
     },
   };
@@ -250,52 +315,52 @@ const DashBoardAnalytics = () => {
     plugins: {
       legend: { display: false },
       tooltip: {
-        backgroundColor: '#0D0D0D',
-        titleColor: '#e2e2e3',
-        bodyColor: '#c2c6d6',
-        borderColor: '#424753',
+        backgroundColor: chartPalette.card,
+        titleColor: chartPalette.foreground,
+        bodyColor: chartPalette.mutedForeground,
+        borderColor: chartPalette.border,
         borderWidth: 1,
       },
     },
     scales: {
       y: {
-        grid: { color: '#42475320' },
-        ticks: { color: '#c2c6d6', font: { family: 'monospace', size: 10 } },
-        title: { display: true, text: 'Number of Incidents', color: '#c2c6d6', font: { size: 10, family: 'monospace' } },
+        grid: { color: withAlpha(chartPalette.border, 0.2) },
+        ticks: { color: chartPalette.mutedForeground, font: { family: 'monospace', size: 10 } },
+        title: { display: true, text: 'Number of Incidents', color: chartPalette.mutedForeground, font: { size: 10, family: 'monospace' } },
       },
       x: {
-        ticks: { color: '#c2c6d6', font: { family: 'monospace', size: 10 } },
+        ticks: { color: chartPalette.mutedForeground, font: { family: 'monospace', size: 10 } },
         grid: { display: false },
       },
     },
   };
 
   return (
-    <div className=" text-[#e2e2e3] min-h-screen w-full antialiased font-sans">
+    <div className=" text-primary min-h-screen w-full antialiased font-sans">
   
       {/* Main Content */}
       <div className="p-6 overflow-y-auto">
         {/* Page Header & Controls */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 gap-4">
           <div>
-            <h1 className="text-[24px] leading-[32px] tracking-[-0.02em] font-semibold text-[#e2e2e3] mb-1">
+            <h1 className="text-[24px] leading-8 tracking-[-0.02em] font-semibold text-primary mb-1">
               System Analytics
             </h1>
-            <p className="text-[13px] leading-[18px] font-medium text-[#c2c6d6]">
+            <p className="text-[13px] leading-4.5 font-medium text-tertiary">
               Global performance metrics and incident resolution trends.
             </p>
           </div>
           <div className="flex items-center gap-4">
             {/* Timeframe Selector */}
-            <div className="flex items-center bg-[#1a1c1d] border border-[#424753] rounded overflow-hidden p-0.5">
+            <div className="flex items-center bg-surface-elevated border border-border-muted rounded overflow-hidden p-0.5">
               {timeframes.map((tf) => (
                 <button
                   key={tf}
                   onClick={() => setActiveTimeframe(tf)}
                   className={`px-4 py-1 font-mono text-[12px] transition-colors rounded-sm ${
                     activeTimeframe === tf
-                      ? 'text-[#e2e2e3] bg-[#333536] shadow-sm'
-                      : 'text-[#c2c6d6] hover:text-[#e2e2e3] hover:bg-[#333536]'
+                      ? 'text-primary bg-surface-interactive shadow-sm'
+                      : 'text-tertiary hover:text-primary hover:bg-surface-interactive'
                   }`}
                 >
                   {tf}
@@ -303,7 +368,7 @@ const DashBoardAnalytics = () => {
               ))}
             </div>
             {/* Export Button */}
-            <button className="flex items-center gap-1 px-4 py-1.5 bg-transparent border border-[#424753] text-[#e2e2e3] hover:border-[#528dff] hover:text-[#528dff] transition-colors rounded text-[12px] leading-[16px] font-medium">
+            <button className="btn-outline">
               <Download className="w-4 h-4" />
               Export CSV
             </button>
@@ -316,29 +381,29 @@ const DashBoardAnalytics = () => {
           {keyMetrics.map((metric) => (
             <div
               key={metric.id}
-              className="col-span-12 md:col-span-6 lg:col-span-3 bg-[#1a1c1d] border border-[#424753] rounded-lg p-4 flex flex-col justify-between h-28 relative overflow-hidden group"
+              className="col-span-12 md:col-span-6 lg:col-span-3 bg-surface-widget border border-border-primary rounded-lg p-4 flex flex-col justify-between h-28 relative overflow-hidden group"
             >
-              <div className="absolute top-0 right-0 w-16 h-16 bg-[#528dff]/5 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
+              <div className="absolute top-0 right-0 w-16 h-16 bg-brand-strong/5 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
               <div className="flex justify-between items-start">
-                <span className="text-[12px] leading-[16px] font-medium text-[#c2c6d6] uppercase tracking-wider">
+                <span className="text-[12px] leading-4 font-medium text-tertiary uppercase tracking-wider">
                   {metric.label}
                 </span>
-                <metric.icon className="text-[#c2c6d6] w-[18px] h-[18px]" />
+                <metric.icon className="text-tertiary w-4.5 h-4.5" />
               </div>
               <div>
-                <div className="text-[24px] leading-[32px] tracking-[-0.02em] font-semibold text-[#e2e2e3] leading-none mb-1">
+                <div className="text-[24px] leading-8 tracking-[-0.02em] font-semibold text-primary mb-1">
                   {metric.value}
                 </div>
                 {metric.progressBar ? (
-                  <div className="w-full bg-[#333536] h-1 rounded-full mt-2 overflow-hidden">
+                  <div className="w-full bg-surface-interactive h-1 rounded-full mt-2 overflow-hidden">
                     <div
-                      className="bg-[#528dff] h-full rounded-full"
+                      className="bg-brand-strong h-full rounded-full"
                       style={{ width: `${metric.progressValue}%` }}
                     ></div>
                   </div>
                 ) : (
                   <div
-                    className={`text-[12px] leading-[16px] font-mono flex items-center gap-1 ${metric.trendColor}`}
+                    className={`text-[12px] leading-4 font-mono flex items-center gap-1 ${metric.trendColor}`}
                   >
                     {metric.trendIcon && <metric.trendIcon className="w-3.5 h-3.5" />}
                     {metric.trend}
@@ -350,13 +415,13 @@ const DashBoardAnalytics = () => {
 
           {/* Main Charts Row */}
           {/* MTTR Trend - Line Chart (Chart.js) */}
-          <div className="col-span-12 lg:col-span-8 bg-[#1a1c1d] border border-[#424753] rounded-lg p-4 min-h-[360px] flex flex-col">
+          <div className="col-span-12 lg:col-span-8 bg-surface-widget border border-border-primary rounded-lg p-4 min-h-90 flex flex-col">
             <div className="flex justify-between items-center mb-2">
-              <h2 className="text-[16px] leading-[24px] tracking-[-0.01em] font-semibold text-[#e2e2e3]">
+              <h2 className="text-[16px] leading-6 tracking-[-0.01em] font-semibold text-primary">
                 Resolution Trends (MTTR)
               </h2>
             </div>
-            <div className="flex-1 w-full h-[280px] relative">
+            <div className="flex-1 w-full h-70 relative">
               <Line data={mttrChartData} options={lineOptions} />
             </div>
           </div>
@@ -364,18 +429,18 @@ const DashBoardAnalytics = () => {
           {/* Incident Frequency (Bar Chart) & Team Resolution (Doughnut) */}
           <div className="col-span-12 lg:col-span-4 flex flex-col gap-4">
             {/* Bar Chart - Severity Frequency */}
-            <div className="bg-[#1a1c1d] border border-[#424753] rounded-lg p-4 flex-1 flex flex-col min-h-[200px]">
-              <h2 className="text-[16px] leading-[24px] tracking-[-0.01em] font-semibold text-[#e2e2e3] mb-2">
+            <div className="bg-surface-widget border border-border-primary rounded-lg p-4 flex-1 flex flex-col min-h-50">
+              <h2 className="text-[16px] leading-6 tracking-[-0.01em] font-semibold text-primary mb-2">
                 Frequency by Severity
               </h2>
-              <div className="flex-1 w-full h-[180px]">
+              <div className="flex-1 w-full h-45">
                 <Bar data={severityChartData} options={barOptions} />
               </div>
             </div>
 
             {/* Team Distribution Doughnut Chart */}
-            <div className="bg-[#1a1c1d] border border-[#424753] rounded-lg p-4 flex-1 flex flex-col min-h-[200px]">
-              <h2 className="text-[16px] leading-[24px] tracking-[-0.01em] font-semibold text-[#e2e2e3] mb-2">
+            <div className="bg-surface-widget border border-border-primary rounded-lg p-4 flex-1 flex flex-col min-h-50">
+              <h2 className="text-[16px] leading-6 tracking-[-0.01em] font-semibold text-primary mb-2">
                 Resolution by Team
               </h2>
               <div className="flex-1 flex items-center gap-4">
@@ -389,11 +454,11 @@ const DashBoardAnalytics = () => {
                       key={team.name}
                       className="flex justify-between items-center text-[11px] font-mono"
                     >
-                      <div className="flex items-center gap-1 text-[#e2e2e3]">
+                      <div className="flex items-center gap-1 text-primary">
                         <span className={`w-2 h-2 rounded-full inline-block`} style={{ backgroundColor: team.color }}></span>
                         {team.name}
                       </div>
-                      <span className="text-[#c2c6d6]">{team.percentage}%</span>
+                      <span className="text-tertiary">{team.percentage}%</span>
                     </div>
                   ))}
                 </div>
@@ -402,29 +467,29 @@ const DashBoardAnalytics = () => {
           </div>
 
           {/* Service Performance Matrix */}
-          <div className="col-span-12 bg-[#1a1c1d] border border-[#424753] rounded-lg flex flex-col overflow-hidden mb-8">
+          <div className="col-span-12 bg-surface-widget border border-border-primary rounded-lg flex flex-col overflow-hidden mb-8">
             {/* Grid Header */}
-            <div className="p-4 border-b border-[#424753] flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-[#121415]/50">
+            <div className="p-4 border-b border-border-muted flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-surface-header/50">
               <div className="flex items-center gap-2">
-                <h2 className="text-[16px] leading-[24px] tracking-[-0.01em] font-semibold text-[#e2e2e3]">
+                <h2 className="text-[16px] leading-6 tracking-[-0.01em] font-semibold text-primary">
                   Service Performance Matrix
                 </h2>
-                <span className="px-2 py-0.5 bg-[#333536] text-[#c2c6d6] rounded text-[10px] font-mono">
+                <span className="px-2 py-0.5 bg-surface-interactive text-tertiary rounded text-[10px] font-mono">
                   42 Services
                 </span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="relative">
-                  <Filter className="absolute left-2 top-1.5 w-4 h-4 text-[#c2c6d6]" />
+                  <Filter className="absolute left-2 top-1.5 w-4 h-4 text-tertiary" />
                   <input
-                    className="bg-[#0D0D0D] border border-[#424753] rounded px-2 py-1 pl-8 text-[12px] text-[#e2e2e3] focus:border-[#528dff] outline-none font-mono w-52 h-7"
+                    className="bg-surface border border-border-muted rounded px-2 py-1 pl-8 text-[12px] text-primary focus:border-brand-strong outline-none font-mono w-52 h-7"
                     placeholder="Filter node, cluster..."
                     type="text"
                     value={filterText}
                     onChange={(e) => setFilterText(e.target.value)}
                   />
                 </div>
-                <button className="w-7 h-7 border border-[#424753] rounded flex items-center justify-center text-[#c2c6d6] hover:text-[#e2e2e3] hover:bg-[#333536] transition-colors">
+                <button className="w-7 h-7 border border-border-muted rounded flex items-center justify-center text-tertiary hover:text-primary hover:bg-surface-interactive transition-colors">
                   <SlidersHorizontal className="w-4 h-4" />
                 </button>
               </div>
@@ -433,41 +498,41 @@ const DashBoardAnalytics = () => {
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse whitespace-nowrap">
                 <thead>
-                  <tr className="bg-[#121415] border-b border-[#424753] font-mono text-[10px] text-[#c2c6d6] uppercase tracking-wider">
-                    <th className="p-2 px-4 font-medium cursor-pointer hover:text-[#e2e2e3] group">
+                  <tr className="bg-surface-header border-b border-border-muted font-mono text-[10px] text-tertiary uppercase tracking-wider">
+                    <th className="p-2 px-4 font-medium cursor-pointer hover:text-primary group">
                       Service ID{' '}
                       <ArrowDown className="w-3 h-3 inline-block align-middle opacity-0 group-hover:opacity-100" />
                     </th>
-                    <th className="p-2 px-4 font-medium cursor-pointer hover:text-[#e2e2e3]">
+                    <th className="p-2 px-4 font-medium cursor-pointer hover:text-primary">
                       Team
                     </th>
-                    <th className="p-2 px-4 font-medium text-right cursor-pointer hover:text-[#e2e2e3]">
+                    <th className="p-2 px-4 font-medium text-right cursor-pointer hover:text-primary">
                       Uptime (30d)
                     </th>
-                    <th className="p-2 px-4 font-medium text-right cursor-pointer hover:text-[#e2e2e3]">
+                    <th className="p-2 px-4 font-medium text-right cursor-pointer hover:text-primary">
                       Incidents
                     </th>
-                    <th className="p-2 px-4 font-medium text-right cursor-pointer hover:text-[#e2e2e3]">
+                    <th className="p-2 px-4 font-medium text-right cursor-pointer hover:text-primary">
                       MTTA
                     </th>
-                    <th className="p-2 px-4 font-medium text-right cursor-pointer hover:text-[#e2e2e3]">
+                    <th className="p-2 px-4 font-medium text-right cursor-pointer hover:text-primary">
                       MTTR
                     </th>
                     <th className="p-2 px-4 font-medium text-center">Health Status</th>
                     <th className="p-2 px-4 font-medium text-center w-8"></th>
                    </tr>
                 </thead>
-                <tbody className="font-mono text-[12px] text-[#e2e2e3] divide-y divide-[#424753]/30">
+                <tbody className="font-mono text-[12px] text-primary divide-y divide-border-muted/30">
                   {services.map((service) => (
                     <tr
                       key={service.id}
-                      className="hover:bg-[#333536]/20 transition-colors group"
+                      className="hover:bg-surface-interactive/20 transition-colors group"
                     >
                       <td className="p-2 px-4 flex items-center gap-2">
                         <span className={`w-1.5 h-1.5 rounded-full ${service.statusDot}`}></span>
                         <span className="font-medium">{service.id}</span>
                       </td>
-                      <td className="p-2 px-4 text-[#c2c6d6]">{service.team}</td>
+                      <td className="p-2 px-4 text-tertiary">{service.team}</td>
                       <td className={`p-2 px-4 text-right font-medium ${service.uptimeColor}`}>
                         {service.uptime}
                       </td>
@@ -484,7 +549,7 @@ const DashBoardAnalytics = () => {
                         </span>
                       </td>
                       <td className="p-2 px-4 text-center">
-                        <button className="opacity-0 group-hover:opacity-100 text-[#c2c6d6] hover:text-[#528dff] transition-all">
+                        <button className="opacity-0 group-hover:opacity-100 text-tertiary hover:text-brand-strong transition-all">
                           <ExternalLink className="w-4 h-4" />
                         </button>
                       </td>

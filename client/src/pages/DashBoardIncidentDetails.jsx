@@ -193,19 +193,19 @@ Initial assessment shows high CPU utilization on downstream auth microservices. 
   const getTimelineDotColor = (type) => {
     switch (type) {
       case 'error':
-        return 'bg-[#ffb4ab]';
+        return 'bg-danger-soft';
       case 'primary':
-        return 'bg-[#afc6ff]';
+        return 'bg-brand-soft';
       case 'note':
         return '';
       default:
-        return 'bg-[#8c909f]';
+        return 'bg-muted';
     }
   };
 
   const getTimelineIcon = (type) => {
     if (type === 'note') {
-      return <MessageSquare className="w-3 h-3 text-[#8c909f]" />;
+      return <MessageSquare className="w-3 h-3 text-subtle" />;
     }
     return null;
   };
@@ -213,46 +213,46 @@ Initial assessment shows high CPU utilization on downstream auth microservices. 
   const getLogLevelColor = (level) => {
     switch (level) {
       case 'ERROR':
-        return 'text-[#ffb4ab]';
+        return 'text-danger-soft';
       case 'WARN':
-        return 'text-[#f59e0b]';
+        return 'text-semantic-warning';
       default:
-        return 'text-[#4ade80]';
+        return 'text-success-bright';
     }
   };
 
   const getLogLevelBg = (level) => {
     switch (level) {
       case 'ERROR':
-        return 'bg-[#93000a]/20 border-[#ffb4ab]/30';
+        return 'bg-danger-bg-subtle border-danger-soft/30';
       case 'WARN':
-        return 'bg-[#f59e0b]/10 border-[#f59e0b]/20';
+        return 'bg-semantic-warning/10 border-semantic-warning/20';
       default:
-        return 'bg-[#4ade80]/10 border-[#4ade80]/20';
+        return 'bg-success-bright/10 border-success-bright/20';
     }
   };
 
   return (
-    <div className="bg-[#121415] text-[#e2e2e3] min-h-screen w-full antialiased">
+    <div className="bg-surface-header text-primary min-h-screen w-full antialiased">
       {/* Main Workspace */}
       <div className="flex flex-col h-full">
         {/* Incident Header Context */}
-        <div className="flex-none px-6 py-6 border-b border-[#262626] bg-[#141414]">
+        <div className="flex-none px-6 py-6 border-b border-border-primary bg-surface-card">
           <div className="flex flex-col gap-3 max-w-7xl mx-auto">
             {/* Breadcrumb */}
-            <div className="flex items-center gap-1 text-[#c2c6d6] font-mono text-[11px] mb-1">
-              <a href="#" className="hover:text-[#afc6ff] transition-colors">Incidents</a>
+            <div className="flex items-center gap-1 text-tertiary font-mono text-[11px] mb-1">
+              <a href="#" className="hover:text-brand-soft transition-colors">Incidents</a>
               <ChevronRight className="w-3 h-3" />
-              <a href="#" className="hover:text-[#afc6ff] transition-colors">Production</a>
+              <a href="#" className="hover:text-brand-soft transition-colors">Production</a>
               <ChevronRight className="w-3 h-3" />
-              <span className="text-[#e2e2e3]">{incident.id}</span>
+              <span className="text-primary">{incident.id}</span>
             </div>
 
             {/* Title and Actions */}
             <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
               <div className="flex-1 flex items-start gap-4">
-                <div className="mt-1 flex-none w-10 h-10 rounded bg-[#93000a]/10 border border-[#ffb4ab]/20 flex items-center justify-center">
-                  <AlertTriangle className="w-5 h-5 text-[#ffb4ab]" />
+                <div className="mt-1 flex-none w-10 h-10 rounded bg-semantic-error/10 border border-danger-soft/20 flex items-center justify-center">
+                  <AlertTriangle className="w-5 h-5 text-danger-soft" />
                 </div>
                 <div className="flex flex-col gap-2 w-full">
                   <div className="flex items-center gap-2 group">
@@ -263,26 +263,26 @@ Initial assessment shows high CPU utilization on downstream auth microservices. 
                         onChange={(e) => setTitle(e.target.value)}
                         onBlur={() => setIsEditing(false)}
                         onKeyPress={(e) => e.key === 'Enter' && setIsEditing(false)}
-                        className="text-[24px] leading-[32px] tracking-[-0.02em] font-semibold bg-[#1a1c1d] border border-[#424753] rounded px-3 py-1 text-[#e2e2e3] focus:outline-none focus:border-[#afc6ff] w-full"
+                        className="text-[24px] leading-[32px] tracking-[-0.02em] font-semibold bg-surface-elevated border border-border-muted rounded px-3 py-1 text-primary focus:outline-none focus:border-brand-soft w-full"
                         autoFocus
                       />
                     ) : (
                       <>
-                        <h1 className="text-[24px] leading-[32px] tracking-[-0.02em] font-semibold text-[#e2e2e3]">
+                        <h1 className="text-[24px] leading-[32px] tracking-[-0.02em] font-semibold text-primary">
                           {title}
                         </h1>
                         <button
                           onClick={() => setIsEditing(true)}
-                          className="text-[#8c909f] hover:text-[#e2e2e3] transition-colors opacity-0 group-hover:opacity-100"
+                          className="text-subtle hover:text-primary transition-colors opacity-0 group-hover:opacity-100"
                         >
                           <Edit className="w-4 h-4" />
                         </button>
                       </>
                     )}
                   </div>
-                  <div className="flex flex-wrap items-center gap-3 text-[#c2c6d6] font-mono text-[11px]">
+                  <div className="flex flex-wrap items-center gap-3 text-tertiary font-mono text-[11px]">
                     <span className="flex items-center gap-1.5">
-                      <span className={`w-2 h-2 rounded-full ${incident.status === 'Investigating' ? 'bg-[#ffb4ab]' : 'bg-[#4ade80]'}`}></span>
+                      <span className={`w-2 h-2 rounded-full ${incident.status === 'Investigating' ? 'bg-danger-soft' : 'bg-success-bright'}`}></span>
                       {incident.status}
                     </span>
                     <span>•</span>
@@ -295,16 +295,16 @@ Initial assessment shows high CPU utilization on downstream auth microservices. 
               <div className="flex items-center gap-2 flex-none">
                 <button
                   onClick={() => setIsMuted(!isMuted)}
-                  className="px-3 py-1.5 bg-transparent border border-[#262626] text-[#e2e2e3] text-[11px] font-medium rounded hover:bg-[#1a1a1a] transition-colors flex items-center gap-1.5"
+                  className="btn-outline"
                 >
                   {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
                   {isMuted ? 'Unmute' : 'Mute'}
                 </button>
-                <button className="px-3 py-1.5 bg-transparent border border-[#262626] text-[#e2e2e3] text-[11px] font-medium rounded hover:bg-[#1a1a1a] transition-colors flex items-center gap-1.5">
+                <button className="btn-outline">
                   <Rocket className="w-4 h-4" />
                   Escalate
                 </button>
-                <button className="px-4 py-1.5 bg-[#afc6ff] text-[#00275f] text-[11px] font-semibold rounded hover:bg-[#528dff] transition-colors flex items-center gap-1.5">
+                <button className="btn-primary">
                   <CheckCircle2 className="w-4 h-4" />
                   Resolve
                 </button>
@@ -312,20 +312,20 @@ Initial assessment shows high CPU utilization on downstream auth microservices. 
             </div>
 
             {/* Tabs */}
-            <div className="flex items-center gap-4 mt-4 border-b border-[#262626]">
+            <div className="flex items-center gap-4 mt-4 border-b border-border-primary">
               {['overview', 'logs', 'activity', 'notes'].map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
                   className={`px-1 py-2 border-b-2 transition-all text-[12px] font-medium capitalize ${
                     activeTab === tab
-                      ? 'border-[#afc6ff] text-[#afc6ff]'
-                      : 'border-transparent text-[#c2c6d6] hover:text-[#e2e2e3]'
+                      ? 'border-brand-soft text-brand-soft'
+                      : 'border-transparent text-tertiary hover:text-primary'
                   }`}
                 >
                   {tab}
                   {(tab === 'activity' || tab === 'notes') && (
-                    <span className="ml-1.5 bg-[#262626] text-[#e2e2e3] px-1.5 py-0.5 rounded text-[10px]">
+                    <span className="ml-1.5 bg-surface-interactive text-primary px-1.5 py-0.5 rounded text-[10px]">
                       {tab === 'activity' ? activities.length : notes.length}
                     </span>
                   )}
@@ -338,61 +338,61 @@ Initial assessment shows high CPU utilization on downstream auth microservices. 
         {/* Scrollable Content Layout */}
         <div className="flex-1 overflow-hidden flex flex-col lg:flex-row max-w-7xl mx-auto w-full">
           {/* Left Canvas: Tab Content */}
-          <div className="flex-1 overflow-y-auto p-6 border-r border-[#262626] custom-scrollbar">
+          <div className="flex-1 overflow-y-auto p-6 border-r border-border-primary custom-scrollbar">
             {/* OVERVIEW TAB */}
             {activeTab === 'overview' && (
               <div className="space-y-6">
                 {/* Description Card */}
-                <div className="bg-[#141414] border border-[#262626] rounded-lg p-5">
-                  <h3 className="text-[16px] leading-[24px] tracking-[-0.01em] font-semibold text-[#e2e2e3] mb-3 flex items-center gap-1.5">
-                    <FileText className="w-[18px] h-[18px] text-[#8c909f]" />
+                <div className="bg-surface-card border border-border-primary rounded-lg p-5">
+                  <h3 className="text-[16px] leading-[24px] tracking-[-0.01em] font-semibold text-primary mb-3 flex items-center gap-1.5">
+                    <FileText className="w-[18px] h-[18px] text-subtle" />
                     Description
                   </h3>
-                  <div className="text-[13px] leading-[18px] text-[#c2c6d6] space-y-3 whitespace-pre-line">
+                  <div className="text-[13px] leading-[18px] text-tertiary space-y-3 whitespace-pre-line">
                     {description}
                   </div>
                 </div>
 
                 {/* Timeline Section */}
                 <div>
-                  <h3 className="text-[16px] leading-[24px] tracking-[-0.01em] font-semibold text-[#e2e2e3] mb-4 flex items-center gap-1.5">
-                    <Clock className="w-[18px] h-[18px] text-[#8c909f]" />
+                  <h3 className="text-[16px] leading-[24px] tracking-[-0.01em] font-semibold text-primary mb-4 flex items-center gap-1.5">
+                    <Clock className="w-[18px] h-[18px] text-subtle" />
                     Event Timeline
                   </h3>
-                  <div className="relative border-l border-[#262626] ml-[9px] space-y-5 pb-4">
+                  <div className="relative border-l border-border-primary ml-[9px] space-y-5 pb-4">
                     {[...timeline, ...notes].sort((a, b) => b.id - a.id).map((item) => (
                       <div key={item.id} className="relative pl-6">
-                        <div className={`absolute w-[18px] h-[18px] bg-[#141414] border border-[#262626] rounded-full -left-[9px] top-0.5 flex items-center justify-center`}>
+                        <div className={`absolute w-[18px] h-[18px] bg-surface-card border border-border-primary rounded-full -left-[9px] top-0.5 flex items-center justify-center`}>
                           {getTimelineIcon(item.type) || (
                             <div className={`w-1.5 h-1.5 rounded-full ${getTimelineDotColor(item.type)}`}></div>
                           )}
                         </div>
                         <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
-                          <span className="text-[12px] font-semibold text-[#e2e2e3]">{item.title}</span>
-                          <span className="font-mono text-[#c2c6d6] text-[11px]">{item.time}</span>
+                          <span className="text-[12px] font-semibold text-primary">{item.title}</span>
+                          <span className="font-mono text-tertiary text-[11px]">{item.time}</span>
                         </div>
                         
                         {item.hasCard ? (
-                          <div className="bg-[#141414] border border-[#262626] rounded p-3 mt-2">
-                            <p className="font-mono text-[#e2e2e3] text-[12px]">{item.description}</p>
+                          <div className="bg-surface-card border border-border-primary rounded p-3 mt-2">
+                            <p className="font-mono text-primary text-[12px]">{item.description}</p>
                           </div>
                         ) : item.hasAvatar ? (
                           <div className="flex items-center gap-2 mt-2">
-                            <img src={item.avatar} alt="Sarah Jenkins" className="w-5 h-5 rounded-full border border-[#262626]" />
-                            <span className="text-[12px] text-[#c2c6d6]">{item.description}</span>
+                            <img src={item.avatar} alt="Sarah Jenkins" className="w-5 h-5 rounded-full border border-border-primary" />
+                            <span className="text-[12px] text-tertiary">{item.description}</span>
                           </div>
                         ) : item.type === 'note' ? (
-                          <div className="bg-[#1a1a1a] border-l-2 border-[#afc6ff] pl-3 py-2 mt-2">
-                            <p className="text-[13px] text-[#e2e2e3] italic">{item.description}</p>
+                          <div className="bg-surface-elevated border-l-2 border-brand-soft pl-3 py-2 mt-2">
+                            <p className="text-[13px] text-primary italic">{item.description}</p>
                             {item.user && (
                               <div className="flex items-center gap-2 mt-2">
                                 <img src={item.avatar} className="w-4 h-4 rounded-full" alt="" />
-                                <span className="text-[10px] text-[#8c909f]">— {item.user.name}</span>
+                                <span className="text-[10px] text-subtle">— {item.user.name}</span>
                               </div>
                             )}
                           </div>
                         ) : (
-                          <p className="text-[13px] text-[#c2c6d6] mt-1">{item.description}</p>
+                          <p className="text-[13px] text-tertiary mt-1">{item.description}</p>
                         )}
                       </div>
                     ))}
@@ -408,34 +408,34 @@ Initial assessment shows high CPU utilization on downstream auth microservices. 
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div className="flex items-center gap-2">
                     <div className="relative">
-                      <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#8c909f]" />
+                      <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-subtle" />
                       <input
                         type="text"
                         placeholder="Filter logs..."
-                        className="pl-7 pr-3 py-1.5 bg-[#1a1c1d] border border-[#262626] rounded-lg text-[12px] text-[#e2e2e3] focus:border-[#afc6ff] focus:outline-none w-64"
+                        className="pl-7 pr-3 py-1.5 bg-surface-elevated border border-border-primary rounded-lg text-[12px] text-primary focus:border-brand-soft focus:outline-none w-64"
                       />
                     </div>
-                    <button className="p-1.5 border border-[#262626] rounded-lg text-[#8c909f] hover:text-[#e2e2e3]">
+                    <button className="p-1.5 border border-border-primary rounded-lg text-subtle hover:text-primary">
                       <Filter className="w-3.5 h-3.5" />
                     </button>
                   </div>
                   <div className="flex items-center gap-2">
-                    <button className="px-3 py-1.5 border border-[#262626] rounded-lg text-[11px] text-[#c2c6d6] hover:bg-[#1a1c1d] transition-colors flex items-center gap-1">
+                    <button className="px-3 py-1.5 border border-border-primary rounded-lg text-[11px] text-tertiary hover:bg-surface-elevated transition-colors flex items-center gap-1">
                       <Download className="w-3 h-3" />
                       Export
                     </button>
-                    <button className="p-1.5 border border-[#262626] rounded-lg text-[#8c909f] hover:text-[#e2e2e3]">
+                    <button className="p-1.5 border border-border-primary rounded-lg text-subtle hover:text-primary">
                       <RefreshCw className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 </div>
 
                 {/* Logs Table */}
-                <div className="bg-[#141414] border border-[#262626] rounded-lg overflow-hidden">
+                <div className="bg-surface-card border border-border-primary rounded-lg overflow-hidden">
                   <div className="overflow-x-auto">
                     <table className="w-full text-left">
-                      <thead className="bg-[#1a1c1d] border-b border-[#262626]">
-                        <tr className="text-[11px] font-mono text-[#8c909f] uppercase tracking-wider">
+                      <thead className="bg-surface-elevated border-b border-border-primary">
+                        <tr className="text-[11px] font-mono text-subtle uppercase tracking-wider">
                           <th className="px-4 py-2">Timestamp</th>
                           <th className="px-4 py-2">Level</th>
                           <th className="px-4 py-2">Source</th>
@@ -443,19 +443,19 @@ Initial assessment shows high CPU utilization on downstream auth microservices. 
                           <th className="px-4 py-2 w-10"></th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-[#262626]">
+                      <tbody className="divide-y divide-border-primary">
                         {logs.map((log) => (
-                          <tr key={log.id} className="hover:bg-[#1a1c1d] transition-colors">
-                            <td className="px-4 py-2.5 text-[11px] font-mono text-[#c2c6d6]">{log.timestamp}</td>
+                          <tr key={log.id} className="hover:bg-surface-elevated transition-colors">
+                            <td className="px-4 py-2.5 text-[11px] font-mono text-tertiary">{log.timestamp}</td>
                             <td className="px-4 py-2.5">
                               <span className={`inline-flex px-1.5 py-0.5 rounded text-[10px] font-bold ${getLogLevelBg(log.level)} ${getLogLevelColor(log.level)}`}>
                                 {log.level}
                               </span>
                              </td>
-                            <td className="px-4 py-2.5 text-[12px] font-mono text-[#c2c6d6]">{log.source}</td>
-                            <td className="px-4 py-2.5 text-[12px] font-mono text-[#e2e2e3]">{log.message}</td>
+                            <td className="px-4 py-2.5 text-[12px] font-mono text-tertiary">{log.source}</td>
+                            <td className="px-4 py-2.5 text-[12px] font-mono text-primary">{log.message}</td>
                             <td className="px-4 py-2.5">
-                              <button className="text-[#8c909f] hover:text-[#e2e2e3]">
+                              <button className="text-subtle hover:text-primary">
                                 <Copy className="w-3.5 h-3.5" />
                               </button>
                              </td>
@@ -472,21 +472,21 @@ Initial assessment shows high CPU utilization on downstream auth microservices. 
             {activeTab === 'activity' && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-[13px] font-semibold text-[#e2e2e3]">Recent Activity</h3>
-                  <button className="text-[11px] text-[#afc6ff] hover:underline">View all</button>
+                  <h3 className="text-[13px] font-semibold text-primary">Recent Activity</h3>
+                  <button className="text-[11px] text-brand-soft hover:underline">View all</button>
                 </div>
                 <div className="space-y-3">
                   {activities.map((activity) => (
-                    <div key={activity.id} className="flex items-start gap-3 p-3 bg-[#141414] border border-[#262626] rounded-lg">
-                      <div className="w-7 h-7 rounded-full bg-[#1a1c1d] border border-[#262626] flex items-center justify-center">
-                        <activity.icon className="w-3.5 h-3.5 text-[#8c909f]" />
+                    <div key={activity.id} className="flex items-start gap-3 p-3 bg-surface-card border border-border-primary rounded-lg">
+                      <div className="w-7 h-7 rounded-full bg-surface-elevated border border-border-primary flex items-center justify-center">
+                        <activity.icon className="w-3.5 h-3.5 text-subtle" />
                       </div>
                       <div className="flex-1">
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="text-[12px] font-medium text-[#e2e2e3]">{activity.user}</span>
-                          <span className="text-[12px] text-[#c2c6d6]">{activity.action}</span>
+                          <span className="text-[12px] font-medium text-primary">{activity.user}</span>
+                          <span className="text-[12px] text-tertiary">{activity.action}</span>
                         </div>
-                        <span className="text-[10px] font-mono text-[#8c909f]">{activity.time}</span>
+                        <span className="text-[10px] font-mono text-subtle">{activity.time}</span>
                       </div>
                     </div>
                   ))}
@@ -501,30 +501,30 @@ Initial assessment shows high CPU utilization on downstream auth microservices. 
                 {!showAddNote ? (
                   <button
                     onClick={() => setShowAddNote(true)}
-                    className="w-full py-3 border border-dashed border-[#424753] rounded-lg text-[12px] text-[#8c909f] hover:text-[#afc6ff] hover:border-[#afc6ff] transition-colors flex items-center justify-center gap-2"
+                    className="w-full py-3 border border-dashed border-border-muted rounded-lg text-[12px] text-subtle hover:text-brand-soft hover:border-brand-soft transition-colors flex items-center justify-center gap-2"
                   >
                     <Plus className="w-4 h-4" />
                     Add Note
                   </button>
                 ) : (
-                  <div className="bg-[#141414] border border-[#262626] rounded-lg p-4">
+                  <div className="bg-surface-card border border-border-primary rounded-lg p-4">
                     <textarea
                       value={newNote}
                       onChange={(e) => setNewNote(e.target.value)}
                       placeholder="Write a note..."
-                      className="w-full bg-[#0D0D0D] border border-[#262626] rounded-lg p-3 text-[13px] text-[#e2e2e3] focus:border-[#afc6ff] focus:outline-none resize-none"
+                      className="w-full bg-surface border border-border-primary rounded-lg p-3 text-[13px] text-primary focus:border-brand-soft focus:outline-none resize-none"
                       rows={3}
                     />
                     <div className="flex justify-end gap-2 mt-3">
                       <button
                         onClick={() => setShowAddNote(false)}
-                        className="px-3 py-1.5 border border-[#262626] rounded-lg text-[11px] text-[#c2c6d6] hover:bg-[#1a1c1d] transition-colors"
+                        className="btn-outline"
                       >
                         Cancel
                       </button>
                       <button
                         onClick={handleAddNote}
-                        className="px-3 py-1.5 bg-[#afc6ff] text-[#00275f] rounded-lg text-[11px] font-semibold hover:bg-[#528dff] transition-colors flex items-center gap-1"
+                        className="btn-primary"
                       >
                         <Send className="w-3 h-3" />
                         Post Note
@@ -536,22 +536,22 @@ Initial assessment shows high CPU utilization on downstream auth microservices. 
                 {/* Notes List */}
                 <div className="space-y-4">
                   {notes.map((note) => (
-                    <div key={note.id} className="bg-[#141414] border border-[#262626] rounded-lg p-4">
+                    <div key={note.id} className="bg-surface-card border border-border-primary rounded-lg p-4">
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-full overflow-hidden border border-[#262626]">
+                          <div className="w-6 h-6 rounded-full overflow-hidden border border-border-primary">
                             <img src={note.avatar} alt="" className="w-full h-full object-cover" />
                           </div>
                           <div>
-                            <span className="text-[12px] font-medium text-[#e2e2e3]">{note.user?.name || 'System'}</span>
-                            <span className="text-[10px] text-[#8c909f] ml-2">{note.time}</span>
+                            <span className="text-[12px] font-medium text-primary">{note.user?.name || 'System'}</span>
+                            <span className="text-[10px] text-subtle ml-2">{note.time}</span>
                           </div>
                         </div>
-                        <button className="text-[#8c909f] hover:text-[#e2e2e3]">
+                        <button className="text-subtle hover:text-primary">
                           <MoreVertical className="w-3.5 h-3.5" />
                         </button>
                       </div>
-                      <p className="text-[13px] text-[#c2c6d6] italic pl-8">{note.description}</p>
+                      <p className="text-[13px] text-tertiary italic pl-8">{note.description}</p>
                     </div>
                   ))}
                 </div>
@@ -560,34 +560,34 @@ Initial assessment shows high CPU utilization on downstream auth microservices. 
           </div>
 
           {/* Right Sidebar: Metadata & Actions */}
-          <div className="w-full lg:w-[320px] bg-[#121415] border-l border-[#262626] overflow-y-auto flex-none">
+          <div className="w-full lg:w-[320px] bg-surface-header border-l border-border-primary overflow-y-auto flex-none">
             <div className="p-5 flex flex-col gap-5">
               {/* Severity & Status */}
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-[#141414] border border-[#262626] rounded p-3 flex flex-col gap-1.5">
-                  <span className="font-mono text-[#8c909f] text-[10px] uppercase tracking-wider">Severity</span>
+                <div className="bg-surface-card border border-border-primary rounded p-3 flex flex-col gap-1.5">
+                  <span className="font-mono text-subtle text-[10px] uppercase tracking-wider">Severity</span>
                   <div className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-[#ffb4ab]"></span>
-                    <span className="text-[12px] font-medium text-[#e2e2e3]">{incident.severity}</span>
+                    <span className="w-2 h-2 rounded-full bg-danger-soft"></span>
+                    <span className="text-[12px] font-medium text-primary">{incident.severity}</span>
                   </div>
                 </div>
-                <div className="bg-[#141414] border border-[#262626] rounded p-3 flex flex-col gap-1.5">
-                  <span className="font-mono text-[#8c909f] text-[10px] uppercase tracking-wider">Status</span>
+                <div className="bg-surface-card border border-border-primary rounded p-3 flex flex-col gap-1.5">
+                  <span className="font-mono text-subtle text-[10px] uppercase tracking-wider">Status</span>
                   <div className="flex items-center gap-1.5">
-                    <Activity className="w-3.5 h-3.5 text-[#afc6ff]" />
-                    <span className="text-[12px] font-medium text-[#e2e2e3]">Investigating</span>
+                    <Activity className="w-3.5 h-3.5 text-brand-soft" />
+                    <span className="text-[12px] font-medium text-primary">Investigating</span>
                   </div>
                 </div>
               </div>
 
               {/* Assignments */}
               <div>
-                <h4 className="font-mono text-[#8c909f] text-[10px] uppercase tracking-wider mb-2">Roles</h4>
+                <h4 className="font-mono text-subtle text-[10px] uppercase tracking-wider mb-2">Roles</h4>
                 <ul className="flex flex-col gap-2">
                   <li className="flex items-center justify-between group">
                     <div className="flex items-center gap-2">
-                      <User className="w-4 h-4 text-[#424753]" />
-                      <span className="text-[13px] text-[#c2c6d6]">Commander</span>
+                      <User className="w-4 h-4 text-border-muted" />
+                      <span className="text-[13px] text-tertiary">Commander</span>
                     </div>
                     <div className="flex items-center gap-1.5">
                       <img
@@ -595,38 +595,38 @@ Initial assessment shows high CPU utilization on downstream auth microservices. 
                         className="w-5 h-5 rounded-full"
                         src="https://lh3.googleusercontent.com/aida-public/AB6AXuD17J1w4ASm4njjGu7tfazEDG2eQn3Qsf6gZ-qbODCXIzjYuvbWZJwTlz8Ftgn4g2hMQ2pRA6fm4o4KxRISoaaxpOCJEbMW8QI3cuwoJKJE8HxYOWwOgWtB0V7hRxnoZFsakO-_FDYPXienkotBuqK9kzsq_dXVlMKjXm1OPjzfguQFOWSErV6j6i01pMRYSK0yvebk3TZ423Zkict1p0UB1ew-8ibH0ULXkJz-USXI1AP3zL5slcAxCg8UlVGkbdgsyEMddCJdMMAz"
                       />
-                      <span className="text-[12px] font-medium text-[#e2e2e3]">S. Jenkins</span>
+                      <span className="text-[12px] font-medium text-primary">S. Jenkins</span>
                     </div>
                   </li>
                   <li className="flex items-center justify-between group">
                     <div className="flex items-center gap-2">
-                      <Users className="w-4 h-4 text-[#424753]" />
-                      <span className="text-[13px] text-[#c2c6d6]">Comms</span>
+                      <Users className="w-4 h-4 text-border-muted" />
+                      <span className="text-[13px] text-tertiary">Comms</span>
                     </div>
-                    <button className="text-[12px] font-medium text-[#afc6ff] hover:underline">Assign</button>
+                    <button className="text-[12px] font-medium text-brand-soft hover:underline">Assign</button>
                   </li>
                 </ul>
               </div>
 
-              <div className="w-full h-px bg-[#262626]"></div>
+              <div className="w-full h-px bg-surface-interactive"></div>
 
               {/* Impacted Services */}
               <div>
-                <h4 className="font-mono text-[#8c909f] text-[10px] uppercase tracking-wider mb-2">Impacted Services</h4>
+                <h4 className="font-mono text-subtle text-[10px] uppercase tracking-wider mb-2">Impacted Services</h4>
                 <div className="flex flex-wrap gap-2">
-                  <span className="bg-[#1a1c1d] border border-[#262626] text-[#c2c6d6] font-mono text-[11px] px-2 py-1 rounded flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#ffb4ab]"></span>
+                  <span className="bg-surface-elevated border border-border-primary text-tertiary font-mono text-[11px] px-2 py-1 rounded flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-danger-soft"></span>
                     api-gateway
                   </span>
-                  <span className="bg-[#1a1c1d] border border-[#262626] text-[#c2c6d6] font-mono text-[11px] px-2 py-1 rounded flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#ffb4ab]"></span>
+                  <span className="bg-surface-elevated border border-border-primary text-tertiary font-mono text-[11px] px-2 py-1 rounded flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-danger-soft"></span>
                     auth-service
                   </span>
-                  <span className="bg-[#1a1c1d] border border-[#262626] text-[#c2c6d6] font-mono text-[11px] px-2 py-1 rounded flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#8c909f]"></span>
+                  <span className="bg-surface-elevated border border-border-primary text-tertiary font-mono text-[11px] px-2 py-1 rounded flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-muted"></span>
                     analytics-worker
                   </span>
-                  <button className="bg-transparent border border-dashed border-[#424753] text-[#8c909f] hover:text-[#e2e2e3] font-mono text-[11px] px-2 py-1 rounded flex items-center gap-1 transition-colors">
+                  <button className="bg-transparent border border-dashed border-border-muted text-subtle hover:text-primary font-mono text-[11px] px-2 py-1 rounded flex items-center gap-1 transition-colors">
                     <Plus className="w-3 h-3" />
                     Add
                   </button>

@@ -109,7 +109,7 @@ const AdminActivity = () => {
   };
 
   return (
-    <div className="p-3 sm:p-4 md:p-6 lg:p-8 min-h-[calc(100vh-64px)] text-[#e2e2e3]">
+    <div className="p-3 sm:p-4 md:p-6 lg:p-8 min-h-[calc(100vh-64px)] text-primary">
       {/* Header Section */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 md:mb-8 gap-4 sm:gap-6">
         <div>
@@ -119,11 +119,11 @@ const AdminActivity = () => {
           </p>
         </div>
         <div className="flex items-center gap-3 sm:gap-4">
-          <button className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-[#252526] text-white rounded-lg hover:bg-[#3D7BE6] transition-colors text-xs sm:text-sm font-semibold">
+          <button className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-surface-panel text-white rounded-lg hover:bg-brand transition-colors text-xs sm:text-sm font-semibold">
             <RefreshCw className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             <span className="hidden xs:inline">Refresh</span>
           </button>
-          <button className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-[#252526] text-white rounded-lg hover:bg-[#3D7BE6] transition-colors text-xs sm:text-sm font-semibold">
+          <button className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-surface-panel text-white rounded-lg hover:bg-brand transition-colors text-xs sm:text-sm font-semibold">
             <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             <span className="hidden xs:inline">Export</span>
           </button>
@@ -132,7 +132,7 @@ const AdminActivity = () => {
 
       {/* Stats Cards - Responsive Grid */}
       <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 md:mb-8">
-        <div className="bg-[#1e2021] rounded-xl border border-zinc-700 p-4 sm:p-6">
+        <div className="bg-surface-panel rounded-xl border border-zinc-700 p-4 sm:p-6">
           <span className="text-zinc-400 text-[10px] sm:text-xs uppercase tracking-wider mb-2 block">Total Events (24h)</span>
           <div className="flex items-end justify-between flex-wrap gap-1">
             <span className="text-xl sm:text-2xl font-semibold text-white">12,482</span>
@@ -143,7 +143,7 @@ const AdminActivity = () => {
           </div>
         </div>
 
-        <div className="bg-[#1e2021] rounded-xl border border-zinc-700 p-4 sm:p-6">
+        <div className="bg-surface-panel rounded-xl border border-zinc-700 p-4 sm:p-6">
           <span className="text-zinc-400 text-[10px] sm:text-xs uppercase tracking-wider mb-2 block">Failed Attempts</span>
           <div className="flex items-end justify-between flex-wrap gap-1">
             <span className="text-xl sm:text-2xl font-semibold text-red-400">142</span>
@@ -154,7 +154,7 @@ const AdminActivity = () => {
           </div>
         </div>
 
-        <div className="bg-[#1e2021] rounded-xl border border-zinc-700 p-4 sm:p-6">
+        <div className="bg-surface-panel rounded-xl border border-zinc-700 p-4 sm:p-6">
           <span className="text-zinc-400 text-[10px] sm:text-xs uppercase tracking-wider mb-2 block">Active Sessions</span>
           <div className="flex items-end justify-between flex-wrap gap-1">
             <span className="text-xl sm:text-2xl font-semibold text-white">2,847</span>
@@ -165,7 +165,7 @@ const AdminActivity = () => {
           </div>
         </div>
 
-        <div className="bg-[#1e2021] rounded-xl border border-zinc-700 p-4 sm:p-6">
+        <div className="bg-surface-panel rounded-xl border border-zinc-700 p-4 sm:p-6">
           <span className="text-zinc-400 text-[10px] sm:text-xs uppercase tracking-wider mb-2 block">Avg Response</span>
           <div className="flex items-end justify-between flex-wrap gap-1">
             <span className="text-xl sm:text-2xl font-semibold text-white">124ms</span>
@@ -178,7 +178,7 @@ const AdminActivity = () => {
       </div>
 
       {/* Filter Section - Inline, no mobile drawer */}
-      <div className="bg-[#1e2021] rounded-xl border border-zinc-700 mb-6 md:mb-8">
+      <div className="bg-surface-panel rounded-xl border border-zinc-700 mb-6 md:mb-8">
         <div className="p-4 sm:p-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
             <div className="flex items-center gap-2">
@@ -190,7 +190,7 @@ const AdminActivity = () => {
               <input
                 type="text"
                 placeholder="Search logs..."
-                className="w-full bg-[#0D0D0D] border border-zinc-700 text-white text-xs sm:text-sm pl-9 pr-4 py-1.5 sm:py-2 rounded-lg outline-none focus:border-[#4F8CFF] transition-colors"
+                className="w-full bg-surface border border-zinc-700 text-white text-xs sm:text-sm pl-9 pr-4 py-1.5 sm:py-2 rounded-lg outline-none focus:border-brand transition-colors"
               />
             </div>
           </div>
@@ -203,7 +203,7 @@ const AdminActivity = () => {
                 onClick={() => setSelectedFilter(filter)}
                 className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-medium transition-colors whitespace-nowrap ${
                   selectedFilter === filter
-                    ? 'bg-[#528dff] text-white'
+                    ? 'bg-brand-strong text-white'
                     : 'bg-zinc-800 border border-zinc-700 text-zinc-400 hover:text-white hover:bg-zinc-700'
                 }`}
               >
@@ -215,7 +215,7 @@ const AdminActivity = () => {
       </div>
 
       {/* Activity Logs Table - Horizontal scroll on small screens */}
-      <div className="bg-[#1e2021] rounded-xl border border-zinc-700 overflow-hidden shadow-2xl">
+      <div className="bg-surface-panel rounded-xl border border-zinc-700 overflow-hidden shadow-2xl">
         <div className="overflow-x-auto">
           <div className="min-w-[800px] lg:min-w-full">
             <table className="w-full text-left border-collapse">
@@ -306,7 +306,7 @@ const AdminActivity = () => {
               <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </button>
             <div className="flex items-center gap-0.5 sm:gap-1">
-              <button className="w-6 h-6 sm:w-8 sm:h-8 rounded bg-[#528dff] text-white text-[10px] sm:text-xs font-medium">1</button>
+              <button className="w-6 h-6 sm:w-8 sm:h-8 rounded bg-brand-strong text-white text-[10px] sm:text-xs font-medium">1</button>
               <button className="w-6 h-6 sm:w-8 sm:h-8 rounded text-zinc-400 hover:bg-zinc-700 text-[10px] sm:text-xs font-medium">2</button>
               <button className="w-6 h-6 sm:w-8 sm:h-8 rounded text-zinc-400 hover:bg-zinc-700 text-[10px] sm:text-xs font-medium">3</button>
               <span className="text-zinc-500 text-[10px] sm:text-xs px-0.5 sm:px-1">...</span>

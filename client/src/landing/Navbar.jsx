@@ -17,9 +17,9 @@ const Navbar = () => {
                 px-5 py-2 
                 text-sm md:text-base 
                 font-medium 
-                border-b border-b-[#1a1a1a] 
+                border-b border-b-surface-elevated 
                 transition-all duration-300 
-                hover:bg-[#1a1a1a] hover:text-white
+                hover:bg-surface-elevated hover:text-white
                 rounded-2xl
             '>
                 Get Started
