@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { validationResult } from "express-validator";
 import userModel from "../models/user.model.js";
 import Organization from "../models/organization.model.js";
+import { imagekit } from "../config/imagekit.js";
 
 export const getProfile = async (req, res) => {
     try {
@@ -46,36 +47,36 @@ export const updateProfile = async (req, res) => {
         const userId = req.userId;
         const { name, avatar, preferences } = req.body;
 
-        const updateData = {};
+        const update = { $set: {} };
 
         // 2. Build update object
-        if (name) updateData.name = name;
-        if (avatar !== undefined) updateData.avatar = avatar;
+        if (name) update.$set.name = name;
+        if (avatar !== undefined) update.$set.avatar = avatar;
 
         if (preferences) {
             if (preferences.theme) {
-                updateData["preferences.theme"] = preferences.theme;
+                update.$set["preferences.theme"] = preferences.theme;
             }
 
             if (preferences.notifications) {
                 const { email, sms, slack } = preferences.notifications;
 
                 if (email !== undefined) {
-                    updateData["preferences.notifications.email"] = email;
+                    update.$set["preferences.notifications.email"] = email;
                 }
 
                 if (sms !== undefined) {
-                    updateData["preferences.notifications.sms"] = sms;
+                    update.$set["preferences.notifications.sms"] = sms;
                 }
 
                 if (slack !== undefined) {
-                    updateData["preferences.notifications.slack"] = slack;
+                    update.$set["preferences.notifications.slack"] = slack;
                 }
             }
         }
 
         // 3. Prevent empty update
-        if (Object.keys(updateData).length === 0) {
+        if (Object.keys(update.$set).length === 0) {
             return res.status(400).json({ message: "No valid fields to update" });
         }
 
@@ -83,7 +84,7 @@ export const updateProfile = async (req, res) => {
         // We use returnDocument: 'after' instead of new: true (deprecated)
         const user = await userModel.findOneAndUpdate(
             { _id: userId, isActive: true },
-            { $set: updateData },
+            update,
             { returnDocument: "after", runValidators: true }
         ).select("-password -refreshTokens -passwordResetToken -emailVerificationToken");
 
@@ -107,6 +108,65 @@ export const updateProfile = async (req, res) => {
 
     } catch (error) {
         console.error("Update Profile Error:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+export const updateAvatar = async (req, res) => {
+    try {
+        const userId = req.userId;
+
+        // 1. Check if file exists
+        if (!req.file) {
+            return res.status(400).json({ message: "No file uploaded" });
+        }
+
+        // 2. Check if user exists and is active
+        const user = await userModel.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        if (!user.isActive) {
+            return res.status(403).json({ message: "Account is deactivated" });
+        }
+
+        // 3. Upload to ImageKit
+        // ImageKit handles optimization and storage
+        const uploaded = await imagekit.upload({
+            file: req.file.buffer,
+            fileName: `avatar-${userId}-${Date.now()}.jpg`, // Added timestamp for uniqueness and cache busting
+            folder: "/avatars",
+            useUniqueFileName: true,
+            transformation: {
+                pre: "w-300,h-300,fo-face,c-at_max,q-80", // Resize, focus face, max quality 80% for compression
+            },
+        });
+
+        if (!uploaded || !uploaded.url) {
+            throw new Error("Image upload failed");
+        }
+
+        // 4. Update user profile
+        const updatedUser = await userModel.findByIdAndUpdate(
+            userId,
+            { avatar: uploaded.url },
+            { returnDocument: "after", runValidators: true }
+        ).select("-password -refreshTokens -passwordResetToken -emailVerificationToken");
+
+        return res.status(200).json({
+            message: "Avatar updated successfully",
+            avatar: uploaded.url,
+            user: updatedUser,
+        });
+
+    } catch (error) {
+        console.error("Update Avatar Error:", error);
+
+        // Handle ImageKit specific errors if any
+        if (error.message && error.message.includes("ImageKit")) {
+            return res.status(502).json({ message: "Image storage service error" });
+        }
+
         return res.status(500).json({ message: "Internal server error" });
     }
 };

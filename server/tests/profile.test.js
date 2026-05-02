@@ -1,3 +1,4 @@
+import { jest } from '@jest/globals';
 import request from 'supertest';
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
@@ -5,6 +6,7 @@ import jwt from 'jsonwebtoken';
 import app from '../src/app.js';
 import userModel from '../models/user.model.js';
 import config from '../config/config.js';
+import { imagekit } from '../config/imagekit.js';
 
 let mongoServer;
 
@@ -109,6 +111,126 @@ describe('GET /api/users/profile', () => {
     });
 });
 
+describe('POST /api/users/avatar', () => {
+    const generateToken = (userId) => {
+        return jwt.sign({ userId }, config.ACCESS_TOKEN_SECRET || 'test_secret', {
+            expiresIn: '15m',
+        });
+    };
+
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
+
+    it('should upload avatar successfully', async () => {
+        const user = await userModel.create({
+            name: 'John Doe',
+            email: 'john@example.com',
+            password: 'password123',
+            isActive: true,
+        });
+
+        const token = generateToken(user._id);
+        const mockUrl = 'https://ik.imagekit.io/test/avatar.jpg';
+        
+        const uploadSpy = jest.spyOn(imagekit, 'upload').mockResolvedValue({
+            url: mockUrl,
+            fileId: 'test_id'
+        });
+
+        const res = await request(app)
+            .post('/api/users/avatar')
+            .set('Cookie', [`accessToken=${token}`])
+            .attach('avatar', Buffer.from('fake-image-content'), 'avatar.jpg');
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.avatar).toEqual(mockUrl);
+        expect(res.body.user.avatar).toEqual(mockUrl);
+        expect(uploadSpy).toHaveBeenCalled();
+        
+        uploadSpy.mockRestore();
+    });
+
+    it('should return 400 if no file is uploaded', async () => {
+        const user = await userModel.create({
+            name: 'John Doe',
+            email: 'john@example.com',
+            password: 'password123',
+            isActive: true,
+        });
+
+        const token = generateToken(user._id);
+
+        const res = await request(app)
+            .post('/api/users/avatar')
+            .set('Cookie', [`accessToken=${token}`]);
+
+        expect(res.statusCode).toEqual(400);
+        expect(res.body.message).toEqual('No file uploaded');
+    });
+
+    it('should return 400 for invalid file type', async () => {
+        const user = await userModel.create({
+            name: 'John Doe',
+            email: 'john@example.com',
+            password: 'password123',
+            isActive: true,
+        });
+
+        const token = generateToken(user._id);
+
+        const res = await request(app)
+            .post('/api/users/avatar')
+            .set('Cookie', [`accessToken=${token}`])
+            .attach('avatar', Buffer.from('fake-text-content'), 'test.txt');
+
+        expect(res.statusCode).toEqual(400);
+        expect(res.body.message).toMatch(/Only image files/);
+    });
+
+    it('should return 403 if account is deactivated', async () => {
+        const user = await userModel.create({
+            name: 'Inactive User',
+            email: 'inactive@example.com',
+            password: 'password123',
+            isActive: false,
+        });
+
+        const token = generateToken(user._id);
+
+        const res = await request(app)
+            .post('/api/users/avatar')
+            .set('Cookie', [`accessToken=${token}`])
+            .attach('avatar', Buffer.from('fake-image-content'), 'avatar.jpg');
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.message).toEqual('Account is deactivated');
+    });
+
+    it('should handle ImageKit upload failure', async () => {
+        const user = await userModel.create({
+            name: 'John Doe',
+            email: 'john@example.com',
+            password: 'password123',
+            isActive: true,
+        });
+
+        const token = generateToken(user._id);
+        
+        const uploadSpy = jest.spyOn(imagekit, 'upload').mockRejectedValue(new Error('ImageKit error'));
+
+        const res = await request(app)
+            .post('/api/users/avatar')
+            .set('Cookie', [`accessToken=${token}`])
+            .attach('avatar', Buffer.from('fake-image-content'), 'avatar.jpg');
+
+        expect(res.statusCode).toEqual(502);
+        expect(res.body.message).toEqual('Image storage service error');
+        
+        uploadSpy.mockRestore();
+    });
+});
+
 describe('PATCH /api/users/profile', () => {
     const generateToken = (userId) => {
         return jwt.sign({ userId }, config.ACCESS_TOKEN_SECRET || 'test_secret', {
@@ -146,6 +268,42 @@ describe('PATCH /api/users/profile', () => {
         expect(res.body.user.preferences.notifications.email).toEqual(false);
         expect(res.body.user.preferences.notifications.slack).toEqual(true);
         expect(res.body.user.preferences.notifications.sms).toEqual(false); // default
+    });
+
+    it('should update profile successfully without overwriting other preferences', async () => {
+        const user = await userModel.create({
+            name: 'John Doe',
+            email: 'john@example.com',
+            password: 'password123',
+            isActive: true,
+            preferences: {
+                theme: 'dark',
+                notifications: {
+                    email: true,
+                    sms: true,
+                    slack: false
+                }
+            }
+        });
+
+        const token = generateToken(user._id);
+
+        const res = await request(app)
+            .patch('/api/users/profile')
+            .set('Cookie', [`accessToken=${token}`])
+            .send({
+                preferences: {
+                    notifications: {
+                        email: false
+                    }
+                }
+            });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.user.preferences.theme).toEqual('dark'); // Should be preserved
+        expect(res.body.user.preferences.notifications.email).toEqual(false); // Should be updated
+        expect(res.body.user.preferences.notifications.sms).toEqual(true); // Should be preserved
+        expect(res.body.user.preferences.notifications.slack).toEqual(false); // Should be preserved
     });
 
     it('should update avatar successfully', async () => {
