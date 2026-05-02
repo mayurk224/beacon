@@ -277,3 +277,75 @@ export const getMyOrganizations = async (req, res) => {
         return res.status(500).json({ message: "Internal server error" });
     }
 };
+
+export const getOrganizationById = async (req, res) => {
+  try {
+    // 1. Validation
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        message: "Validation failed",
+        errors: errors.array().map(err => ({ field: err.path, message: err.msg }))
+      });
+    }
+
+    const { id } = req.params;
+    const userId = req.userId;
+
+    // 2. Check membership (IMPORTANT for authorization)
+    const user = await userModel.findOne({
+      _id: userId,
+      "memberships.organization": id,
+    });
+
+    if (!user) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    // 3. Get organization details
+    const organization = await organizationModel.findById(id);
+
+    if (!organization) {
+      return res.status(404).json({ message: "Organization not found" });
+    }
+
+    // 4. Get members with specific roles in THIS organization
+    const members = await userModel.find({
+      "memberships.organization": id,
+    }).select("name avatar memberships");
+
+    // 5. Format members list
+    const formattedMembers = members.map((m) => {
+      const membership = m.memberships.find(
+        (mem) => mem.organization.toString() === id
+      );
+
+      return {
+        userId: m._id,
+        name: m.name,
+        avatar: m.avatar,
+        role: membership.role,
+        joinedAt: membership.joinedAt,
+      };
+    });
+
+    return res.status(200).json({
+      organization: {
+        id: organization._id,
+        name: organization.name,
+        slug: organization.slug,
+        description: organization.description || "",
+        isActive: organization.isActive,
+        membersCount: organization.membersCount,
+        owner: organization.owner,
+        createdAt: organization.createdAt,
+        updatedAt: organization.updatedAt,
+      },
+      members: formattedMembers,
+    });
+
+  } catch (error) {
+    console.error("Get Org Details Error:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};

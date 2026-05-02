@@ -1,4 +1,4 @@
-import { body } from 'express-validator';
+import { body, param } from 'express-validator';
 
 export const createOrganizationValidation = [
     body('name')
@@ -6,6 +6,13 @@ export const createOrganizationValidation = [
         .notEmpty().withMessage('Organization name is required')
         .isLength({ min: 2, max: 100 }).withMessage('Organization name must be between 2 and 100 characters')
         .escape(),
+];
+
+export const getOrganizationByIdValidation = [
+    param('id')
+        .trim()
+        .notEmpty().withMessage('Organization ID is required')
+        .isMongoId().withMessage('Invalid Organization ID format'),
 ];
 
 export const sendInviteValidation = [

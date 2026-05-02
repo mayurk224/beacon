@@ -528,3 +528,16 @@
 ::ffff:127.0.0.1 - - [2026-05-02T19:08:19.321Z] "GET /organization/my HTTP/1.1" 200 20 "-" "-" - 6.302 ms
 ::1 - - [2026-05-02T19:15:32.256Z] "POST /refresh-token HTTP/1.1" 200 29 "-" "PostmanRuntime/7.53.0" - 498.512 ms
 ::1 - - [2026-05-02T19:15:36.272Z] "GET /organization/my HTTP/1.1" 200 264 "-" "PostmanRuntime/7.53.0" - 247.406 ms
+::ffff:127.0.0.1 - - [2026-05-02T19:28:43.294Z] "GET /organization/someid HTTP/1.1" 401 26 "-" "-" - 9.736 ms
+::ffff:127.0.0.1 - - [2026-05-02T19:28:43.353Z] "GET /organization/invalid-id HTTP/1.1" 400 37 "-" "-" - 6.185 ms
+::ffff:127.0.0.1 - - [2026-05-02T19:28:43.392Z] "GET /organization/69f6506bda670800afc97a62 HTTP/1.1" 403 27 "-" "-" - 11.410 ms
+::ffff:127.0.0.1 - - [2026-05-02T19:28:43.434Z] "GET /organization/69f6506bda670800afc97a64 HTTP/1.1" 404 36 "-" "-" - 9.250 ms
+::ffff:127.0.0.1 - - [2026-05-02T19:28:43.472Z] "GET /organization/69f6506bda670800afc97a68 HTTP/1.1" 200 400 "-" "-" - 13.875 ms
+::ffff:127.0.0.1 - - [2026-05-02T19:30:07.784Z] "GET /organization/someid HTTP/1.1" 401 26 "-" "-" - 12.213 ms
+::ffff:127.0.0.1 - - [2026-05-02T19:30:07.923Z] "GET /organization/invalid-id HTTP/1.1" 400 100 "-" "-" - 15.459 ms
+::ffff:127.0.0.1 - - [2026-05-02T19:30:07.989Z] "GET /organization/69f650bf436681705afbcbb8 HTTP/1.1" 403 27 "-" "-" - 19.245 ms
+::ffff:127.0.0.1 - - [2026-05-02T19:30:08.049Z] "GET /organization/69f650c0436681705afbcbba HTTP/1.1" 404 36 "-" "-" - 12.303 ms
+::ffff:127.0.0.1 - - [2026-05-02T19:30:08.095Z] "GET /organization/69f650c0436681705afbcbbe HTTP/1.1" 200 402 "-" "-" - 19.603 ms
+::1 - - [2026-05-02T19:32:42.379Z] "POST /refresh-token HTTP/1.1" 200 29 "-" "PostmanRuntime/7.53.0" - 677.081 ms
+::1 - - [2026-05-02T19:33:38.460Z] "POST /api/users/organization/69f61699a6ef3389d7dc3267 HTTP/1.1" 404 187 "-" "PostmanRuntime/7.53.0" - 21.032 ms
+::1 - - [2026-05-02T19:33:45.119Z] "GET /organization/69f61699a6ef3389d7dc3267 HTTP/1.1" 200 635 "-" "PostmanRuntime/7.53.0" - 344.279 ms
