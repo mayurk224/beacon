@@ -102,22 +102,22 @@ const DashBoardAlertDetail = () => {
   const getTimelineIcon = (type) => {
     switch (type) {
       case 'error':
-        return <AlertTriangle className="w-3 h-3 text-[#ffb4ab]" />;
+        return <AlertTriangle className="w-3 h-3 text-danger-soft" />;
       case 'primary':
-        return <Zap className="w-3 h-3 text-[#afc6ff]" />;
+        return <Zap className="w-3 h-3 text-brand-soft" />;
       default:
-        return <Activity className="w-3 h-3 text-[#8c909f]" />;
+        return <Activity className="w-3 h-3 text-subtle" />;
     }
   };
 
   const getTimelineColor = (type) => {
     switch (type) {
       case 'error':
-        return 'bg-[#3f1616] border-[#7f1d1d]';
+        return 'bg-semantic-error/15 border-semantic-error/35';
       case 'primary':
-        return 'bg-[#1e3a8a]/20 border-[#1e3a8a]/50';
+        return 'bg-info-bg-subtle border-info-border';
       default:
-        return 'bg-[#1a1c1d] border-[#262626]';
+        return 'bg-surface-elevated border-border-primary';
     }
   };
 
@@ -130,13 +130,13 @@ const DashBoardAlertDetail = () => {
   const getStatusConfig = () => {
     switch (status) {
       case 'unacknowledged':
-        return { label: 'Unacknowledged', color: 'bg-[#ffb4ab]', textColor: 'text-[#ffb4ab]' };
+        return { label: 'Unacknowledged', color: 'bg-danger-soft', textColor: 'text-danger-soft' };
       case 'acknowledged':
-        return { label: 'Acknowledged', color: 'bg-[#4ade80]', textColor: 'text-[#4ade80]' };
+        return { label: 'Acknowledged', color: 'bg-success-bright', textColor: 'text-success-bright' };
       case 'resolved':
-        return { label: 'Resolved', color: 'bg-[#8c909f]', textColor: 'text-[#8c909f]' };
+        return { label: 'Resolved', color: 'bg-muted', textColor: 'text-subtle' };
       default:
-        return { label: 'Unknown', color: 'bg-[#8c909f]', textColor: 'text-[#8c909f]' };
+        return { label: 'Unknown', color: 'bg-muted', textColor: 'text-subtle' };
     }
   };
 
@@ -148,16 +148,16 @@ const DashBoardAlertDetail = () => {
   };
 
   return (
-    <div className="bg-[#121415] text-[#e2e2e3] min-h-screen w-full antialiased">
+    <div className="bg-surface-header text-primary min-h-screen w-full antialiased">
       {/* Main Content */}
       <div className="w-full">
         {/* Page Header Area with Back Button */}
-        <div className="px-6 md:px-8 pt-6 pb-4 border-b border-[#424753]">
+        <div className="px-6 md:px-8 pt-6 pb-4 border-b border-border-muted">
           {/* Back Button */}
           <div className="mb-4">
             <button
               onClick={handleGoBack}
-              className="inline-flex items-center gap-2 text-[#c2c6d6] hover:text-[#e2e2e3] transition-colors group"
+              className="inline-flex items-center gap-2 text-tertiary hover:text-primary transition-colors group"
             >
               <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
               <span className="text-[13px] font-medium">Back to Alerts</span>
@@ -167,43 +167,43 @@ const DashBoardAlertDetail = () => {
           <div className="flex flex-col gap-3">
             <div className="flex flex-wrap items-center gap-3">
               {/* Severity Badge */}
-              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-sm bg-[#93000a]/10 text-[#ffb4ab] font-mono text-[10px] uppercase font-semibold border border-[#ffb4ab]/20">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#ffb4ab]"></span>
+              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-sm bg-semantic-error/10 text-danger-soft font-mono text-[10px] uppercase font-semibold border border-danger-soft/20">
+                <span className="w-1.5 h-1.5 rounded-full bg-danger-soft"></span>
                 Critical
               </span>
               
               {/* Alert ID */}
-              <span className="font-mono text-[#c2c6d6] text-[12px]">
+              <span className="font-mono text-tertiary text-[12px]">
                 #{alert.id}
               </span>
               
-              <span className="text-[#c2c6d6] text-[12px]">•</span>
+              <span className="text-tertiary text-[12px]">•</span>
               
               {/* Timestamp */}
-              <span className="text-[#c2c6d6] text-[12px] flex items-center gap-1">
+              <span className="text-tertiary text-[12px] flex items-center gap-1">
                 <Clock className="w-3.5 h-3.5" />
                 {alert.timestamp}
               </span>
             </div>
             
             {/* Title */}
-            <h1 className="text-[24px] leading-[32px] tracking-[-0.02em] font-semibold text-[#e2e2e3]">
+            <h1 className="text-[24px] leading-[32px] tracking-[-0.02em] font-semibold text-primary">
               {alert.title}
             </h1>
             
             {/* Meta Tags */}
             <div className="flex flex-wrap gap-2">
-              <div className="flex items-center gap-1.5 bg-[#1e2021] py-1 px-2.5 rounded-sm border border-[#424753]">
-                <Server className="w-3.5 h-3.5 text-[#c2c6d6]" />
-                <span className="text-[11px] font-medium text-[#c2c6d6] uppercase">Source:</span>
-                <span className="text-[13px] leading-[18px] font-medium text-[#e2e2e3]">
+              <div className="flex items-center gap-1.5 bg-surface-panel py-1 px-2.5 rounded-sm border border-border-muted">
+                <Server className="w-3.5 h-3.5 text-tertiary" />
+                <span className="text-[11px] font-medium text-tertiary uppercase">Source:</span>
+                <span className="text-[13px] leading-[18px] font-medium text-primary">
                   {alert.source}
                 </span>
               </div>
-              <div className="flex items-center gap-1.5 bg-[#1e2021] py-1 px-2.5 rounded-sm border border-[#424753]">
-                <Globe className="w-3.5 h-3.5 text-[#c2c6d6]" />
-                <span className="text-[11px] font-medium text-[#c2c6d6] uppercase">Service:</span>
-                <span className="text-[13px] leading-[18px] font-medium text-[#e2e2e3]">
+              <div className="flex items-center gap-1.5 bg-surface-panel py-1 px-2.5 rounded-sm border border-border-muted">
+                <Globe className="w-3.5 h-3.5 text-tertiary" />
+                <span className="text-[11px] font-medium text-tertiary uppercase">Service:</span>
+                <span className="text-[13px] leading-[18px] font-medium text-primary">
                   {alert.service}
                 </span>
               </div>
@@ -217,13 +217,13 @@ const DashBoardAlertDetail = () => {
             {/* Left Column - Main Details */}
             <div className="lg:col-span-8 flex flex-col gap-6">
               {/* Description Panel */}
-              <section className="bg-[#141414] border border-[#424753] rounded-lg">
-                <div className="px-5 py-3 border-b border-[#424753] bg-[#1a1c1d]">
-                  <h2 className="text-[16px] leading-[24px] tracking-[-0.01em] font-semibold text-[#e2e2e3]">
+              <section className="bg-surface-card border border-border-muted rounded-lg">
+                <div className="px-5 py-3 border-b border-border-muted bg-surface-elevated">
+                  <h2 className="text-[16px] leading-[24px] tracking-[-0.01em] font-semibold text-primary">
                     Description
                   </h2>
                 </div>
-                <div className="p-5 text-[#c2c6d6] text-[13px] leading-[18px] font-medium space-y-3">
+                <div className="p-5 text-tertiary text-[13px] leading-[18px] font-medium space-y-3">
                   {alert.description.map((para, idx) => (
                     <p key={idx}>{para}</p>
                   ))}
@@ -231,50 +231,50 @@ const DashBoardAlertDetail = () => {
               </section>
 
               {/* Raw Payload Panel */}
-              <section className="bg-[#141414] border border-[#424753] rounded-lg flex flex-col">
-                <div className="px-5 py-3 border-b border-[#424753] bg-[#1a1c1d] flex justify-between items-center">
-                  <h2 className="text-[16px] leading-[24px] tracking-[-0.01em] font-semibold text-[#e2e2e3] flex items-center gap-2">
+              <section className="bg-surface-card border border-border-muted rounded-lg flex flex-col">
+                <div className="px-5 py-3 border-b border-border-muted bg-surface-elevated flex justify-between items-center">
+                  <h2 className="text-[16px] leading-[24px] tracking-[-0.01em] font-semibold text-primary flex items-center gap-2">
                     <FileText className="w-[18px] h-[18px]" />
                     Raw Payload
                   </h2>
                   <button
                     onClick={copyToClipboard}
-                    className="text-[#c2c6d6] hover:text-[#e2e2e3] transition-colors flex items-center gap-1.5"
+                    className="text-tertiary hover:text-primary transition-colors flex items-center gap-1.5"
                   >
                     <Copy className="w-4 h-4" />
                     <span className="text-[11px] font-mono">{copied ? 'Copied!' : 'Copy'}</span>
                   </button>
                 </div>
-                <div className="p-3 bg-[#0c0e0f] overflow-x-auto">
-                  <pre className="font-mono text-[11px] leading-[16px] text-[#c2c6d6] whitespace-pre-wrap">
+                <div className="p-3 bg-surface-inset overflow-x-auto">
+                  <pre className="font-mono text-[11px] leading-[16px] text-tertiary whitespace-pre-wrap">
                     {JSON.stringify(alert.rawPayload, null, 2)}
                   </pre>
                 </div>
               </section>
 
               {/* Event Timeline Panel */}
-              <section className="bg-[#141414] border border-[#424753] rounded-lg">
-                <div className="px-5 py-3 border-b border-[#424753] bg-[#1a1c1d]">
-                  <h2 className="text-[16px] leading-[24px] tracking-[-0.01em] font-semibold text-[#e2e2e3]">
+              <section className="bg-surface-card border border-border-muted rounded-lg">
+                <div className="px-5 py-3 border-b border-border-muted bg-surface-elevated">
+                  <h2 className="text-[16px] leading-[24px] tracking-[-0.01em] font-semibold text-primary">
                     Event Timeline
                   </h2>
                 </div>
                 <div className="p-5">
-                  <div className="relative border-l border-[#424753] ml-3 space-y-5">
+                  <div className="relative border-l border-border-muted ml-3 space-y-5">
                     {timeline.map((item) => (
                       <div key={item.id} className="relative pl-6">
                         <div className={`absolute -left-[13px] top-0 w-6 h-6 rounded-full ${getTimelineColor(item.type)} border flex items-center justify-center`}>
                           {getTimelineIcon(item.type)}
                         </div>
                         <div className="flex flex-wrap items-baseline gap-2 mb-1">
-                          <span className="text-[14px] leading-[20px] font-medium text-[#e2e2e3]">
+                          <span className="text-[14px] leading-[20px] font-medium text-primary">
                             {item.title}
                           </span>
-                          <span className="font-mono text-[11px] text-[#8c909f]">
+                          <span className="font-mono text-[11px] text-subtle">
                             {item.time}
                           </span>
                         </div>
-                        <div className="text-[12px] leading-[16px] text-[#c2c6d6]">
+                        <div className="text-[12px] leading-[16px] text-tertiary">
                           {item.description}
                         </div>
                       </div>
@@ -287,17 +287,17 @@ const DashBoardAlertDetail = () => {
             {/* Right Column - Actions & Meta */}
             <div className="lg:col-span-4 flex flex-col gap-6">
               {/* Quick Actions */}
-              <section className="bg-[#141414] border border-[#424753] rounded-lg p-5 flex flex-col gap-3">
-                <button className="w-full flex items-center justify-center gap-2 bg-[#afc6ff] hover:bg-[#528dff] text-[#00275f] py-2.5 px-4 rounded text-[13px] font-semibold transition-colors">
+              <section className="bg-surface-card border border-border-muted rounded-lg p-5 flex flex-col gap-3">
+                <button className="w-full flex items-center justify-center gap-2 bg-brand-soft hover:bg-brand-strong text-on-brand py-2.5 px-4 rounded text-[13px] font-semibold transition-colors">
                   <CheckCircle className="w-4 h-4" />
                   Acknowledge Alert
                 </button>
                 <div className="grid grid-cols-2 gap-3">
-                  <button className="flex items-center justify-center gap-1.5 bg-transparent hover:bg-[#333536] border border-[#424753] text-[#afc6ff] py-2 px-3 rounded text-[12px] font-medium transition-colors">
+                  <button className="flex items-center justify-center gap-1.5 bg-transparent hover:bg-surface-interactive border border-border-muted text-brand-soft py-2 px-3 rounded text-[12px] font-medium transition-colors">
                     <ArrowUpCircle className="w-4 h-4" />
                     Escalate
                   </button>
-                  <button className="flex items-center justify-center gap-1.5 bg-transparent hover:bg-[#333536] border border-[#424753] text-[#e2e2e3] py-2 px-3 rounded text-[12px] font-medium transition-colors">
+                  <button className="flex items-center justify-center gap-1.5 bg-transparent hover:bg-surface-interactive border border-border-muted text-primary py-2 px-3 rounded text-[12px] font-medium transition-colors">
                     <BellOff className="w-4 h-4" />
                     Mute
                   </button>
@@ -305,39 +305,39 @@ const DashBoardAlertDetail = () => {
               </section>
 
               {/* Status & Assignment */}
-              <section className="bg-[#141414] border border-[#424753] rounded-lg">
-                <div className="px-5 py-3 border-b border-[#424753] bg-[#1a1c1d]">
-                  <h3 className="text-[16px] leading-[24px] tracking-[-0.01em] font-semibold text-[#e2e2e3]">
+              <section className="bg-surface-card border border-border-muted rounded-lg">
+                <div className="px-5 py-3 border-b border-border-muted bg-surface-elevated">
+                  <h3 className="text-[16px] leading-[24px] tracking-[-0.01em] font-semibold text-primary">
                     Details
                   </h3>
                 </div>
                 <div className="p-5 flex flex-col gap-4">
                   {/* Status Selector */}
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-[11px] font-medium text-[#c2c6d6] uppercase tracking-wider">
+                    <label className="text-[11px] font-medium text-tertiary uppercase tracking-wider">
                       Status
                     </label>
                     <div className="relative">
                       <select
                         value={status}
                         onChange={(e) => setStatus(e.target.value)}
-                        className="w-full appearance-none bg-[#1e2021] border border-[#424753] rounded p-2 text-[13px] text-[#e2e2e3] focus:border-[#afc6ff] focus:outline-none cursor-pointer"
+                        className="w-full appearance-none bg-surface-panel border border-border-muted rounded p-2 text-[13px] text-primary focus:border-brand-soft focus:outline-none cursor-pointer"
                       >
                         <option value="unacknowledged">Unacknowledged</option>
                         <option value="acknowledged">Acknowledged</option>
                         <option value="resolved">Resolved</option>
                       </select>
-                      <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-[#c2c6d6] pointer-events-none" />
+                      <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-tertiary pointer-events-none" />
                     </div>
                   </div>
 
                   {/* Assigned Responder */}
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-[11px] font-medium text-[#c2c6d6] uppercase tracking-wider">
+                    <label className="text-[11px] font-medium text-tertiary uppercase tracking-wider">
                       Responder
                     </label>
-                    <div className="flex items-center gap-3 p-2 border border-transparent hover:border-[#424753] rounded transition-colors cursor-pointer group">
-                      <div className="w-8 h-8 rounded-full bg-[#968ab5] text-[#2d2447] flex items-center justify-center font-bold text-xs shrink-0 overflow-hidden">
+                    <div className="flex items-center gap-3 p-2 border border-transparent hover:border-border-muted rounded transition-colors cursor-pointer group">
+                      <div className="w-8 h-8 rounded-full bg-chip-violet-bg text-chip-violet-fg flex items-center justify-center font-bold text-xs shrink-0 overflow-hidden">
                         <img
                           alt="Alex Chen"
                           className="w-full h-full object-cover"
@@ -345,10 +345,10 @@ const DashBoardAlertDetail = () => {
                         />
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-[13px] leading-[18px] font-medium text-[#e2e2e3] group-hover:text-[#afc6ff] transition-colors">
+                        <span className="text-[13px] leading-[18px] font-medium text-primary group-hover:text-brand-soft transition-colors">
                           Alex Chen
                         </span>
-                        <span className="font-mono text-[10px] text-[#c2c6d6]">
+                        <span className="font-mono text-[10px] text-tertiary">
                           Primary On-Call
                         </span>
                       </div>
@@ -356,20 +356,20 @@ const DashBoardAlertDetail = () => {
                   </div>
 
                   {/* Properties List */}
-                  <div className="pt-3 border-t border-[#424753] flex flex-col gap-2">
+                  <div className="pt-3 border-t border-border-muted flex flex-col gap-2">
                     <div className="flex justify-between items-center">
-                      <span className="text-[11px] font-medium text-[#c2c6d6] uppercase tracking-wider">
+                      <span className="text-[11px] font-medium text-tertiary uppercase tracking-wider">
                         Priority
                       </span>
-                      <span className="text-[13px] leading-[18px] font-medium text-[#e2e2e3] font-semibold">
+                      <span className="text-[13px] leading-[18px] font-medium text-primary font-semibold">
                         P1
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-[11px] font-medium text-[#c2c6d6] uppercase tracking-wider">
+                      <span className="text-[11px] font-medium text-tertiary uppercase tracking-wider">
                         Environment
                       </span>
-                      <span className="text-[13px] leading-[18px] font-medium text-[#e2e2e3]">
+                      <span className="text-[13px] leading-[18px] font-medium text-primary">
                         Production
                       </span>
                     </div>

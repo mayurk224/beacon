@@ -92,8 +92,8 @@ const DashBoardAlert = () => {
           source: 'us-west-2c/alb-02',
           name: 'Latency Threshold Exceeded (P99 > 500ms)',
           status: 'CRITICAL',
-          statusClass: 'bg-red-950/10 text-[#ffb4ab] border border-[#ffb4ab]/20',
-          statusDot: 'bg-[#ffb4ab]',
+          statusClass: 'bg-red-950/10 text-danger-soft border border-danger-soft/20',
+          statusDot: 'bg-danger-soft',
           count: '45',
           lastSeen: '5m ago',
           description: 'P99 latency spiked to 850ms',
@@ -103,8 +103,8 @@ const DashBoardAlert = () => {
           source: 'eu-west-1/alb-03',
           name: 'Connection Pool Exhaustion',
           status: 'WARNING',
-          statusClass: 'bg-[#f59e0b]/10 text-[#f59e0b] border border-[#f59e0b]/20',
-          statusDot: 'bg-[#f59e0b]',
+          statusClass: 'bg-semantic-warning/10 text-semantic-warning border border-semantic-warning/20',
+          statusDot: 'bg-semantic-warning',
           count: '12',
           lastSeen: '12m ago',
           description: '85% of connections in use',
@@ -114,7 +114,7 @@ const DashBoardAlert = () => {
     {
       id: 'database',
       name: 'Service: Primary DB Cluster',
-      statusColor: 'bg-[#ffb4ab]',
+      statusColor: 'bg-danger-soft',
       criticalCount: 0,
       warningCount: 2,
       alerts: [
@@ -123,8 +123,8 @@ const DashBoardAlert = () => {
           source: 'postgresql-primary-01',
           name: 'Replication Lag Increasing',
           status: 'WARNING',
-          statusClass: 'bg-[#f59e0b]/10 text-[#f59e0b] border border-[#f59e0b]/20',
-          statusDot: 'bg-[#f59e0b]',
+          statusClass: 'bg-semantic-warning/10 text-semantic-warning border border-semantic-warning/20',
+          statusDot: 'bg-semantic-warning',
           count: '8',
           lastSeen: '8m ago',
           description: 'Replication lag: 15 seconds',
@@ -134,8 +134,8 @@ const DashBoardAlert = () => {
           source: 'postgresql-replica-02',
           name: 'Connection Saturation',
           status: 'WARNING',
-          statusClass: 'bg-[#f59e0b]/10 text-[#f59e0b] border border-[#f59e0b]/20',
-          statusDot: 'bg-[#f59e0b]',
+          statusClass: 'bg-semantic-warning/10 text-semantic-warning border border-semantic-warning/20',
+          statusDot: 'bg-semantic-warning',
           count: '3',
           lastSeen: '15m ago',
           description: '90% of max connections',
@@ -165,8 +165,8 @@ const DashBoardAlert = () => {
           source: 'spark-job-executor',
           name: 'Task Failure Rate High',
           status: 'CRITICAL',
-          statusClass: 'bg-red-950/10 text-[#ffb4ab] border border-[#ffb4ab]/20',
-          statusDot: 'bg-[#ffb4ab]',
+          statusClass: 'bg-red-950/10 text-danger-soft border border-danger-soft/20',
+          statusDot: 'bg-danger-soft',
           count: '23',
           lastSeen: '3m ago',
           description: '15% task failure rate',
@@ -176,8 +176,8 @@ const DashBoardAlert = () => {
           source: 's3-ingestion-bucket',
           name: 'Processing Delay',
           status: 'WARNING',
-          statusClass: 'bg-[#f59e0b]/10 text-[#f59e0b] border border-[#f59e0b]/20',
-          statusDot: 'bg-[#f59e0b]',
+          statusClass: 'bg-semantic-warning/10 text-semantic-warning border border-semantic-warning/20',
+          statusDot: 'bg-semantic-warning',
           count: '2',
           lastSeen: '20m ago',
           description: 'Files pending: 127',
@@ -198,28 +198,28 @@ const DashBoardAlert = () => {
   const selectedCount = selectedAlerts.length;
 
   return (
-    <div className=" text-[#e2e2e3] min-h-screen w-full antialiased">
+    <div className=" text-primary min-h-screen w-full antialiased">
       {/* Main Content */}
       <div className="p-4 md:p-6 flex flex-col gap-6">
         {/* Page Header & Toolbar - Responsive */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-neutral-700/30 pb-4">
           <div>
-            <h1 className="text-[22px] md:text-[24px] leading-[30px] md:leading-[32px] tracking-[-0.02em] font-semibold text-[#e2e2e3] mb-1">
+            <h1 className="text-[22px] md:text-[24px] leading-[30px] md:leading-[32px] tracking-[-0.02em] font-semibold text-primary mb-1">
               Active Alerts
             </h1>
-            <p className="text-[#c2c6d6] text-[12px] md:text-[13px] leading-[18px] font-medium">
+            <p className="text-tertiary text-[12px] md:text-[13px] leading-[18px] font-medium">
               Showing unacknowledged alerts grouped by service.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             {/* Filter Buttons */}
-            <div className="flex items-center gap-1 bg-[#1a1c1d] border border-[#424753] rounded overflow-hidden">
+            <div className="flex items-center gap-1 bg-surface-elevated border border-border-muted rounded overflow-hidden">
               <button
                 onClick={() => setFilterStatus('all')}
                 className={`px-3 py-1.5 text-[12px] font-medium transition-colors ${
                   filterStatus === 'all'
-                    ? 'bg-[#333536] text-[#e2e2e3]'
-                    : 'text-[#c2c6d6] hover:text-[#e2e2e3]'
+                    ? 'bg-surface-interactive text-primary'
+                    : 'text-tertiary hover:text-primary'
                 }`}
               >
                 All ({totalCritical + totalWarning})
@@ -228,8 +228,8 @@ const DashBoardAlert = () => {
                 onClick={() => setFilterStatus('critical')}
                 className={`px-3 py-1.5 text-[12px] font-medium transition-colors ${
                   filterStatus === 'critical'
-                    ? 'bg-[#333536] text-red-500'
-                    : 'text-[#c2c6d6] hover:text-red-400'
+                    ? 'bg-surface-interactive text-red-500'
+                    : 'text-tertiary hover:text-red-400'
                 }`}
               >
                 Critical ({totalCritical})
@@ -238,8 +238,8 @@ const DashBoardAlert = () => {
                 onClick={() => setFilterStatus('warning')}
                 className={`px-3 py-1.5 text-[12px] font-medium transition-colors ${
                   filterStatus === 'warning'
-                    ? 'bg-[#333536] text-[#f59e0b]'
-                    : 'text-[#c2c6d6] hover:text-[#f59e0b]'
+                    ? 'bg-surface-interactive text-semantic-warning'
+                    : 'text-tertiary hover:text-semantic-warning'
                 }`}
               >
                 Warning ({totalWarning})
@@ -247,20 +247,20 @@ const DashBoardAlert = () => {
             </div>
             
             {selectedCount > 0 && (
-              <span className="text-[11px] font-mono text-[#c2c6d6] bg-[#333536] px-2 py-1 rounded">
+              <span className="text-[11px] font-mono text-tertiary bg-surface-interactive px-2 py-1 rounded">
                 {selectedCount} selected
               </span>
             )}
             
-            <button className="h-8 px-3 inline-flex items-center justify-center gap-2 rounded-sm border border-[#262626] bg-transparent text-[#e2e2e3] hover:bg-[#333536] transition-colors text-[12px] leading-[16px] font-medium">
+            <button className="h-8 px-3 inline-flex items-center justify-center gap-2 rounded-sm border border-border-primary bg-transparent text-primary hover:bg-surface-interactive transition-colors text-[12px] leading-[16px] font-medium">
               <CheckCheck className="w-4 h-4" />
               <span className="hidden sm:inline">Acknowledge All</span>
             </button>
-            <button className="h-8 px-3 inline-flex items-center justify-center gap-2 rounded-sm border border-[#262626] bg-transparent text-[#e2e2e3] hover:bg-[#333536] transition-colors text-[12px] leading-[16px] font-medium">
+            <button className="h-8 px-3 inline-flex items-center justify-center gap-2 rounded-sm border border-border-primary bg-transparent text-primary hover:bg-surface-interactive transition-colors text-[12px] leading-[16px] font-medium">
               <BellOff className="w-4 h-4" />
               <span className="hidden sm:inline">Mute Selected</span>
             </button>
-            <button className="h-8 px-4 inline-flex items-center justify-center gap-2 rounded-sm border border-transparent bg-[#528dff] text-[#00275f] hover:bg-[#afc6ff] transition-colors text-[12px] leading-[16px] font-medium ml-0 sm:ml-2">
+            <button className="h-8 px-4 inline-flex items-center justify-center gap-2 rounded-sm border border-transparent bg-brand-strong text-on-brand hover:bg-brand-soft transition-colors text-[12px] leading-[16px] font-medium ml-0 sm:ml-2">
               <Plus className="w-4 h-4" />
               <span className="hidden sm:inline">Create Incident</span>
             </button>
@@ -277,38 +277,38 @@ const DashBoardAlert = () => {
           return (
             <div
               key={group.id}
-              className="bg-[#121415] rounded-sm border border-[#262626] flex flex-col overflow-hidden"
+              className="bg-surface-header rounded-sm border border-border-primary flex flex-col overflow-hidden"
             >
               {/* Group Header */}
               <div
                 onClick={() => toggleGroup(group.id)}
-                className="px-3 md:px-4 py-3 bg-[#141414] border-b border-[#262626] flex flex-wrap items-center justify-between gap-2 cursor-pointer hover:bg-[#1a1a1a] transition-colors"
+                className="px-3 md:px-4 py-3 bg-surface-card border-b border-border-primary flex flex-wrap items-center justify-between gap-2 cursor-pointer hover:bg-surface-elevated transition-colors"
               >
                 <div className="flex items-center gap-2 md:gap-3">
                   {isExpanded ? (
-                    <ChevronDown className="w-[18px] h-[18px] text-[#c2c6d6] flex-shrink-0" />
+                    <ChevronDown className="w-[18px] h-[18px] text-tertiary flex-shrink-0" />
                   ) : (
-                    <ChevronRight className="w-[18px] h-[18px] text-[#c2c6d6] flex-shrink-0" />
+                    <ChevronRight className="w-[18px] h-[18px] text-tertiary flex-shrink-0" />
                   )}
                   <div className="flex items-center gap-2">
                     <Circle
                       className={`w-2 h-2 ${group.statusColor} flex-shrink-0`}
                       fill="currentColor"
                     />
-                    <h2 className="text-[14px] md:text-[16px] leading-[20px] md:leading-[24px] tracking-[-0.01em] font-semibold text-[#e2e2e3]">
+                    <h2 className="text-[14px] md:text-[16px] leading-[20px] md:leading-[24px] tracking-[-0.01em] font-semibold text-primary">
                       {group.name}
                     </h2>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 md:gap-4 text-[#c2c6d6] text-[11px] md:text-[12px] leading-[16px] font-mono">
+                <div className="flex items-center gap-3 md:gap-4 text-tertiary text-[11px] md:text-[12px] leading-[16px] font-mono">
                   {group.criticalCount > 0 && (
                     <>
                       <span className="text-red-500">{group.criticalCount} Critical</span>
-                      <span className="text-[#8c909f] hidden sm:inline">•</span>
+                      <span className="text-subtle hidden sm:inline">•</span>
                     </>
                   )}
-                  <span className="text-[#f59e0b]">{group.warningCount} Warning</span>
-                  <span className="text-[#8c909f] hidden md:inline">•</span>
+                  <span className="text-semantic-warning">{group.warningCount} Warning</span>
+                  <span className="text-subtle hidden md:inline">•</span>
                   <span className="hidden md:inline">{group.alerts.length} Total</span>
                 </div>
               </div>
@@ -318,7 +318,7 @@ const DashBoardAlert = () => {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse min-w-[640px]">
                     <thead>
-                      <tr className="border-b border-[#262626] bg-[#121415] text-[11px] md:text-[12px] leading-[16px] font-medium text-[#c2c6d6] uppercase tracking-wider">
+                      <tr className="border-b border-border-primary bg-surface-header text-[11px] md:text-[12px] leading-[16px] font-medium text-tertiary uppercase tracking-wider">
                         <th className="px-3 md:px-4 py-2 w-10 text-center">
                           <input
                             type="checkbox"
@@ -330,7 +330,7 @@ const DashBoardAlert = () => {
                               e.stopPropagation();
                               toggleSelectAll(group.id, e.target.checked);
                             }}
-                            className="rounded-sm bg-[#333536] border-[#424753] text-[#528dff] focus:ring-[#528dff] focus:ring-offset-[#121415]"
+                            className="rounded-sm bg-surface-interactive border-border-muted text-brand-strong focus:ring-brand-strong focus:ring-offset-surface-header"
                           />
                         </th>
                         <th className="px-3 md:px-4 py-2 font-medium">Source</th>
@@ -341,29 +341,29 @@ const DashBoardAlert = () => {
                         <th className="px-3 md:px-4 py-2 font-medium text-center">Actions</th>
                        </tr>
                     </thead>
-                    <tbody className="text-[12px] md:text-[13px] leading-[18px] font-medium divide-y divide-[#262626]">
+                    <tbody className="text-[12px] md:text-[13px] leading-[18px] font-medium divide-y divide-border-primary">
                       {filteredAlerts.map((alert) => (
                         <tr
                           key={alert.id}
-                          className="hover:bg-[#1a1a1a] transition-colors group"
+                          className="hover:bg-surface-elevated transition-colors group"
                         >
                           <td className="px-3 md:px-4 py-2.5 text-center">
                             <input
                               type="checkbox"
                               checked={selectedAlerts.includes(`${group.id}-${alert.id}`)}
                               onChange={() => toggleSelectAlert(group.id, alert.id)}
-                              className="rounded-sm bg-[#333536] border-[#424753] text-[#528dff] focus:ring-[#528dff] focus:ring-offset-[#121415]"
+                              className="rounded-sm bg-surface-interactive border-border-muted text-brand-strong focus:ring-brand-strong focus:ring-offset-surface-header"
                             />
                            </td>
-                          <td className="px-3 md:px-4 py-2.5 font-mono text-[11px] md:text-[12px] leading-[16px] text-[#c2c6d6] break-all md:break-normal">
+                          <td className="px-3 md:px-4 py-2.5 font-mono text-[11px] md:text-[12px] leading-[16px] text-tertiary break-all md:break-normal">
                             {alert.source}
                            </td>
                           <td className="px-3 md:px-4 py-2.5">
                             <div>
-                              <div className="text-[#e2e2e3] font-medium text-[12px] md:text-[13px]">
+                              <div className="text-primary font-medium text-[12px] md:text-[13px]">
                                 {alert.name}
                               </div>
-                              <div className="text-[#8c909f] text-[10px] md:text-[11px] font-mono mt-0.5 hidden lg:block">
+                              <div className="text-subtle text-[10px] md:text-[11px] font-mono mt-0.5 hidden lg:block">
                                 {alert.description}
                               </div>
                             </div>
@@ -379,22 +379,22 @@ const DashBoardAlert = () => {
                               {alert.status}
                             </span>
                            </td>
-                          <td className="px-3 md:px-4 py-2.5 text-right font-mono text-[11px] md:text-[12px] leading-[16px] text-[#e2e2e3]">
+                          <td className="px-3 md:px-4 py-2.5 text-right font-mono text-[11px] md:text-[12px] leading-[16px] text-primary">
                             {alert.count}
                            </td>
-                          <td className="px-3 md:px-4 py-2.5 text-right font-mono text-[11px] md:text-[12px] leading-[16px] text-[#c2c6d6] whitespace-nowrap">
+                          <td className="px-3 md:px-4 py-2.5 text-right font-mono text-[11px] md:text-[12px] leading-[16px] text-tertiary whitespace-nowrap">
                             {alert.lastSeen}
                            </td>
                           <td className="px-3 md:px-4 py-2.5 text-center">
                             <Link
                               to="/home/alert_details"
                               state={{ alertId: alert.id, groupId: group.id }}
-                              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded text-[11px] font-medium text-[#afc6ff] hover:bg-[#afc6ff]/10 transition-all duration-200 group/link"
+                              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded text-[11px] font-medium text-brand-soft hover:bg-brand-soft/10 transition-all duration-200 group/link"
                             >
                               <Eye className="w-3.5 h-3.5" />
                               <span className="hidden sm:inline">View</span>
                             </Link>
-                            <button className="ml-1 text-[#c2c6d6] hover:text-[#e2e2e3] p-1">
+                            <button className="ml-1 text-tertiary hover:text-primary p-1">
                               <MoreVertical className="w-[16px] md:w-[18px] h-[16px] md:h-[18px]" />
                             </button>
                            </td>
@@ -408,8 +408,8 @@ const DashBoardAlert = () => {
               {/* Empty state */}
               {isExpanded && filteredAlerts.length === 0 && (
                 <div className="px-4 py-8 md:py-12 text-center">
-                  <AlertCircle className="w-8 h-8 md:w-10 md:h-10 text-[#424753] mx-auto mb-2" />
-                  <p className="text-[#c2c6d6] text-[12px] md:text-[13px] leading-[18px]">
+                  <AlertCircle className="w-8 h-8 md:w-10 md:h-10 text-border-muted mx-auto mb-2" />
+                  <p className="text-tertiary text-[12px] md:text-[13px] leading-[18px]">
                     No {filterStatus !== 'all' ? filterStatus : ''} alerts in this group
                   </p>
                 </div>
@@ -421,11 +421,11 @@ const DashBoardAlert = () => {
         {/* No alerts message */}
         {alertGroups.every(g => getFilteredAlerts(g.alerts).length === 0) && (
           <div className="text-center py-12 md:py-16">
-            <div className="w-16 h-16 bg-[#1a1c1d] rounded-full flex items-center justify-center mx-auto mb-4">
-              <BellOff className="w-8 h-8 text-[#424753]" />
+            <div className="w-16 h-16 bg-surface-elevated rounded-full flex items-center justify-center mx-auto mb-4">
+              <BellOff className="w-8 h-8 text-border-muted" />
             </div>
-            <h3 className="text-[#e2e2e3] text-[18px] font-semibold mb-2">No active alerts</h3>
-            <p className="text-[#c2c6d6] text-[13px]">
+            <h3 className="text-primary text-[18px] font-semibold mb-2">No active alerts</h3>
+            <p className="text-tertiary text-[13px]">
               All systems are operating normally
             </p>
           </div>

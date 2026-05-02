@@ -186,7 +186,7 @@ const AdminRoles = () => {
   const getRoleBadge = (role) => {
     switch (role) {
       case 'Administrator':
-        return 'bg-gradient-to-r from-[#4F8CFF]/20 to-[#4F8CFF]/10 text-[#4F8CFF] border border-[#4F8CFF]/30';
+        return 'bg-gradient-to-r from-brand/20 to-brand/10 text-brand border border-brand/30';
       case 'Editor':
         return 'bg-gradient-to-r from-emerald-500/20 to-emerald-500/10 text-emerald-400 border border-emerald-500/30';
       case 'Viewer':
@@ -288,10 +288,10 @@ const AdminRoles = () => {
   });
 
   const accessCategories = [
-    { key: 'users', label: 'User Management', icon: Users, color: '#4F8CFF' },
-    { key: 'content', label: 'Content', icon: FileText, color: '#10B981' },
-    { key: 'analytics', label: 'Analytics', icon: BarChart, color: '#F59E0B' },
-    { key: 'settings', label: 'Settings', icon: Settings, color: '#8B5CF6' }
+    { key: 'users', label: 'User Management', icon: Users, colorVar: '--brand' },
+    { key: 'content', label: 'Content', icon: FileText, colorVar: '--semantic-success' },
+    { key: 'analytics', label: 'Analytics', icon: BarChart, colorVar: '--semantic-warning' },
+    { key: 'settings', label: 'Settings', icon: Settings, colorVar: '--accent-purple' },
   ];
 
   const accessPermissions = {
@@ -317,7 +317,7 @@ const AdminRoles = () => {
         <div className="p-4 sm:p-5 border-b border-zinc-800">
           <div className="flex justify-between items-start mb-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-[#4F8CFF] to-purple-600 flex items-center justify-center text-white font-bold text-sm sm:text-lg">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-brand to-accent-purple flex items-center justify-center text-white font-bold text-sm sm:text-lg">
                 {user.initials}
               </div>
               <div>
@@ -367,7 +367,7 @@ const AdminRoles = () => {
             </div>
             <button 
               onClick={() => handleRoleChange(user.id, user.role)}
-              className="text-[10px] sm:text-xs text-[#4F8CFF] hover:text-[#6B9FFF] text-left sm:text-right"
+              className="text-[10px] sm:text-xs text-brand hover:text-brand-soft text-left sm:text-right"
             >
               Reset to role defaults
             </button>
@@ -381,8 +381,11 @@ const AdminRoles = () => {
             return (
               <div key={category.key} className="mb-5 sm:mb-6 last:mb-0">
                 <div className="flex items-center gap-2 mb-2 sm:mb-3 pb-2 border-b border-zinc-800">
-                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded bg-opacity-10 flex items-center justify-center" style={{ backgroundColor: `${category.color}20` }}>
-                    <IconComponent className="w-3 h-3 sm:w-3.5 sm:h-3.5" style={{ color: category.color }} />
+                  <div
+                    className="w-5 h-5 sm:w-6 sm:h-6 rounded flex items-center justify-center"
+                    style={{ backgroundColor: `color-mix(in srgb, var(${category.colorVar}) 14%, transparent)` }}
+                  >
+                    <IconComponent className="w-3 h-3 sm:w-3.5 sm:h-3.5" style={{ color: `var(${category.colorVar})` }} />
                   </div>
                   <h5 className="text-xs sm:text-sm font-medium text-white">{category.label}</h5>
                 </div>
@@ -401,7 +404,7 @@ const AdminRoles = () => {
                           onChange={() => handleAccessToggle(user.id, category.key, perm)}
                           className="sr-only peer"
                         />
-                        <div className="w-7 h-4 sm:w-9 sm:h-5 bg-zinc-700 rounded-full peer peer-checked:bg-[#4F8CFF] transition-all duration-200 cursor-pointer">
+                        <div className="w-7 h-4 sm:w-9 sm:h-5 bg-zinc-700 rounded-full peer peer-checked:bg-brand transition-all duration-200 cursor-pointer">
                           <div className={`absolute w-3 h-3 sm:w-4 sm:h-4 bg-white rounded-full transition-all duration-200 top-0.5 left-0.5 peer-checked:translate-x-3 sm:peer-checked:translate-x-4`}></div>
                         </div>
                       </div>
@@ -423,7 +426,7 @@ const AdminRoles = () => {
           </button>
           <button 
             onClick={onClose}
-            className="flex-1 bg-gradient-to-r from-[#4F8CFF] to-[#6B9FFF] text-white py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2"
+            className="flex-1 bg-gradient-to-r from-brand to-brand-soft text-on-brand py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2"
           >
             <Save className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             Save Changes
@@ -434,7 +437,7 @@ const AdminRoles = () => {
   );
 
   return (
-    <div className="flex flex-col lg:flex-row h-screen text-[#e2e2e3] overflow-hidden">
+    <div className="flex flex-col lg:flex-row h-screen text-primary overflow-hidden">
       
       {/* Main Content */}
       <main className="flex-1 flex flex-col overflow-hidden w-full">
@@ -455,7 +458,7 @@ const AdminRoles = () => {
               </button>
               <button 
                 onClick={() => setShowAddUserModal(true)}
-                className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-[#4F8CFF] to-[#6B9FFF] rounded-lg text-xs sm:text-sm font-semibold text-white hover:shadow-lg hover:shadow-[#4F8CFF]/25 transition-all flex items-center gap-1.5 sm:gap-2"
+                className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-brand to-brand-soft rounded-lg text-xs sm:text-sm font-semibold text-on-brand hover:shadow-lg hover:shadow-brand/25 transition-all flex items-center gap-1.5 sm:gap-2"
               >
                 <UserPlus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 <span className="hidden xs:inline">Add User</span>
@@ -473,7 +476,7 @@ const AdminRoles = () => {
             </div>
             <div className="bg-zinc-900/30 border border-zinc-800 rounded-lg p-2 sm:p-3">
               <p className="text-[9px] sm:text-xs text-zinc-500">Admins</p>
-              <p className="text-base sm:text-xl font-bold text-[#4F8CFF]">{users.filter(u => u.role === 'Administrator').length}</p>
+              <p className="text-base sm:text-xl font-bold text-brand">{users.filter(u => u.role === 'Administrator').length}</p>
             </div>
             <div className="bg-zinc-900/30 border border-zinc-800 rounded-lg p-2 sm:p-3">
               <p className="text-[9px] sm:text-xs text-zinc-500">Editors</p>
@@ -496,7 +499,7 @@ const AdminRoles = () => {
             <div className="relative flex-1 max-w-full sm:max-w-md">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 w-3.5 h-3.5 sm:w-4 sm:h-4" />
               <input
-                className="bg-zinc-900/50 border border-zinc-800 text-white text-xs sm:text-sm pl-9 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-2.5 w-full rounded-lg outline-none focus:border-[#4F8CFF] focus:ring-1 focus:ring-[#4F8CFF] transition-all"
+                className="bg-zinc-900/50 border border-zinc-800 text-white text-xs sm:text-sm pl-9 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-2.5 w-full rounded-lg outline-none focus:border-brand focus:ring-1 focus:ring-brand transition-all"
                 placeholder="Search users..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -505,7 +508,7 @@ const AdminRoles = () => {
             <div className="flex items-center gap-2 sm:gap-4 overflow-x-auto pb-1 sm:pb-0">
               <div className="h-6 sm:h-8 w-px bg-zinc-800 hidden sm:block"></div>
               <select
-                className="bg-zinc-900/50 border border-zinc-800 text-white text-xs sm:text-sm px-2 sm:px-4 py-2 sm:py-2.5 rounded-lg min-w-[120px] sm:min-w-[160px] outline-none focus:border-[#4F8CFF] cursor-pointer"
+                className="bg-zinc-900/50 border border-zinc-800 text-white text-xs sm:text-sm px-2 sm:px-4 py-2 sm:py-2.5 rounded-lg min-w-[120px] sm:min-w-[160px] outline-none focus:border-brand cursor-pointer"
                 value={roleFilter}
                 onChange={(e) => setRoleFilter(e.target.value)}
               >
@@ -513,7 +516,7 @@ const AdminRoles = () => {
                 {roleOptions.map(role => <option key={role}>{role}</option>)}
               </select>
               <select
-                className="bg-zinc-900/50 border border-zinc-800 text-white text-xs sm:text-sm px-2 sm:px-4 py-2 sm:py-2.5 rounded-lg min-w-[120px] sm:min-w-[160px] outline-none focus:border-[#4F8CFF] cursor-pointer"
+                className="bg-zinc-900/50 border border-zinc-800 text-white text-xs sm:text-sm px-2 sm:px-4 py-2 sm:py-2.5 rounded-lg min-w-[120px] sm:min-w-[160px] outline-none focus:border-brand cursor-pointer"
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
               >
@@ -546,7 +549,7 @@ const AdminRoles = () => {
                   <tr
                     key={user.id}
                     className={`hover:bg-zinc-900/50 transition-colors cursor-pointer group ${
-                      selectedUser?.id === user.id ? 'bg-gradient-to-r from-[#4F8CFF]/5 to-transparent' : ''
+                      selectedUser?.id === user.id ? 'bg-gradient-to-r from-brand/5 to-transparent' : ''
                     }`}
                     onClick={() => {
                       setSelectedUser(user);
@@ -558,7 +561,7 @@ const AdminRoles = () => {
                         {user.avatar ? (
                           <img src={user.avatar} alt={user.name} className="w-7 h-7 sm:w-10 sm:h-10 rounded-full border border-zinc-700 object-cover" />
                         ) : (
-                          <div className="w-7 h-7 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-[#4F8CFF] to-purple-600 flex items-center justify-center text-white text-[10px] sm:text-sm font-semibold">
+                          <div className="w-7 h-7 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-brand to-accent-purple flex items-center justify-center text-white text-[10px] sm:text-sm font-semibold">
                             {user.initials}
                           </div>
                         )}
@@ -574,7 +577,7 @@ const AdminRoles = () => {
                           value={user.role}
                           onChange={(e) => handleRoleChange(user.id, e.target.value)}
                           onBlur={() => setEditingUser(null)}
-                          className="bg-zinc-800 border border-zinc-700 text-white text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg outline-none focus:border-[#4F8CFF]"
+                          className="bg-zinc-800 border border-zinc-700 text-white text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg outline-none focus:border-brand"
                           autoFocus
                         >
                           {roleOptions.map(role => <option key={role}>{role}</option>)}
@@ -608,7 +611,7 @@ const AdminRoles = () => {
                     </td>
                     <td className="px-3 sm:px-6 py-3 sm:py-4 hidden md:table-cell">
                       <div className="flex items-center gap-1">
-                        <Shield className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#4F8CFF]" />
+                        <Shield className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-brand" />
                         <span className="text-[10px] sm:text-xs text-zinc-400 whitespace-nowrap">
                           {Object.values(user.access).flatMap(cat => Object.values(cat)).filter(v => v).length} perms
                         </span>
@@ -652,7 +655,7 @@ const AdminRoles = () => {
             <button className="px-2 sm:px-3 py-1 sm:py-1.5 bg-zinc-900 border border-zinc-800 rounded-lg hover:text-white disabled:opacity-50 transition-colors text-xs sm:text-sm" disabled>
               Prev
             </button>
-            <button className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center bg-[#4F8CFF] text-white border border-[#4F8CFF] rounded-lg text-xs sm:text-sm">1</button>
+            <button className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center bg-brand text-white border border-brand rounded-lg text-xs sm:text-sm">1</button>
             <button className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center bg-zinc-900 border border-zinc-800 rounded-lg hover:text-white text-xs sm:text-sm">2</button>
             <button className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center bg-zinc-900 border border-zinc-800 rounded-lg hover:text-white text-xs sm:text-sm">3</button>
             <button className="px-2 sm:px-3 py-1 sm:py-1.5 bg-zinc-900 border border-zinc-800 rounded-lg hover:text-white text-xs sm:text-sm">Next</button>
@@ -678,8 +681,8 @@ const AdminRoles = () => {
           <div className="bg-gradient-to-b from-zinc-900 to-black border border-zinc-800 rounded-xl w-full max-w-md p-4 sm:p-6 shadow-2xl animate-in zoom-in-95 duration-200">
             <div className="flex justify-between items-center mb-4 sm:mb-5">
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 sm:w-8 sm:h-8 bg-[#4F8CFF]/10 rounded-lg flex items-center justify-center">
-                  <UserPlus className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#4F8CFF]" />
+                <div className="w-7 h-7 sm:w-8 sm:h-8 bg-brand/10 rounded-lg flex items-center justify-center">
+                  <UserPlus className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand" />
                 </div>
                 <h3 className="text-base sm:text-lg font-bold text-white">Add New User</h3>
               </div>
@@ -698,7 +701,7 @@ const AdminRoles = () => {
                   type="text"
                   value={newUser.name}
                   onChange={(e) => setNewUser({...newUser, name: e.target.value})}
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-white text-xs sm:text-sm outline-none focus:border-[#4F8CFF] transition-colors"
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-white text-xs sm:text-sm outline-none focus:border-brand transition-colors"
                   placeholder="John Doe"
                 />
               </div>
@@ -708,7 +711,7 @@ const AdminRoles = () => {
                   type="email"
                   value={newUser.email}
                   onChange={(e) => setNewUser({...newUser, email: e.target.value})}
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-white text-xs sm:text-sm outline-none focus:border-[#4F8CFF] transition-colors"
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-white text-xs sm:text-sm outline-none focus:border-brand transition-colors"
                   placeholder="john@example.com"
                 />
               </div>
@@ -718,7 +721,7 @@ const AdminRoles = () => {
                   <select
                     value={newUser.role}
                     onChange={(e) => setNewUser({...newUser, role: e.target.value})}
-                    className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-2 sm:px-3 py-2 text-white text-xs sm:text-sm outline-none focus:border-[#4F8CFF]"
+                    className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-2 sm:px-3 py-2 text-white text-xs sm:text-sm outline-none focus:border-brand"
                   >
                     {roleOptions.map(role => <option key={role}>{role}</option>)}
                   </select>
@@ -728,7 +731,7 @@ const AdminRoles = () => {
                   <select
                     value={newUser.status}
                     onChange={(e) => setNewUser({...newUser, status: e.target.value})}
-                    className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-2 sm:px-3 py-2 text-white text-xs sm:text-sm outline-none focus:border-[#4F8CFF]"
+                    className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-2 sm:px-3 py-2 text-white text-xs sm:text-sm outline-none focus:border-brand"
                   >
                     {statusOptions.map(status => <option key={status}>{status}</option>)}
                   </select>
@@ -745,7 +748,7 @@ const AdminRoles = () => {
               </button>
               <button
                 onClick={handleAddUser}
-                className="flex-1 px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-[#4F8CFF] to-[#6B9FFF] rounded-lg text-xs sm:text-sm font-semibold text-white hover:shadow-lg transition-all"
+                className="flex-1 px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-brand to-brand-soft rounded-lg text-xs sm:text-sm font-semibold text-on-brand hover:shadow-lg transition-all"
               >
                 Add User
               </button>

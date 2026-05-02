@@ -8,7 +8,7 @@ const Layout = () => {
 
 
   return (
-    <div className={` h-screen w-full lg:flex flex-1 overflow-hidden overflow-y-auto bg-[#0D0D0D] text-white`}>
+    <div className={` h-screen w-full lg:flex flex-1 overflow-hidden overflow-y-auto bg-surface text-primary`}>
       
       {/* Sidebar */}
       <div className=" hidden lg:flex">
@@ -19,7 +19,7 @@ const Layout = () => {
       <div className="flex flex-col flex-1">
         
         {/* Navbar */}
-        <div className="h-[64px] border-b border-neutral-800">
+        <div className="h-[64px] border-b border-border-primary">
           <Navbar/>
         </div>
 

@@ -33,18 +33,18 @@ const Choose = () => {
         {stats.map((item, index) => (
           <div
             key={index}
-            className="bg-[#18181B] text-white rounded-2xl p-5 flex flex-col justify-between min-h-[140px]"
+            className="bg-surface-elevated text-white rounded-2xl p-5 flex flex-col justify-between min-h-[140px]"
           >
             <div>
               <h2 className="text-2xl sm:text-3xl font-semibold ">
                 {item.title}
               </h2>
-              <p className="text-sm text-[#99A1AF]">
+              <p className="text-sm text-muted">
                 {item.subtitle}
               </p>
             </div>
 
-            <p className="text-xs text-[#99A1AF] mt-3 leading-relaxed">
+            <p className="text-xs text-muted mt-3 leading-relaxed">
               {item.desc}
             </p>
           </div>

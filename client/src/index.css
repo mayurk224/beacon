@@ -1,33 +1,380 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Orbitron:wght@400..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap");
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap');
 
+@custom-variant dark (&:is(.dark *));
 
-*{
-    box-sizing: border-box;
+/*
+  Core palette (light = :root, dark = .dark). Legacy --surface / --brand / --text-*
+  aliases keep existing JSX utilities working alongside shadcn-style tokens.
+*/
+
+:root {
+  --background: rgb(233, 228, 216);
+  --foreground: rgb(30, 30, 30);
+  --card: rgb(244, 239, 228);
+  --card-foreground: rgb(30, 30, 30);
+  --popover: rgb(244, 239, 228);
+  --popover-foreground: rgb(30, 30, 30);
+  --primary: rgb(46, 46, 46);
+  --primary-foreground: rgb(230, 228, 215);
+  --secondary: rgb(216, 210, 196);
+  --secondary-foreground: rgb(46, 46, 46);
+  --muted: rgb(207, 200, 184);
+  --muted-foreground: rgb(94, 90, 82);
+  --accent: rgb(230, 228, 215);
+  --accent-foreground: rgb(46, 46, 46);
+  --destructive: rgb(220, 38, 38);
+  --destructive-foreground: rgb(255, 255, 255);
+  --border: rgb(210, 203, 187);
+  --input: rgb(210, 203, 187);
+  --ring: rgb(46, 46, 46);
+  --chart-1: rgb(242, 106, 75);
+  --chart-2: rgb(30, 30, 30);
+  --chart-3: rgb(94, 90, 82);
+  --chart-4: rgb(168, 159, 143);
+  --chart-5: rgb(207, 200, 184);
+  --sidebar: rgb(227, 221, 207);
+  --sidebar-foreground: rgb(30, 30, 30);
+  --sidebar-primary: rgb(46, 46, 46);
+  --sidebar-primary-foreground: rgb(230, 228, 215);
+  --sidebar-accent: rgb(230, 228, 215);
+  --sidebar-accent-foreground: rgb(46, 46, 46);
+  --sidebar-border: rgb(210, 203, 187);
+  --sidebar-ring: rgb(46, 46, 46);
+  --font-sans: "Inter", sans-serif;
+  --font-serif: "Playfair Display", serif;
+  --font-mono: "JetBrains Mono", monospace;
+  --radius: 0.5rem;
+  --shadow-x: 0px;
+  --shadow-y: 4px;
+  --shadow-blur: 10px;
+  --shadow-spread: 0px;
+  --shadow-opacity: 0.1;
+  --shadow-color: #000000;
+  --shadow-2xs: 0px 4px 10px 0px hsl(0 0% 0% / 0.05);
+  --shadow-xs: 0px 4px 10px 0px hsl(0 0% 0% / 0.05);
+  --shadow-sm: 0px 4px 10px 0px hsl(0 0% 0% / 0.1), 0px 1px 2px -1px hsl(0 0% 0% / 0.1);
+  --shadow: 0px 4px 10px 0px hsl(0 0% 0% / 0.1), 0px 1px 2px -1px hsl(0 0% 0% / 0.1);
+  --shadow-md: 0px 4px 10px 0px hsl(0 0% 0% / 0.1), 0px 2px 4px -1px hsl(0 0% 0% / 0.1);
+  --shadow-lg: 0px 4px 10px 0px hsl(0 0% 0% / 0.1), 0px 4px 6px -1px hsl(0 0% 0% / 0.1);
+  --shadow-xl: 0px 4px 10px 0px hsl(0 0% 0% / 0.1), 0px 8px 10px -1px hsl(0 0% 0% / 0.1);
+  --shadow-2xl: 0px 4px 10px 0px hsl(0 0% 0% / 0.25);
+  --tracking-normal: 0.01em;
+  --spacing: 0.25rem;
+
+  /* Legacy layout / surfaces → palette */
+  --surface: var(--background);
+  --surface-card: var(--card);
+  --surface-input: var(--input);
+  --surface-elevated: var(--secondary);
+  --surface-header: var(--card);
+  --surface-panel: var(--card);
+  --surface-inset: var(--muted);
+  --surface-interactive: var(--accent);
+  --surface-bar: var(--sidebar);
+  --surface-widget: var(--card);
+  --surface-canvas: var(--muted);
+  --border-primary: var(--border);
+  --border-muted: color-mix(in srgb, var(--muted-foreground) 35%, var(--border));
+  --text-primary: var(--foreground);
+  --text-secondary: var(--muted-foreground);
+  --text-muted: var(--muted-foreground);
+  --text-tertiary: color-mix(in srgb, var(--foreground) 72%, var(--muted-foreground));
+  --text-subtle: color-mix(in srgb, var(--muted-foreground) 88%, transparent);
+  --text-on-brand: var(--destructive-foreground);
+  --scrollbar-thumb-hover: color-mix(in srgb, var(--muted-foreground) 55%, var(--border));
+
+  /* CTA / brand (accent = chart coral) */
+  --brand: var(--chart-1);
+  --brand-muted: color-mix(in srgb, var(--chart-1) 16%, transparent);
+  --brand-soft: color-mix(in srgb, var(--chart-1) 42%, var(--background));
+  --brand-strong: color-mix(in srgb, var(--chart-1) 88%, black);
+  --brand-hover: color-mix(in srgb, var(--chart-1) 72%, black);
+
+  --semantic-error: var(--destructive);
+  --semantic-success: rgb(22, 163, 74);
+  --semantic-warning: rgb(217, 119, 6);
+  --semantic-info: var(--chart-2);
+  --danger-soft: color-mix(in srgb, var(--destructive) 92%, white);
+  --success-bright: rgb(34, 197, 94);
+  --danger-bg-subtle: color-mix(in srgb, var(--destructive) 12%, var(--background));
+  --danger-border-strong: color-mix(in srgb, var(--destructive) 35%, transparent);
+  --info-bg-subtle: color-mix(in srgb, var(--chart-2) 10%, var(--background));
+  --info-border: color-mix(in srgb, var(--chart-2) 28%, transparent);
+  --accent-orange: var(--chart-1);
+  --accent-purple: color-mix(in srgb, var(--chart-3) 55%, rgb(109, 76, 170));
+  --chart-grid: color-mix(in srgb, var(--chart-3) 22%, transparent);
+  --chart-neutral: var(--chart-3);
+  --chip-violet-bg: color-mix(in srgb, var(--chart-3) 18%, var(--accent));
+  --chip-violet-fg: color-mix(in srgb, var(--foreground) 78%, var(--chart-3));
+  --chip-sky-bg: color-mix(in srgb, var(--chart-4) 35%, var(--accent));
+  --chip-sky-fg: color-mix(in srgb, var(--foreground) 65%, var(--chart-3));
 }
 
-html,body{
-    width: 100%;
-    height: 100%;
+.dark {
+  --background: rgb(20, 20, 20);
+  --foreground: rgb(232, 227, 218);
+  --card: rgb(28, 28, 28);
+  --card-foreground: rgb(232, 227, 218);
+  --popover: rgb(28, 28, 28);
+  --popover-foreground: rgb(232, 227, 218);
+  --primary: rgb(209, 207, 192);
+  --primary-foreground: rgb(54, 54, 54);
+  --secondary: rgb(34, 34, 34);
+  --secondary-foreground: rgb(209, 207, 192);
+  --muted: rgb(42, 42, 42);
+  --muted-foreground: rgb(142, 138, 131);
+  --accent: rgb(54, 54, 54);
+  --accent-foreground: rgb(209, 207, 192);
+  --destructive: rgb(239, 68, 68);
+  --destructive-foreground: rgb(255, 255, 255);
+  --border: rgb(44, 44, 44);
+  --input: rgb(44, 44, 44);
+  --ring: rgb(209, 207, 192);
+  --chart-1: rgb(242, 106, 75);
+  --chart-2: rgb(217, 207, 194);
+  --chart-3: rgb(142, 138, 131);
+  --chart-4: rgb(92, 90, 86);
+  --chart-5: rgb(59, 59, 59);
+  --sidebar: rgb(16, 16, 16);
+  --sidebar-foreground: rgb(232, 227, 218);
+  --sidebar-primary: rgb(209, 207, 192);
+  --sidebar-primary-foreground: rgb(54, 54, 54);
+  --sidebar-accent: rgb(54, 54, 54);
+  --sidebar-accent-foreground: rgb(209, 207, 192);
+  --sidebar-border: rgb(44, 44, 44);
+  --sidebar-ring: rgb(209, 207, 192);
+  --font-sans: "Inter", sans-serif;
+  --font-serif: "Playfair Display", serif;
+  --font-mono: "JetBrains Mono", monospace;
+  --radius: 0.5rem;
+  --shadow-x: 0px;
+  --shadow-y: 6px;
+  --shadow-blur: 15px;
+  --shadow-spread: 0px;
+  --shadow-opacity: 0.3;
+  --shadow-color: #000000;
+  --shadow-2xs: 0px 6px 15px 0px hsl(0 0% 0% / 0.15);
+  --shadow-xs: 0px 6px 15px 0px hsl(0 0% 0% / 0.15);
+  --shadow-sm: 0px 6px 15px 0px hsl(0 0% 0% / 0.3), 0px 1px 2px -1px hsl(0 0% 0% / 0.3);
+  --shadow: 0px 6px 15px 0px hsl(0 0% 0% / 0.3), 0px 1px 2px -1px hsl(0 0% 0% / 0.3);
+  --shadow-md: 0px 6px 15px 0px hsl(0 0% 0% / 0.3), 0px 2px 4px -1px hsl(0 0% 0% / 0.3);
+  --shadow-lg: 0px 6px 15px 0px hsl(0 0% 0% / 0.3), 0px 4px 6px -1px hsl(0 0% 0% / 0.3);
+  --shadow-xl: 0px 6px 15px 0px hsl(0 0% 0% / 0.3), 0px 8px 10px -1px hsl(0 0% 0% / 0.3);
+  --shadow-2xl: 0px 6px 15px 0px hsl(0 0% 0% / 0.75);
+
+  --surface: var(--background);
+  --surface-card: var(--card);
+  --surface-input: var(--input);
+  --surface-elevated: var(--secondary);
+  --surface-header: var(--card);
+  --surface-panel: var(--card);
+  --surface-inset: var(--muted);
+  --surface-interactive: var(--accent);
+  --surface-bar: var(--sidebar);
+  --surface-widget: var(--card);
+  --surface-canvas: var(--muted);
+  --border-primary: var(--border);
+  --border-muted: color-mix(in srgb, var(--muted-foreground) 40%, var(--border));
+  --text-primary: var(--foreground);
+  --text-secondary: var(--muted-foreground);
+  --text-muted: var(--muted-foreground);
+  --text-tertiary: color-mix(in srgb, var(--foreground) 72%, var(--muted-foreground));
+  --text-subtle: color-mix(in srgb, var(--muted-foreground) 88%, transparent);
+  --text-on-brand: var(--primary-foreground);
+  --scrollbar-thumb-hover: color-mix(in srgb, var(--muted-foreground) 50%, var(--border));
+
+  --brand: var(--chart-1);
+  --brand-muted: color-mix(in srgb, var(--chart-1) 20%, transparent);
+  --brand-soft: color-mix(in srgb, var(--chart-1) 48%, var(--background));
+  --brand-strong: color-mix(in srgb, var(--chart-1) 85%, white);
+  --brand-hover: color-mix(in srgb, var(--chart-1) 70%, white);
+
+  --semantic-error: var(--destructive);
+  --semantic-success: rgb(74, 222, 128);
+  --semantic-warning: rgb(251, 191, 36);
+  --semantic-info: var(--chart-2);
+  --danger-soft: color-mix(in srgb, var(--destructive) 88%, white);
+  --success-bright: rgb(74, 222, 128);
+  --danger-bg-subtle: color-mix(in srgb, var(--destructive) 14%, var(--background));
+  --danger-border-strong: color-mix(in srgb, var(--destructive) 38%, transparent);
+  --info-bg-subtle: color-mix(in srgb, var(--chart-2) 12%, var(--background));
+  --info-border: color-mix(in srgb, var(--chart-2) 32%, transparent);
+  --accent-orange: var(--chart-1);
+  --accent-purple: color-mix(in srgb, var(--chart-3) 50%, rgb(167, 139, 250));
+  --chart-grid: color-mix(in srgb, var(--chart-4) 25%, transparent);
+  --chart-neutral: var(--chart-3);
+  --chip-violet-bg: color-mix(in srgb, var(--chart-3) 22%, var(--accent));
+  --chip-violet-fg: color-mix(in srgb, var(--foreground) 82%, var(--chart-3));
+  --chip-sky-bg: color-mix(in srgb, var(--chart-4) 28%, var(--accent));
+  --chip-sky-fg: color-mix(in srgb, var(--foreground) 70%, var(--chart-3));
 }
 
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --font-serif: var(--font-serif);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --shadow-2xs: var(--shadow-2xs);
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow: var(--shadow);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+  --shadow-2xl: var(--shadow-2xl);
+
+  --tracking-tighter: calc(var(--tracking-normal) - 0.05em);
+  --tracking-tight: calc(var(--tracking-normal) - 0.025em);
+  --tracking-normal: var(--tracking-normal);
+  --tracking-wide: calc(var(--tracking-normal) + 0.025em);
+  --tracking-wider: calc(var(--tracking-normal) + 0.05em);
+  --tracking-widest: calc(var(--tracking-normal) + 0.1em);
+
+  /* App legacy utilities (still used in JSX) */
+  --color-brand: var(--brand);
+  --color-brand-muted: var(--brand-muted);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-strong: var(--brand-strong);
+  --color-brand-hover: var(--brand-hover);
+  --color-surface: var(--surface);
+  --color-surface-card: var(--surface-card);
+  --color-surface-input: var(--surface-input);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-surface-header: var(--surface-header);
+  --color-surface-panel: var(--surface-panel);
+  --color-surface-inset: var(--surface-inset);
+  --color-surface-interactive: var(--surface-interactive);
+  --color-surface-bar: var(--surface-bar);
+  --color-surface-widget: var(--surface-widget);
+  --color-surface-canvas: var(--surface-canvas);
+  --color-border-primary: var(--border-primary);
+  --color-border-muted: var(--border-muted);
+  /* Main body text: keep `text-primary` = foreground (existing app convention) */
+  --color-primary: var(--text-primary);
+  --color-secondary: var(--text-secondary);
+  --color-muted: var(--text-muted);
+  --color-tertiary: var(--text-tertiary);
+  --color-subtle: var(--text-subtle);
+  --color-on-brand: var(--text-on-brand);
+  --color-semantic-error: var(--semantic-error);
+  --color-semantic-success: var(--semantic-success);
+  --color-semantic-warning: var(--semantic-warning);
+  --color-semantic-info: var(--semantic-info);
+  --color-danger-soft: var(--danger-soft);
+  --color-success-bright: var(--success-bright);
+  --color-chart-grid: var(--chart-grid);
+  --color-accent-orange: var(--accent-orange);
+  --color-accent-purple: var(--accent-purple);
+  --color-chip-violet-bg: var(--chip-violet-bg);
+  --color-chip-violet-fg: var(--chip-violet-fg);
+  --color-chip-sky-bg: var(--chip-sky-bg);
+  --color-chip-sky-fg: var(--chip-sky-fg);
+  --color-danger-bg-subtle: var(--danger-bg-subtle);
+  --color-danger-border-strong: var(--danger-border-strong);
+  --color-info-bg-subtle: var(--info-bg-subtle);
+  --color-info-border: var(--info-border);
+  --color-scrollbar-thumb-hover: var(--scrollbar-thumb-hover);
+  --color-chart-neutral: var(--chart-neutral);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-sans);
+    letter-spacing: var(--tracking-normal);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+}
 
 .cyber {
-  font-family: 'Orbitron', sans-serif;
+  font-family: "Orbitron", sans-serif;
 }
 
-/* main animation home dashboar */
- .pulse-glow {
-          animation: pulse-ring 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
-        }
-        
-        @keyframes pulse-ring {
-          0% { transform: scale(0.8); opacity: 0.5; }
-          50% { transform: scale(1.2); opacity: 0.3; }
-          100% { transform: scale(0.8); opacity: 0.5; }
+.pulse-glow {
+  animation: pulse-ring 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
 }
 
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+}
 
+.card {
+  @apply bg-surface-card border border-border-primary rounded-lg p-4 sm:p-5;
+}
+
+.btn-ghost {
+  @apply flex items-center gap-2 px-3 py-1.5 border border-border-primary rounded bg-transparent hover:bg-surface-elevated transition-colors text-[13px] font-medium text-primary;
+}
+
+.btn-primary {
+  @apply flex items-center gap-2 px-3 py-1.5 border border-transparent rounded bg-brand hover:bg-brand-hover transition-colors text-[13px] font-medium text-white text-nowrap shadow-sm
+}
+
+.btn-outline {
+  @apply flex items-center gap-2 px-3 py-1.5 border border-border-primary rounded bg-transparent hover:bg-surface-elevated transition-colors text-[13px] font-medium text-primary
+}
 
 ::-webkit-scrollbar {
   width: 8px;
@@ -35,14 +382,14 @@ html,body{
 }
 
 ::-webkit-scrollbar-track {
-  background: #0D0D0D;
+  background: var(--surface);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #262626;
+  background: var(--border-primary);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #363636;
+  background: var(--scrollbar-thumb-hover);
 }

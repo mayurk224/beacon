@@ -343,13 +343,13 @@ const EventIcon = ({ type }) => {
     critical: 'bg-red-500',
     success: 'bg-emerald-500',
     warning: 'bg-amber-500',
-    info: 'bg-[#4F8CFF]',
+    info: 'bg-brand',
   };
   return <div className={`w-2 h-2 rounded-full ${colors[type] || 'bg-gray-600'} border border-black absolute -left-1 top-1.5 z-10`} />;
 };
 
 const ProgressBar = ({ value, color = '#4F8CFF' }) => (
-  <div className="w-full bg-[#0D0D0D] rounded-full h-1.5">
+  <div className="w-full bg-surface rounded-full h-1.5">
     <div className="h-full rounded-full transition-all duration-500" style={{ width: `${value}%`, backgroundColor: color }}></div>
   </div>
 );
@@ -370,7 +370,7 @@ const AdminHome = () => {
   const usersSparkline = generateSparklineData(14, 'up', 0.2);
 
   return (
-    <div className="min-h-screen bg-[#0D0D0D] text-[#E2E2E3] antialiased">
+    <div className="min-h-screen bg-surface text-primary antialiased">
       <div className="p-8 space-y-8">
         {/* Page Header */}
         <div className="flex items-center justify-between">
@@ -379,7 +379,7 @@ const AdminHome = () => {
             <p className="text-sm text-gray-500 mt-1">Welcome back, Admin. Here's what's happening today.</p>
           </div>
           <div className="flex items-center gap-3">
-            <button className="flex items-center gap-2 px-4 py-2 bg-[#141414] border border-[#262626] rounded text-sm text-gray-300 hover:text-white hover:border-gray-600 transition-colors">
+            <button className="flex items-center gap-2 px-4 py-2 bg-surface-card border border-border-primary rounded text-sm text-gray-300 hover:text-white hover:border-gray-600 transition-colors">
               <RefreshCw className="w-4 h-4" />
               Refresh
             </button>
@@ -388,10 +388,10 @@ const AdminHome = () => {
 
         {/* KPI Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-[#141414] border border-[#262626] p-4 rounded shadow-sm">
+          <div className="bg-surface-card border border-border-primary p-4 rounded shadow-sm">
             <div className="flex justify-between items-start mb-2">
               <span className="text-gray-500 text-[11px] font-bold uppercase tracking-wider">Active Incidents</span>
-              <span className="text-[#4F8CFF] text-[10px] bg-[#4F8CFF]/10 px-1.5 py-0.5 rounded flex items-center gap-1">
+              <span className="text-brand text-[10px] bg-brand/10 px-1.5 py-0.5 rounded flex items-center gap-1">
                 <TrendingUp className="w-3 h-3" /> +2%
               </span>
             </div>
@@ -403,7 +403,7 @@ const AdminHome = () => {
             </div>
           </div>
 
-          <div className="bg-[#141414] border border-[#262626] p-4 rounded shadow-sm">
+          <div className="bg-surface-card border border-border-primary p-4 rounded shadow-sm">
             <div className="flex justify-between items-start mb-2">
               <span className="text-gray-500 text-[11px] font-bold uppercase tracking-wider">Critical Alerts</span>
               <span className="text-red-400 text-[10px] bg-red-400/10 px-1.5 py-0.5 rounded flex items-center gap-1">
@@ -418,7 +418,7 @@ const AdminHome = () => {
             </div>
           </div>
 
-          <div className="bg-[#141414] border border-[#262626] p-4 rounded shadow-sm">
+          <div className="bg-surface-card border border-border-primary p-4 rounded shadow-sm">
             <div className="flex justify-between items-start mb-2">
               <span className="text-gray-500 text-[11px] font-bold uppercase tracking-wider">Total Users</span>
               <span className="text-emerald-400 text-[10px] bg-emerald-400/10 px-1.5 py-0.5 rounded flex items-center gap-1">
@@ -433,10 +433,10 @@ const AdminHome = () => {
             </div>
           </div>
 
-          <div className="bg-[#141414] border border-[#262626] p-4 rounded shadow-sm">
+          <div className="bg-surface-card border border-border-primary p-4 rounded shadow-sm">
             <div className="flex justify-between items-start mb-2">
               <span className="text-gray-500 text-[11px] font-bold uppercase tracking-wider">System Uptime</span>
-              <span className="text-[#4F8CFF] text-[10px] bg-[#4F8CFF]/10 px-1.5 py-0.5 rounded flex items-center gap-1">
+              <span className="text-brand text-[10px] bg-brand/10 px-1.5 py-0.5 rounded flex items-center gap-1">
                 <Radio className="w-3 h-3" /> Stable
               </span>
             </div>
@@ -454,7 +454,7 @@ const AdminHome = () => {
           {/* Left Column */}
           <div className="col-span-12 lg:col-span-8 space-y-6">
             {/* Incident Frequency Chart */}
-            <div className="bg-[#141414] border border-[#262626] p-6 rounded relative overflow-hidden">
+            <div className="bg-surface-card border border-border-primary p-6 rounded relative overflow-hidden">
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h3 className="text-lg font-semibold text-white">Incident Frequency</h3>
@@ -462,7 +462,7 @@ const AdminHome = () => {
                 </div>
                 <div className="flex items-center gap-4">
                   <span className="flex items-center gap-1.5 text-[10px] text-gray-400 font-mono">
-                    <span className="w-2 h-2 rounded-full bg-[#4F8CFF]"></span> P1 Critical
+                    <span className="w-2 h-2 rounded-full bg-brand"></span> P1 Critical
                   </span>
                   <span className="flex items-center gap-1.5 text-[10px] text-gray-400 font-mono">
                     <span className="w-2 h-2 rounded-full bg-gray-500"></span> P2 Standard
@@ -479,13 +479,13 @@ const AdminHome = () => {
 
             {/* User Activity & Incident Types */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-[#141414] border border-[#262626] p-6 rounded">
+              <div className="bg-surface-card border border-border-primary p-6 rounded">
                 <h3 className="text-lg font-semibold text-white mb-4">User Activity</h3>
                 <div className="h-[250px]">
                   <Bar data={userActivityData} options={barChartOptions} />
                 </div>
               </div>
-              <div className="bg-[#141414] border border-[#262626] p-6 rounded">
+              <div className="bg-surface-card border border-border-primary p-6 rounded">
                 <h3 className="text-lg font-semibold text-white mb-4">Incident Types</h3>
                 <div className="h-[250px] flex items-center justify-center">
                   <Doughnut data={incidentTypeData} options={{ 
@@ -507,7 +507,7 @@ const AdminHome = () => {
           {/* Right Column: Live Feed + Quick Stats */}
           <div className="col-span-12 lg:col-span-4 space-y-6">
             {/* Quick Stats */}
-            <div className="bg-[#141414] border border-[#262626] rounded p-6">
+            <div className="bg-surface-card border border-border-primary rounded p-6">
               <h3 className="text-lg font-semibold text-white mb-4">Quick Stats</h3>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
@@ -524,8 +524,8 @@ const AdminHome = () => {
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-[#4F8CFF]/10 rounded flex items-center justify-center">
-                      <AlertTriangle className="w-4 h-4 text-[#4F8CFF]" />
+                    <div className="w-8 h-8 bg-brand/10 rounded flex items-center justify-center">
+                      <AlertTriangle className="w-4 h-4 text-brand" />
                     </div>
                     <div>
                       <div className="text-sm font-medium text-gray-200">Open Incidents</div>

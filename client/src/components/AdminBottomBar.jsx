@@ -35,19 +35,19 @@ const AdminBottomBar = () => {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-[#0D0D0D] border-t border-[#262626] flex items-center h-[60px] md:hidden px-2">
+    <div className="fixed bottom-0 left-0 right-0 z-50 bg-surface-bar border-t border-border-primary flex items-center h-[60px] md:hidden px-2">
       
       {/* Back Button (left side) */}
       <button
         onClick={handleBack}
-        className="flex flex-col items-center justify-center text-xs text-gray-400 hover:text-white transition-colors w-[60px]"
+        className="flex flex-col items-center justify-center text-xs text-muted hover:text-primary transition-colors w-[60px]"
       >
         <ArrowLeft className="w-5 h-5 mb-1" />
         <span>Back</span>
       </button>
 
       {/* Divider (optional but clean) */}
-      <div className="w-px h-6 bg-[#262626] mx-1" />
+      <div className="w-px h-6 bg-border-primary mx-1" />
 
       {/* Navigation */}
       <div className="flex flex-1 justify-around">
@@ -57,8 +57,8 @@ const AdminBottomBar = () => {
             to={path}
             className={`flex flex-col items-center justify-center text-xs transition-colors ${
               isActive(path)
-                ? 'text-[#4F8CFF]'
-                : 'text-gray-400 hover:text-white'
+                ? 'text-brand'
+                : 'text-muted hover:text-primary'
             }`}
           >
             <Icon className="w-5 h-5 mb-1" />

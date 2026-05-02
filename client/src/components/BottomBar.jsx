@@ -23,7 +23,7 @@ const BottomBar = () => {
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 w-full bg-[#121212] border-t border-neutral-800 z-50">
+    <div className="fixed bottom-0 left-0 w-full bg-surface-bar border-t border-border-primary z-50">
       <div className="flex items-center justify-between px-2 py-2">
         {navItems.map((item, i) => {
           const Icon = item.icon;
@@ -39,13 +39,13 @@ const BottomBar = () => {
                 size={20}
                 className={`transition ${
                   isActive
-                    ? "text-white"
-                    : "text-neutral-500"
+                    ? "text-primary"
+                    : "text-muted"
                 }`}
               />
               {/* Optional dot indicator */}
               {isActive && (
-                <span className="w-1 h-1 mt-1 bg-white rounded-full"></span>
+                <span className="w-1 h-1 mt-1 bg-brand rounded-full"></span>
               )}
             </Link>
           );

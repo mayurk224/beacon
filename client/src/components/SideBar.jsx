@@ -24,12 +24,12 @@ export default function SideBar() {
   ];
 
   return (
-    <aside className={`w-[180px] lg:w-[260px] border-r flex flex-col h-full bg-[#121212] border-neutral-800 text-white`}>
+    <aside className={`w-[180px] lg:w-[260px] border-r flex flex-col h-full bg-surface-bar border-border-primary text-primary`}>
 
       {/* Logo */}
-      <div className="px-3 lg:px-6 py-4 lg:py-5 border-b border-neutral-800">
+      <div className="px-3 lg:px-6 py-4 lg:py-3.5 border-b border-border-primary">
         <div className="flex items-center gap-2 lg:gap-3">
-          <div className="w-8 lg:w-9 h-8 lg:h-9 rounded-lg overflow-hidden bg-neutral-900 flex items-center justify-center">
+          <div className="w-8 lg:w-9 h-8 lg:h-9 rounded-lg overflow-hidden bg-surface-inset flex items-center justify-center">
             <img
               src="/logo.webp"
               alt="logo"
@@ -37,7 +37,7 @@ export default function SideBar() {
             />
           </div>
           <div>
-            <h1 className={`text-white text-sm font-semibold tracking-wide  uppercase`}>
+            <h1 className={`text-primary text-sm font-semibold tracking-wide  uppercase`}>
               Beacon
             </h1>
           </div>
@@ -57,14 +57,14 @@ export default function SideBar() {
               className={`group flex items-center gap-2 lg:gap-3 px-2 lg:px-3 py-2 lg:py-2.5 rounded-lg transition-all duration-200
               ${
                 isActive
-                  ? "bg-neutral-800 text-white shadow-inner"
-                  : "text-neutral-400 hover:bg-neutral-900 hover:text-white"
+                  ? "bg-surface-interactive text-primary shadow-inner"
+                  : "text-muted hover:bg-surface-inset hover:text-primary"
               }`}
             >
               <Icon
                 size={16}
                 className={`transition ${
-                  isActive ? "text-white" : "group-hover:text-white"
+                  isActive ? "text-primary" : "group-hover:text-primary"
                 }`}
               />
               <span className="font-medium">{item.name}</span>
@@ -74,19 +74,19 @@ export default function SideBar() {
       </nav>
 
       {/* Bottom */}
-      <div className="px-2 lg:px-3 py-3 lg:py-4 border-t border-neutral-800">
+      <div className="px-2 lg:px-3 py-3 lg:py-4 border-t border-border-primary">
         <Link
           to="/home/user_settings"
           className={`group flex items-center gap-2 lg:gap-3 px-2 lg:px-3 py-2 lg:py-2.5 rounded-lg transition-all duration-200
           ${
             pathname === "/settings"
-              ? "bg-neutral-800 text-blue-400"
-              : "text-neutral-400 hover:bg-neutral-900 hover:text-white"
+              ? "bg-surface-interactive text-brand"
+              : "text-muted hover:bg-surface-inset hover:text-primary"
           }`}
         >
           <Settings
             size={16}
-            className="group-hover:text-white transition"
+            className="group-hover:text-primary transition"
           />
           <span className="font-medium">Settings</span>
         </Link>

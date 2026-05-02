@@ -5,7 +5,7 @@ import AdminBottomBar from '../components/AdminBottomBar';
 
 const AdminMain = () => {
   return (
-    <section className="h-screen w-full flex bg-[#0D0D0D] overflow-hidden">
+    <section className="h-screen w-full flex bg-surface overflow-hidden">
       
       {/* Sidebar (desktop only) */}
       <div className="hidden md:block">
