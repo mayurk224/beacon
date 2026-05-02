@@ -1,4 +1,5 @@
 import userModel from "../../models/user.model.js";
+import mongoose from "mongoose";
 
 export const getAllUsers = async (req, res) => {
     try {
@@ -57,6 +58,38 @@ export const getAllUsers = async (req, res) => {
 
     } catch (error) {
         console.error("Admin Get Users Error:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+export const getUserById = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // 🔹 Validate user ID format
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ message: "Invalid user ID format" });
+        }
+
+        const user = await userModel.findById(id)
+            .select(
+                "-password -refreshTokens -passwordResetToken -emailVerificationToken -twoFactorSecret"
+            )
+            .populate({
+                path: "memberships.organization",
+                select: "name slug",
+            });
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        return res.status(200).json({
+            user,
+        });
+
+    } catch (error) {
+        console.error("Admin Get User Error:", error);
         return res.status(500).json({ message: "Internal server error" });
     }
 };

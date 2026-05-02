@@ -410,3 +410,11 @@
 ::ffff:127.0.0.1 - - [2026-05-02T12:38:54.054Z] "GET /users?isActive=true HTTP/1.1" 200 916 "-" "-" - 13.961 ms
 ::ffff:127.0.0.1 - - [2026-05-02T12:38:54.088Z] "GET /users?search=Regular HTTP/1.1" 200 491 "-" "-" - 15.967 ms
 ::ffff:127.0.0.1 - - [2026-05-02T12:38:54.121Z] "GET /users?limit=1&page=2 HTTP/1.1" 200 496 "-" "-" - 12.305 ms
+::ffff:127.0.0.1 - - [2026-05-02T12:46:07.157Z] "GET /users/69f5f20de394dea068fc116a HTTP/1.1" 200 433 "-" "-" - 29.753 ms
+::ffff:127.0.0.1 - - [2026-05-02T12:46:07.189Z] "GET /users/69f5f20de394dea068fc1169 HTTP/1.1" 403 69 "-" "-" - 5.187 ms
+::ffff:127.0.0.1 - - [2026-05-02T12:46:07.206Z] "GET /users/invalid-id HTTP/1.1" 400 36 "-" "-" - 4.086 ms
+::ffff:127.0.0.1 - - [2026-05-02T12:46:07.229Z] "GET /users/69f5f20fe394dea068fc1173 HTTP/1.1" 404 28 "-" "-" - 7.065 ms
+::ffff:127.0.0.1 - - [2026-05-02T12:46:07.239Z] "GET /users/69f5f20de394dea068fc116a HTTP/1.1" 401 26 "-" "-" - 0.487 ms
+::1 - - [2026-05-02T12:50:26.225Z] "POST /refresh-token HTTP/1.1" 200 29 "-" "PostmanRuntime/7.53.0" - 163.995 ms
+::1 - - [2026-05-02T12:50:30.859Z] "GET /users HTTP/1.1" 200 4924 "-" "PostmanRuntime/7.53.0" - 153.134 ms
+::1 - - [2026-05-02T12:53:04.547Z] "GET /users/69f56bb335e4e1194ca1fb23 HTTP/1.1" 200 472 "-" "PostmanRuntime/7.53.0" - 96.714 ms
