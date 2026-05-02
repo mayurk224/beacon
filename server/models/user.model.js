@@ -106,11 +106,10 @@ const userSchema = new mongoose.Schema(
     refreshTokens: [
       {
         token: String,
-        createdAt: {
-          type: Date,
-          default: Date.now,
-        },
-      },
+        createdAt: { type: Date, default: Date.now },
+        userAgent: String,
+        ip: String,
+      }
     ],
 
     passwordResetToken: String,
