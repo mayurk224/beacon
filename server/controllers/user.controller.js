@@ -312,3 +312,42 @@ export const getActiveSessions = async (req, res) => {
         return res.status(500).json({ message: "Internal server error" });
     }
 };
+
+export const logoutAllSessions = async (req, res) => {
+    try {
+        const userId = req.userId;
+
+        const user = await userModel.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // 🔹 1. Invalidate all sessions in database
+        user.refreshTokens = [];
+        await user.save();
+
+        // 🔹 2. Clear cookies for the current client
+        res.clearCookie("accessToken", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "Strict",
+        });
+        res.clearCookie("refreshToken", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "Strict",
+        });
+
+        // 🔹 3. Security Audit Log
+        console.log(`[SECURITY AUDIT] User ${userId} logged out from all devices at ${new Date().toISOString()} from IP: ${req.ip}`);
+
+        return res.status(200).json({
+            message: "Logged out from all devices successfully",
+        });
+
+    } catch (error) {
+        console.error("Logout All Error:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};
