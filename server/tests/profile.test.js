@@ -1,6 +1,7 @@
 import { jest } from '@jest/globals';
 import request from 'supertest';
 import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import jwt from 'jsonwebtoken';
 import app from '../src/app.js';
@@ -111,7 +112,7 @@ describe('GET /api/users/profile', () => {
     });
 });
 
-describe('POST /api/users/avatar', () => {
+describe('POST /api/users/profile/avatar', () => {
     const generateToken = (userId) => {
         return jwt.sign({ userId }, config.ACCESS_TOKEN_SECRET || 'test_secret', {
             expiresIn: '15m',
@@ -139,7 +140,7 @@ describe('POST /api/users/avatar', () => {
         });
 
         const res = await request(app)
-            .post('/api/users/avatar')
+            .post('/api/users/profile/avatar')
             .set('Cookie', [`accessToken=${token}`])
             .attach('avatar', Buffer.from('fake-image-content'), 'avatar.jpg');
 
@@ -171,7 +172,7 @@ describe('POST /api/users/avatar', () => {
         const deleteSpy = jest.spyOn(imagekit, 'deleteFile').mockResolvedValue({});
 
         const res = await request(app)
-            .post('/api/users/avatar')
+            .post('/api/users/profile/avatar')
             .set('Cookie', [`accessToken=${token}`])
             .attach('avatar', Buffer.from('fake-image-content'), 'avatar.jpg');
 
@@ -194,7 +195,7 @@ describe('POST /api/users/avatar', () => {
         const token = generateToken(user._id);
 
         const res = await request(app)
-            .post('/api/users/avatar')
+            .post('/api/users/profile/avatar')
             .set('Cookie', [`accessToken=${token}`]);
 
         expect(res.statusCode).toEqual(400);
@@ -212,7 +213,7 @@ describe('POST /api/users/avatar', () => {
         const token = generateToken(user._id);
 
         const res = await request(app)
-            .post('/api/users/avatar')
+            .post('/api/users/profile/avatar')
             .set('Cookie', [`accessToken=${token}`])
             .attach('avatar', Buffer.from('fake-text-content'), 'test.txt');
 
@@ -231,7 +232,7 @@ describe('POST /api/users/avatar', () => {
         const token = generateToken(user._id);
 
         const res = await request(app)
-            .post('/api/users/avatar')
+            .post('/api/users/profile/avatar')
             .set('Cookie', [`accessToken=${token}`])
             .attach('avatar', Buffer.from('fake-image-content'), 'avatar.jpg');
 
@@ -252,7 +253,7 @@ describe('POST /api/users/avatar', () => {
         const uploadSpy = jest.spyOn(imagekit, 'upload').mockRejectedValue(new Error('ImageKit error'));
 
         const res = await request(app)
-            .post('/api/users/avatar')
+            .post('/api/users/profile/avatar')
             .set('Cookie', [`accessToken=${token}`])
             .attach('avatar', Buffer.from('fake-image-content'), 'avatar.jpg');
 
@@ -263,7 +264,7 @@ describe('POST /api/users/avatar', () => {
     });
 });
 
-describe('DELETE /api/users/avatar', () => {
+describe('DELETE /api/users/profile/avatar', () => {
     const generateToken = (userId) => {
         return jwt.sign({ userId }, config.ACCESS_TOKEN_SECRET || 'test_secret', {
             expiresIn: '15m',
@@ -285,7 +286,7 @@ describe('DELETE /api/users/avatar', () => {
         const deleteSpy = jest.spyOn(imagekit, 'deleteFile').mockResolvedValue({});
 
         const res = await request(app)
-            .delete('/api/users/avatar')
+            .delete('/api/users/profile/avatar')
             .set('Cookie', [`accessToken=${token}`]);
 
         expect(res.statusCode).toEqual(200);
@@ -304,11 +305,121 @@ describe('DELETE /api/users/avatar', () => {
         const token = generateToken(userId);
 
         const res = await request(app)
-            .delete('/api/users/avatar')
+            .delete('/api/users/profile/avatar')
             .set('Cookie', [`accessToken=${token}`]);
 
         expect(res.statusCode).toEqual(404);
         expect(res.body.message).toEqual('User not found');
+    });
+});
+
+describe('POST /api/users/profile/password', () => {
+    const generateToken = (userId) => {
+        return jwt.sign({ userId }, config.ACCESS_TOKEN_SECRET || 'test_secret', {
+            expiresIn: '15m',
+        });
+    };
+
+    it('should change password successfully with valid inputs', async () => {
+        const salt = await bcrypt.genSalt(12);
+        const hashedPassword = await bcrypt.hash('OldPassword123!', salt);
+        const user = await userModel.create({
+            name: 'John Doe',
+            email: 'john@example.com',
+            password: hashedPassword,
+            isActive: true,
+            refreshTokens: [{ token: 'some_refresh_token' }]
+        });
+
+        const token = generateToken(user._id);
+
+        const res = await request(app)
+            .post('/api/users/profile/password')
+            .set('Cookie', [`accessToken=${token}`])
+            .send({
+                currentPassword: 'OldPassword123!',
+                newPassword: 'NewPassword123@'
+            });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.message).toMatch(/Password changed successfully/);
+
+        const updatedUser = await userModel.findById(user._id);
+        expect(updatedUser.refreshTokens).toHaveLength(0);
+        const isMatch = await bcrypt.compare('NewPassword123@', updatedUser.password);
+        expect(isMatch).toBe(true);
+    });
+
+    it('should return 400 for weak new password', async () => {
+        const salt = await bcrypt.genSalt(12);
+        const hashedPassword = await bcrypt.hash('OldPassword123!', salt);
+        const user = await userModel.create({
+            name: 'John Doe',
+            email: 'john@example.com',
+            password: hashedPassword,
+            isActive: true,
+        });
+
+        const token = generateToken(user._id);
+
+        const res = await request(app)
+            .post('/api/users/profile/password')
+            .set('Cookie', [`accessToken=${token}`])
+            .send({
+                currentPassword: 'OldPassword123!',
+                newPassword: 'weak'
+            });
+
+        expect(res.statusCode).toEqual(400);
+        expect(res.body.message).toEqual('Validation failed');
+    });
+
+    it('should return 401 for incorrect current password', async () => {
+        const salt = await bcrypt.genSalt(12);
+        const hashedPassword = await bcrypt.hash('OldPassword123!', salt);
+        const user = await userModel.create({
+            name: 'John Doe',
+            email: 'john@example.com',
+            password: hashedPassword,
+            isActive: true,
+        });
+
+        const token = generateToken(user._id);
+
+        const res = await request(app)
+            .post('/api/users/profile/password')
+            .set('Cookie', [`accessToken=${token}`])
+            .send({
+                currentPassword: 'WrongPassword!',
+                newPassword: 'NewPassword123@'
+            });
+
+        expect(res.statusCode).toEqual(401);
+        expect(res.body.message).toEqual('Current password is incorrect');
+    });
+
+    it('should return 400 when new password is same as current', async () => {
+        const salt = await bcrypt.genSalt(12);
+        const hashedPassword = await bcrypt.hash('OldPassword123!', salt);
+        const user = await userModel.create({
+            name: 'John Doe',
+            email: 'john@example.com',
+            password: hashedPassword,
+            isActive: true,
+        });
+
+        const token = generateToken(user._id);
+
+        const res = await request(app)
+            .post('/api/users/profile/password')
+            .set('Cookie', [`accessToken=${token}`])
+            .send({
+                currentPassword: 'OldPassword123!',
+                newPassword: 'OldPassword123!'
+            });
+
+        expect(res.statusCode).toEqual(400);
+        expect(res.body.message).toEqual('New password must be different from current password');
     });
 });
 

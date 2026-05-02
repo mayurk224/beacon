@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
 import { validationResult } from "express-validator";
 import userModel from "../models/user.model.js";
 import Organization from "../models/organization.model.js";
@@ -151,7 +152,7 @@ export const updateAvatar = async (req, res) => {
             try {
                 await imagekit.deleteFile(user.avatarFileId);
             } catch (cleanupError) {
-                console.warn("Old avatar cleanup failed:", cleanupError.message);
+                console.error("Avatar cleanup failed:", cleanupError.message, { userId, fileId: user.avatarFileId });
                 // Don't fail the update if cleanup fails
             }
         }
@@ -196,7 +197,11 @@ export const deleteAvatar = async (req, res) => {
 
         // 🔹 If avatar exists, delete from ImageKit
         if (user.avatarFileId) {
-            await imagekit.deleteFile(user.avatarFileId);
+            try {
+                await imagekit.deleteFile(user.avatarFileId);
+            } catch (error) {
+                console.warn("Avatar deletion failed:", error.message);
+            }
         }
 
         // 🔹 Remove from DB
@@ -216,6 +221,66 @@ export const deleteAvatar = async (req, res) => {
 
     } catch (error) {
         console.error("Delete Avatar Error:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+export const changePassword = async (req, res) => {
+    try {
+        // 1. Check for validation errors
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({
+                message: "Validation failed",
+                errors: errors.array().map(err => ({ field: err.path, message: err.msg }))
+            });
+        }
+
+        const userId = req.userId;
+        const { currentPassword, newPassword } = req.body;
+
+        // 2. Get user
+        const user = await userModel.findById(userId);
+
+        if (!user || !user.password) {
+            console.warn(`[Audit] Password change attempt for non-existent user or OAuth user: ${userId}`);
+            return res.status(400).json({ message: "User not found or invalid auth provider" });
+        }
+
+        // 3. Check current password
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!isMatch) {
+            console.warn(`[Audit] Failed password change attempt (incorrect current password) for user: ${userId}`);
+            return res.status(401).json({ message: "Current password is incorrect" });
+        }
+
+        // 4. Prevent same password reuse
+        const isSame = await bcrypt.compare(newPassword, user.password);
+        if (isSame) {
+            return res.status(400).json({ message: "New password must be different from current password" });
+        }
+
+        // 5. Hash new password with strong salt
+        const salt = await bcrypt.genSalt(12);
+        user.password = await bcrypt.hash(newPassword, salt);
+
+        // 6. Invalidate all sessions (OWASP Guideline)
+        user.refreshTokens = [];
+
+        await user.save();
+
+        // 7. Clear cookies (force re-login)
+        res.clearCookie("accessToken");
+        res.clearCookie("refreshToken");
+
+        console.info(`[Audit] Password successfully changed for user: ${userId}`);
+
+        return res.status(200).json({
+            message: "Password changed successfully. Please login again.",
+        });
+
+    } catch (error) {
+        console.error("Change Password Error:", error);
         return res.status(500).json({ message: "Internal server error" });
     }
 };
