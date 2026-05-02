@@ -30,6 +30,11 @@ const userSchema = new mongoose.Schema(
       default: "",
     },
 
+    avatarFileId: {
+      type: String, // ImageKit fileId
+      default: "",
+    },
+
     // 🔹 Auth Provider (future-proof)
     authProvider: {
       type: String,

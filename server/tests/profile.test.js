@@ -132,7 +132,7 @@ describe('POST /api/users/avatar', () => {
 
         const token = generateToken(user._id);
         const mockUrl = 'https://ik.imagekit.io/test/avatar.jpg';
-        
+
         const uploadSpy = jest.spyOn(imagekit, 'upload').mockResolvedValue({
             url: mockUrl,
             fileId: 'test_id'
@@ -146,9 +146,41 @@ describe('POST /api/users/avatar', () => {
         expect(res.statusCode).toEqual(200);
         expect(res.body.avatar).toEqual(mockUrl);
         expect(res.body.user.avatar).toEqual(mockUrl);
+        expect(res.body.user.avatarFileId).toEqual('test_id');
         expect(uploadSpy).toHaveBeenCalled();
-        
+
         uploadSpy.mockRestore();
+    });
+
+    it('should cleanup old avatar when uploading a new one', async () => {
+        const user = await userModel.create({
+            name: 'John Doe',
+            email: 'john@example.com',
+            password: 'password123',
+            isActive: true,
+            avatarFileId: 'old_file_id'
+        });
+
+        const token = generateToken(user._id);
+        const mockUrl = 'https://ik.imagekit.io/test/new_avatar.jpg';
+
+        const uploadSpy = jest.spyOn(imagekit, 'upload').mockResolvedValue({
+            url: mockUrl,
+            fileId: 'new_file_id'
+        });
+        const deleteSpy = jest.spyOn(imagekit, 'deleteFile').mockResolvedValue({});
+
+        const res = await request(app)
+            .post('/api/users/avatar')
+            .set('Cookie', [`accessToken=${token}`])
+            .attach('avatar', Buffer.from('fake-image-content'), 'avatar.jpg');
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.user.avatarFileId).toEqual('new_file_id');
+        expect(deleteSpy).toHaveBeenCalledWith('old_file_id');
+
+        uploadSpy.mockRestore();
+        deleteSpy.mockRestore();
     });
 
     it('should return 400 if no file is uploaded', async () => {
@@ -216,7 +248,7 @@ describe('POST /api/users/avatar', () => {
         });
 
         const token = generateToken(user._id);
-        
+
         const uploadSpy = jest.spyOn(imagekit, 'upload').mockRejectedValue(new Error('ImageKit error'));
 
         const res = await request(app)
@@ -226,8 +258,57 @@ describe('POST /api/users/avatar', () => {
 
         expect(res.statusCode).toEqual(502);
         expect(res.body.message).toEqual('Image storage service error');
-        
+
         uploadSpy.mockRestore();
+    });
+});
+
+describe('DELETE /api/users/avatar', () => {
+    const generateToken = (userId) => {
+        return jwt.sign({ userId }, config.ACCESS_TOKEN_SECRET || 'test_secret', {
+            expiresIn: '15m',
+        });
+    };
+
+    it('should delete avatar successfully and NOT leak tokens', async () => {
+        const user = await userModel.create({
+            name: 'John Doe',
+            email: 'john@example.com',
+            password: 'password123',
+            isActive: true,
+            avatar: 'https://example.com/avatar.jpg',
+            avatarFileId: 'test_file_id',
+            refreshTokens: [{ token: 'secret_refresh_token' }]
+        });
+
+        const token = generateToken(user._id);
+        const deleteSpy = jest.spyOn(imagekit, 'deleteFile').mockResolvedValue({});
+
+        const res = await request(app)
+            .delete('/api/users/avatar')
+            .set('Cookie', [`accessToken=${token}`]);
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.message).toEqual('Avatar removed successfully');
+        expect(res.body.user.avatar).toEqual('');
+        expect(res.body.user).not.toHaveProperty('password');
+        expect(res.body.user).not.toHaveProperty('refreshTokens');
+        expect(res.body.user).not.toHaveProperty('passwordResetToken');
+
+        expect(deleteSpy).toHaveBeenCalledWith('test_file_id');
+        deleteSpy.mockRestore();
+    });
+
+    it('should return 404 if user not found', async () => {
+        const userId = new mongoose.Types.ObjectId();
+        const token = generateToken(userId);
+
+        const res = await request(app)
+            .delete('/api/users/avatar')
+            .set('Cookie', [`accessToken=${token}`]);
+
+        expect(res.statusCode).toEqual(404);
+        expect(res.body.message).toEqual('User not found');
     });
 });
 
