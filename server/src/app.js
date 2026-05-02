@@ -6,6 +6,7 @@ import authRoutes from "../routes/auth.routes.js";
 import { setupLogger } from "../utils/logger.js";
 import config from "../config/config.js";
 import userRoutes from "../routes/user.routes.js";
+import adminRouter from "../routes/admin.routes.js";
 
 const app = express();
 
@@ -41,6 +42,9 @@ app.use("/api/auth", authRoutes);
 
 // Import and use the user routes
 app.use("/api/users", userRoutes);
+
+// Import and use the admin routes
+app.use("/api/admin", adminRouter);
 
 // Global Error Handler
 app.use((err, req, res, next) => {
