@@ -49,6 +49,28 @@ export const resendLimiter = rateLimit({
 });
 
 /**
+ * Creates a rate limiter middleware for password change requests.
+ */
+export const passwordChangeLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000, // 1 hour
+    max: config.NODE_ENV === 'test' ? 100 : 5, // 5 attempts per hour
+    message: { message: 'Too many password change attempts, please try again after an hour' },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+/**
+ * Creates a rate limiter middleware for logout all sessions requests.
+ */
+export const logoutAllLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000, // 1 hour
+    max: config.NODE_ENV === 'test' ? 100 : 10, // 10 attempts per hour
+    message: { message: 'Too many logout requests, please try again after an hour' },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+/**
  * General purpose rate limiter can be added here as well.
  */
 export const apiLimiter = rateLimit({
