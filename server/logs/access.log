@@ -418,3 +418,17 @@
 ::1 - - [2026-05-02T12:50:26.225Z] "POST /refresh-token HTTP/1.1" 200 29 "-" "PostmanRuntime/7.53.0" - 163.995 ms
 ::1 - - [2026-05-02T12:50:30.859Z] "GET /users HTTP/1.1" 200 4924 "-" "PostmanRuntime/7.53.0" - 153.134 ms
 ::1 - - [2026-05-02T12:53:04.547Z] "GET /users/69f56bb335e4e1194ca1fb23 HTTP/1.1" 200 472 "-" "PostmanRuntime/7.53.0" - 96.714 ms
+::1 - - [2026-05-02T13:36:39.571Z] "OPTIONS /api/auth/google HTTP/1.1" 204 0 "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" - 3.247 ms
+::1 - - [2026-05-02T13:36:40.648Z] "POST /google HTTP/1.1" 200 134 "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" - 1071.178 ms
+::ffff:127.0.0.1 - - [2026-05-02T13:55:25.253Z] "POST /organization HTTP/1.1" 500 35 "-" "-" - 98.937 ms
+::ffff:127.0.0.1 - - [2026-05-02T13:55:25.282Z] "POST /organization HTTP/1.1" 400 185 "-" "-" - 2.410 ms
+::ffff:127.0.0.1 - - [2026-05-02T13:55:25.311Z] "POST /organization/user HTTP/1.1" 500 35 "-" "-" - 8.701 ms
+::ffff:127.0.0.1 - - [2026-05-02T13:55:25.340Z] "POST /organization/user HTTP/1.1" 500 35 "-" "-" - 8.167 ms
+::ffff:127.0.0.1 - - [2026-05-02T13:55:25.370Z] "POST /organization/user HTTP/1.1" 500 35 "-" "-" - 6.351 ms
+::ffff:127.0.0.1 - - [2026-05-02T13:55:25.395Z] "POST /organization/user HTTP/1.1" 500 35 "-" "-" - 5.092 ms
+::ffff:127.0.0.1 - - [2026-05-02T14:00:45.210Z] "POST /organization HTTP/1.1" 500 35 "-" "-" - 90.172 ms
+::ffff:127.0.0.1 - - [2026-05-02T14:00:45.231Z] "POST /organization HTTP/1.1" 400 185 "-" "-" - 1.880 ms
+::ffff:127.0.0.1 - - [2026-05-02T14:00:45.261Z] "POST /organization/user HTTP/1.1" 500 35 "-" "-" - 10.597 ms
+::ffff:127.0.0.1 - - [2026-05-02T14:00:45.291Z] "POST /organization/user HTTP/1.1" 500 35 "-" "-" - 7.443 ms
+::ffff:127.0.0.1 - - [2026-05-02T14:00:45.317Z] "POST /organization/user HTTP/1.1" 500 35 "-" "-" - 5.409 ms
+::ffff:127.0.0.1 - - [2026-05-02T14:00:45.341Z] "POST /organization/user HTTP/1.1" 500 35 "-" "-" - 6.987 ms
