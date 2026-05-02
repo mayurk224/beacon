@@ -1,27 +1,27 @@
 import { Router } from 'express';
-import { 
-    login, 
-    signup, 
-    logout, 
-    refreshToken, 
-    verifyEmail, 
-    forgotPassword, 
-    resetPassword, 
-    getMe, 
+import {
+    login,
+    signup,
+    logout,
+    refreshToken,
+    verifyEmail,
+    forgotPassword,
+    resetPassword,
+    getMe,
     resendVerificationController,
     googleAuth
 } from '../controllers/auth.controller.js';
-import { 
-    loginValidation, 
-    signupValidation, 
-    forgotPasswordValidation, 
-    resetPasswordValidation 
+import {
+    loginValidation,
+    signupValidation,
+    forgotPasswordValidation,
+    resetPasswordValidation
 } from '../config/validation/auth.validation.js';
-import { 
-    signupLimiter, 
-    loginLimiter, 
-    forgotPasswordLimiter, 
-    resendLimiter 
+import {
+    signupLimiter,
+    loginLimiter,
+    forgotPasswordLimiter,
+    resendLimiter
 } from '../utils/rateLimiter.js';
 import { protect } from '../middleware/auth.middleware.js';
 
