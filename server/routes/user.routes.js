@@ -4,8 +4,8 @@ import { changePassword, deleteAvatar, getActiveSessions, getProfile, logoutAllS
 import { changePasswordValidation, updateProfileValidation } from "../config/validation/user.validation.js";
 import { upload } from "../middleware/upload.middleware.js";
 import { logoutAllLimiter, passwordChangeLimiter } from "../utils/rateLimiter.js";
-import { createOrganization, addUserToOrganization } from "../controllers/user.organization.controller.js";
-import { createOrganizationValidation, addUserToOrganizationValidation } from "../config/validation/organization.validation.js";
+import { createOrganization, acceptInvite, sendInvite } from "../controllers/user.organization.controller.js";
+import { createOrganizationValidation, sendInviteValidation, acceptInviteValidation } from "../config/validation/organization.validation.js";
 
 const userRoute = Router();
 
@@ -18,6 +18,7 @@ userRoute.get("/profile/sessions", protect, getActiveSessions);
 userRoute.post("/profile/logout", protect, logoutAllLimiter, logoutAllSessions);
 
 userRoute.post("/organization", protect, createOrganizationValidation, createOrganization);
-userRoute.post("/organization/user", protect, addUserToOrganizationValidation, addUserToOrganization);
+userRoute.post("/organization/user/invite", protect, sendInviteValidation, sendInvite);
+userRoute.post("/organization/user/invite/accept", protect, acceptInviteValidation, acceptInvite);
 
 export default userRoute;

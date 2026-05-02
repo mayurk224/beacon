@@ -1,8 +1,12 @@
 import organizationModel from "../models/organization.model.js";
 import userModel from "../models/user.model.js";
+import inviteModel from "../models/invite.model.js";
 import slugify from "slugify";
 import mongoose from "mongoose";
 import { validationResult } from "express-validator";
+import config from "../config/config.js";
+import crypto from "crypto";
+import { sendInviteEmail } from "../services/mail.service.js";
 
 export const createOrganization = async (req, res) => {
     const session = await mongoose.startSession();
@@ -72,10 +76,7 @@ export const createOrganization = async (req, res) => {
     }
 };
 
-export const addUserToOrganization = async (req, res) => {
-    const session = await mongoose.startSession();
-    session.startTransaction();
-
+export const sendInvite = async (req, res) => {
     try {
         // 1. Validation
         const errors = validationResult(req);
@@ -86,74 +87,154 @@ export const addUserToOrganization = async (req, res) => {
             });
         }
 
-        const requesterId = req.userId;
         const { email, role = "responder", organizationId } = req.body;
+        const adminId = req.userId;
 
         // 2. Verify organization exists
-        const organization = await organizationModel.findById(organizationId).session(session);
+        const organization = await organizationModel.findById(organizationId);
         if (!organization) {
-            await session.abortTransaction();
             return res.status(404).json({ message: "Organization not found" });
         }
 
         // 3. Verify requester is admin of the organization
         const requester = await userModel.findOne({
-            _id: requesterId,
+            _id: adminId,
             "memberships.organization": organizationId,
             "memberships.role": "admin"
-        }).session(session);
+        });
 
         if (!requester) {
-            await session.abortTransaction();
-            return res.status(403).json({ message: "Only organization admins can add users" });
+            return res.status(403).json({ message: "Only organization admins can send invites" });
         }
 
-        // 4. Find user to add
-        const userToAdd = await userModel.findOne({ email }).session(session);
-        if (!userToAdd) {
-            await session.abortTransaction();
+        // 4. Check if user is already a member
+        const userToInvite = await userModel.findOne({ email });
+        if (userToInvite) {
+            const isAlreadyMember = userToInvite.memberships.some(
+                m => m.organization.toString() === organizationId
+            );
+            if (isAlreadyMember) {
+                return res.status(409).json({ message: "User is already a member of this organization" });
+            }
+        } else {
             return res.status(404).json({ message: "User not found with this email" });
         }
 
-        // 5. Check if user is already a member
-        const isAlreadyMember = userToAdd.memberships.some(
-            m => m.organization.toString() === organizationId
-        );
+        // 5. Check if a pending invite already exists for this email and organization
+        const existingInvite = await inviteModel.findOne({
+            email,
+            organization: organizationId,
+            status: "pending",
+            expiresAt: { $gt: Date.now() }
+        });
 
-        if (isAlreadyMember) {
-            await session.abortTransaction();
-            return res.status(409).json({ message: "User is already a member of this organization" });
+        if (existingInvite) {
+            return res.status(409).json({ message: "A pending invitation already exists for this email" });
         }
 
-        // 6. Add membership
-        await userModel.findByIdAndUpdate(userToAdd._id, {
-            $push: {
-                memberships: {
-                    organization: organizationId,
-                    role,
-                },
-            },
-        }, { session });
+        // 6. Create invite
+        const token = crypto.randomBytes(32).toString("hex");
+        await inviteModel.create({
+            email,
+            role,
+            organization: organizationId,
+            token,
+            expiresAt: Date.now() + 1000 * 60 * 60 * 24, // 24 hours
+            invitedBy: adminId,
+        });
 
-        // 7. Increment members count
-        await organizationModel.findByIdAndUpdate(organizationId, {
-            $inc: { membersCount: 1 }
-        }, { session });
+        const inviteLink = `${config.CLIENT_URL}/accept-invite?token=${token}`;
 
-        await session.commitTransaction();
-        session.endSession();
-
-        // 8. Audit Log
-        console.info(`[AUDIT] User ${userToAdd._id} added to Organization ${organizationId} with role ${role} by Admin ${requesterId}`);
+        // 7. Send email
+        await sendInviteEmail({
+            email,
+            organizationName: organization.name,
+            inviteLink,
+            role
+        });
 
         return res.status(200).json({
-            message: "User added to organization successfully",
+            message: "Invite sent successfully",
         });
 
     } catch (error) {
-        await session.abortTransaction();
-        session.endSession();
-        console.error("Add User to Org Error:", error);
+        console.error("Send Invite Error:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+export const acceptInvite = async (req, res) => {
+    try {
+        // 1. Validation
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({
+                message: "Validation failed",
+                errors: errors.array().map(err => ({ field: err.path, message: err.msg }))
+            });
+        }
+
+        const { token } = req.body;
+        const userId = req.userId;
+
+        // 2. Find and validate invite
+        const invite = await inviteModel.findOne({
+            token,
+            status: "pending",
+            expiresAt: { $gt: Date.now() },
+        });
+
+        if (!invite) {
+            return res.status(400).json({ message: "Invalid or expired invite" });
+        }
+
+        const user = await userModel.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // 3. Email match check
+        if (user.email !== invite.email) {
+            return res.status(403).json({ message: "This invite is not for your email" });
+        }
+
+        // 4. Check if already a member (defensive)
+        const isAlreadyMember = user.memberships.some(
+            m => m.organization.toString() === invite.organization.toString()
+        );
+
+        if (isAlreadyMember) {
+            invite.status = "accepted";
+            await invite.save();
+            return res.status(200).json({ message: "You are already a member of this organization" });
+        }
+
+        // 5. Add membership and increment count
+        user.memberships.push({
+            organization: invite.organization,
+            role: invite.role,
+            joinedAt: new Date(),
+        });
+
+        await user.save();
+
+        await organizationModel.findByIdAndUpdate(invite.organization, {
+            $inc: { membersCount: 1 }
+        });
+
+        // 6. Mark invite used
+        invite.status = "accepted";
+        await invite.save();
+
+        // 7. Audit Log
+        console.info(`[AUDIT] User ${userId} accepted invite for Organization ${invite.organization} with role ${invite.role}`);
+
+        return res.status(200).json({
+            message: "Joined organization successfully",
+        });
+
+    } catch (error) {
+        console.error("Accept Invite Error:", error);
         return res.status(500).json({ message: "Internal server error" });
     }
 };

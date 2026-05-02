@@ -8,7 +8,7 @@ export const createOrganizationValidation = [
         .escape(),
 ];
 
-export const addUserToOrganizationValidation = [
+export const sendInviteValidation = [
     body('email')
         .trim()
         .notEmpty().withMessage('User email is required')
@@ -21,4 +21,11 @@ export const addUserToOrganizationValidation = [
         .trim()
         .notEmpty().withMessage('Organization ID is required')
         .isMongoId().withMessage('Invalid Organization ID format'),
+];
+
+export const acceptInviteValidation = [
+    body('token')
+        .trim()
+        .notEmpty().withMessage('Invite token is required')
+        .isLength({ min: 64, max: 64 }).withMessage('Invalid token format'),
 ];
