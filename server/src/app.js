@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import authRoutes from "../routes/auth.routes.js";
 import { setupLogger } from "../utils/logger.js";
 import config from "../config/config.js";
+import userRoutes from "../routes/user.routes.js";
 
 const app = express();
 
@@ -37,6 +38,9 @@ app.get("/health", (req, res) => {
 
 // Import and use the auth routes
 app.use("/api/auth", authRoutes);
+
+// Import and use the user routes
+app.use("/api/users", userRoutes);
 
 // Global Error Handler
 app.use((err, req, res, next) => {

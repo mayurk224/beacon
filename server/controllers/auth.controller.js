@@ -69,19 +69,19 @@ export const signup = async (req, res) => {
       isEmailVerified: false,
     });
 
-     // 🔹 6. Send verification email
-     await sendVerificationEmail({ name: user.name, email: user.email, token: emailToken });
+    // 🔹 6. Send verification email
+    await sendVerificationEmail({ name: user.name, email: user.email, token: emailToken });
 
-     // 🔹 7. Prepare response (avoid sending sensitive fields)
-     const userResponse = {
-       _id: user._id,
-       name: user.name,
-       email: user.email,
-       isEmailVerified: user.isEmailVerified,
-       createdAt: user.createdAt,
-     };
+    // 🔹 7. Prepare response (avoid sending sensitive fields)
+    const userResponse = {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      isEmailVerified: user.isEmailVerified,
+      createdAt: user.createdAt,
+    };
 
-     // 🔹 8. Success Response
+    // 🔹 8. Success Response
     return res.status(201).json({
       message: "Account created successfully. Please verify your email.",
       user: userResponse,
@@ -452,10 +452,10 @@ export const forgotPassword = async (req, res) => {
     await user.save();
 
     // 🔹 5. Send Reset Email
-    await sendResetPasswordEmail({ 
-      name: user.name, 
-      email: user.email, 
-      resetToken: resetToken 
+    await sendResetPasswordEmail({
+      name: user.name,
+      email: user.email,
+      resetToken: resetToken
     });
 
     console.info(`Password reset token generated for user: ${user._id}`);
@@ -589,7 +589,7 @@ export const googleAuth = async (req, res) => {
       // If user exists, ensure they are linked to Google or allow login
       // Update avatar if it's missing
       if (!user.avatar) user.avatar = picture;
-      
+
       // If the user was previously local, we can "upgrade" them or just allow login
       // since Google verified the email.
       if (user.authProvider === "local") {
