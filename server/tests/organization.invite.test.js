@@ -89,7 +89,7 @@ describe('Organization Invitation API', () => {
 
         it('should fail if requester is not an admin', async () => {
             const { org } = await setupData();
-            
+
             const regularUser = await userModel.create({
                 name: 'Regular User',
                 email: 'regular@example.com',

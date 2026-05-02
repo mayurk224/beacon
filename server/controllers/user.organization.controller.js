@@ -238,3 +238,42 @@ export const acceptInvite = async (req, res) => {
         return res.status(500).json({ message: "Internal server error" });
     }
 };
+
+export const getMyOrganizations = async (req, res) => {
+    try {
+        const userId = req.userId;
+
+        const user = await userModel.findById(userId).populate({
+            path: "memberships.organization",
+            select: "name slug membersCount description isActive owner createdAt",
+        });
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // 🔹 Format response
+        const organizations = user.memberships
+            .filter(m => m.organization) // Filter out deleted organizations
+            .map((m) => ({
+                organizationId: m.organization._id,
+                name: m.organization.name,
+                slug: m.organization.slug,
+                description: m.organization.description || "",
+                isActive: m.organization.isActive,
+                membersCount: m.organization.membersCount,
+                role: m.role,
+                isOwner: m.organization.owner.toString() === userId.toString(),
+                joinedAt: m.joinedAt,
+                createdAt: m.organization.createdAt,
+            }));
+
+        return res.status(200).json({
+            organizations,
+        });
+
+    } catch (error) {
+        console.error("Get Orgs Error:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};

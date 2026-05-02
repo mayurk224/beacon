@@ -3,8 +3,8 @@ import { protect } from "../middleware/auth.middleware.js";
 import { changePassword, deleteAvatar, getActiveSessions, getProfile, logoutAllSessions, updateAvatar, updateProfile } from "../controllers/user.controller.js";
 import { changePasswordValidation, updateProfileValidation } from "../config/validation/user.validation.js";
 import { upload } from "../middleware/upload.middleware.js";
-import { logoutAllLimiter, passwordChangeLimiter } from "../utils/rateLimiter.js";
-import { createOrganization, acceptInvite, sendInvite } from "../controllers/user.organization.controller.js";
+import { logoutAllLimiter, passwordChangeLimiter, apiLimiter } from "../utils/rateLimiter.js";
+import { createOrganization, acceptInvite, sendInvite, getMyOrganizations } from "../controllers/user.organization.controller.js";
 import { createOrganizationValidation, sendInviteValidation, acceptInviteValidation } from "../config/validation/organization.validation.js";
 
 const userRoute = Router();
@@ -20,5 +20,6 @@ userRoute.post("/profile/logout", protect, logoutAllLimiter, logoutAllSessions);
 userRoute.post("/organization", protect, createOrganizationValidation, createOrganization);
 userRoute.post("/organization/user/invite", protect, sendInviteValidation, sendInvite);
 userRoute.post("/organization/user/invite/accept", protect, acceptInviteValidation, acceptInvite);
+userRoute.get("/organization/my", protect, apiLimiter, getMyOrganizations);
 
 export default userRoute;
