@@ -146,10 +146,23 @@ export const updateAvatar = async (req, res) => {
             throw new Error("Image upload failed");
         }
 
-        // 4. Update user profile
+        // 4. Optional: Cleanup old avatar from ImageKit
+        if (user.avatarFileId) {
+            try {
+                await imagekit.deleteFile(user.avatarFileId);
+            } catch (cleanupError) {
+                console.warn("Old avatar cleanup failed:", cleanupError.message);
+                // Don't fail the update if cleanup fails
+            }
+        }
+
+        // 5. Update user profile
         const updatedUser = await userModel.findByIdAndUpdate(
             userId,
-            { avatar: uploaded.url },
+            {
+                avatar: uploaded.url,
+                avatarFileId: uploaded.fileId
+            },
             { returnDocument: "after", runValidators: true }
         ).select("-password -refreshTokens -passwordResetToken -emailVerificationToken");
 
@@ -167,6 +180,42 @@ export const updateAvatar = async (req, res) => {
             return res.status(502).json({ message: "Image storage service error" });
         }
 
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+export const deleteAvatar = async (req, res) => {
+    try {
+        const userId = req.userId;
+
+        const user = await userModel.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // 🔹 If avatar exists, delete from ImageKit
+        if (user.avatarFileId) {
+            await imagekit.deleteFile(user.avatarFileId);
+        }
+
+        // 🔹 Remove from DB
+        user.avatar = "";
+        user.avatarFileId = undefined;
+
+        await user.save();
+
+        // 🔹 Exclude sensitive fields manually or refetch with select
+        const userResponse = await userModel.findById(userId)
+            .select("-password -refreshTokens -passwordResetToken -emailVerificationToken");
+
+        return res.status(200).json({
+            message: "Avatar removed successfully",
+            user: userResponse,
+        });
+
+    } catch (error) {
+        console.error("Delete Avatar Error:", error);
         return res.status(500).json({ message: "Internal server error" });
     }
 };
