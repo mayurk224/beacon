@@ -368,7 +368,7 @@ const DashBoardAnalytics = () => {
               ))}
             </div>
             {/* Export Button */}
-            <button className="flex items-center gap-1 px-4 py-1.5 bg-transparent border border-border-muted text-primary hover:border-brand-strong hover:text-brand-strong transition-colors rounded text-[12px] leading-4 font-medium">
+            <button className="btn-outline">
               <Download className="w-4 h-4" />
               Export CSV
             </button>

@@ -252,15 +252,15 @@ const DashBoardAlert = () => {
               </span>
             )}
             
-            <button className="h-8 px-3 inline-flex items-center justify-center gap-2 rounded-sm border border-border-primary bg-transparent text-primary hover:bg-surface-interactive transition-colors text-[12px] leading-[16px] font-medium">
+            <button className="btn-outline">
               <CheckCheck className="w-4 h-4" />
               <span className="hidden sm:inline">Acknowledge All</span>
             </button>
-            <button className="h-8 px-3 inline-flex items-center justify-center gap-2 rounded-sm border border-border-primary bg-transparent text-primary hover:bg-surface-interactive transition-colors text-[12px] leading-[16px] font-medium">
+            <button className="btn-outline">
               <BellOff className="w-4 h-4" />
               <span className="hidden sm:inline">Mute Selected</span>
             </button>
-            <button className="h-8 px-4 inline-flex items-center justify-center gap-2 rounded-sm border border-transparent bg-brand-strong text-on-brand hover:bg-brand-soft transition-colors text-[12px] leading-[16px] font-medium ml-0 sm:ml-2">
+            <button className="btn-primary">
               <Plus className="w-4 h-4" />
               <span className="hidden sm:inline">Create Incident</span>
             </button>

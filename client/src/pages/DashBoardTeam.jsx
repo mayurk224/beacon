@@ -140,28 +140,28 @@ const DashBoardTeam = () => {
   const getStatusConfig = (status) => {
     switch (status) {
       case 'active':
-        return { color: 'text-emerald-500', bg: 'bg-emerald-500', label: 'Active', shadow: 'shadow-[0_0_8px_rgba(16,185,129,0.5)]' };
+        return { color: 'text-semantic-success', bg: 'bg-semantic-success', label: 'Active', shadow: 'shadow-[0_0_8px_color-mix(in_srgb,var(--semantic-success)_50%,transparent)]' };
       case 'offline':
-        return { color: 'text-neutral-500', bg: 'bg-neutral-600', label: 'Offline', shadow: '' };
+        return { color: 'text-subtle', bg: 'bg-surface-interactive', label: 'Offline', shadow: '' };
       case 'away':
-        return { color: 'text-amber-500', bg: 'bg-amber-500', label: 'Away', shadow: 'shadow-[0_0_8px_rgba(245,158,11,0.3)]' };
+        return { color: 'text-semantic-warning', bg: 'bg-semantic-warning', label: 'Away', shadow: 'shadow-[0_0_8px_color-mix(in_srgb,var(--semantic-warning)_30%,transparent)]' };
       case 'invited':
-        return { color: 'text-amber-500', bg: 'bg-amber-500', label: 'Invited', shadow: 'shadow-[0_0_8px_rgba(245,158,11,0.3)]' };
+        return { color: 'text-semantic-warning', bg: 'bg-semantic-warning', label: 'Invited', shadow: 'shadow-[0_0_8px_color-mix(in_srgb,var(--semantic-warning)_30%,transparent)]' };
       default:
-        return { color: 'text-neutral-500', bg: 'bg-neutral-600', label: 'Unknown', shadow: '' };
+        return { color: 'text-subtle', bg: 'bg-surface-interactive', label: 'Unknown', shadow: '' };
     }
   };
 
   const getRoleBadgeStyle = (role) => {
     switch (role) {
       case 'Admin':
-        return 'border border-primary/30 bg-primary/10 text-primary';
+        return 'border border-brand-muted bg-brand-muted text-brand-strong';
       case 'Editor':
-        return 'border border-neutral-600 bg-surface text-neutral-300';
+        return 'border border-border-primary bg-surface-card text-muted';
       case 'Viewer':
-        return 'border border-neutral-700 bg-transparent text-neutral-500';
+        return 'border border-border-primary bg-transparent text-subtle';
       default:
-        return 'border border-neutral-700 bg-transparent text-neutral-500';
+        return 'border border-border-primary bg-transparent text-subtle';
     }
   };
 
@@ -263,7 +263,7 @@ const DashBoardTeam = () => {
       <div className="p-2 border-t border-border-primary">
         <button
           onClick={() => handleRemoveMember(member.id)}
-          className="w-full flex items-center gap-3 px-2 py-2 rounded text-[13px] text-red-400 hover:bg-red-500/10 transition-colors"
+          className="w-full flex items-center gap-3 px-2 py-2 rounded text-[13px] text-semantic-error hover:bg-semantic-error/10 transition-colors"
         >
           <UserX className="w-4 h-4" />
           <span>Remove from team</span>
@@ -273,8 +273,8 @@ const DashBoardTeam = () => {
   );
 
   const FilterModal = () => (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-surface-elevated border border-border-primary rounded-xl w-full max-w-md shadow-2xl overflow-hidden">
+    <div className="fixed inset-0 bg-overlay-scrim backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-surface-card border border-border-primary rounded-xl w-full max-w-md shadow-2xl overflow-hidden">
         <div className="px-5 py-4 border-b border-border-primary flex items-center justify-between">
           <h3 className="text-[16px] font-semibold text-primary">Filter Team Members</h3>
           <button onClick={() => setShowFilterModal(false)} className="text-subtle hover:text-primary">
@@ -317,13 +317,13 @@ const DashBoardTeam = () => {
               setSelectedStatusFilter('all');
               setShowFilterModal(false);
             }} 
-            className="px-4 py-2 border border-border-primary rounded-lg text-[13px] text-primary"
+            className="btn-outline"
           >
             Reset
           </button>
           <button 
             onClick={() => setShowFilterModal(false)} 
-            className="px-4 py-2 bg-brand text-white rounded-lg text-[13px] font-semibold"
+            className="btn-primary"
           >
             Apply Filters
           </button>
@@ -339,34 +339,34 @@ const DashBoardTeam = () => {
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
           <div>
-            <h1 className="text-[22px] sm:text-[24px] leading-[30px] sm:leading-[32px] tracking-[-0.02em] font-semibold text-primary mb-1">
+            <h1 className="text-[22px] sm:text-[24px] leading-7.5 sm:leading-8 tracking-[-0.02em] font-semibold text-primary mb-1">
               Team Management
             </h1>
-            <p className="text-[12px] sm:text-[13px] leading-[18px] font-medium text-tertiary">
+            <p className="text-[12px] sm:text-[13px] leading-4.5 font-medium text-tertiary">
               Manage workspace members and role permissions.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             <button 
               onClick={() => setShowFilterModal(true)}
-              className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-surface-card border border-border-primary rounded text-[12px] sm:text-[13px] font-medium text-brand-soft hover:bg-surface-elevated transition-colors"
+              className="btn-outline"
             >
               <Filter className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              <span className="hidden xs:inline">Filter</span>
+              <span className="max-md:hidden xs:inline">Filter</span>
             </button>
             <button 
               onClick={handleRefresh}
-              className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-surface-card border border-border-primary rounded text-[12px] sm:text-[13px] font-medium text-brand-soft hover:bg-surface-elevated transition-colors"
+              className="btn-outline"
             >
               {isLoading ? <Loader2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
-              <span className="hidden xs:inline">Refresh</span>
+              <span className="max-md:hidden xs:inline">Refresh</span>
             </button>
             <button
               onClick={() => setShowInviteModal(true)}
-              className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-brand-soft text-on-brand rounded text-[12px] sm:text-[13px] font-medium hover:bg-brand-strong transition-colors shadow-sm"
+              className="btn-primary"
             >
               <UserPlus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              <span className="hidden xs:inline">Invite Member</span>
+              <span className="max-md:hidden xs:inline">Invite Member</span>
             </button>
           </div>
         </div>
@@ -421,7 +421,7 @@ const DashBoardTeam = () => {
         <div className="bg-surface-card border border-border-primary rounded-lg overflow-hidden">
           <div className="overflow-x-auto">
             {/* Table - Responsive column widths */}
-            <div className="min-w-[800px] md:min-w-full">
+            <div className="min-w-200 md:min-w-full">
               {/* Table Header */}
               <div className="grid grid-cols-[50px_minmax(150px,1fr)_minmax(180px,1fr)_100px_100px_80px] gap-3 sm:gap-4 p-3 sm:p-4 border-b border-border-primary bg-surface-header text-[10px] sm:text-[11px] font-medium text-subtle uppercase tracking-wider">
                 <div className="w-8"></div>
@@ -451,7 +451,7 @@ const DashBoardTeam = () => {
                         } relative`}
                       >
                         {/* Avatar */}
-                        <Link to={'/home/member_details'} state={{ memberId: member.id }} className="w-8 h-8 rounded-full overflow-hidden border border-border-primary flex-shrink-0">
+                        <Link to={'/home/member_details'} state={{ memberId: member.id }} className="w-8 h-8 rounded-full overflow-hidden border border-border-primary shrink-0">
                           {member.avatar ? (
                             <img src={member.avatar} alt={member.name} className="w-full h-full object-cover" />
                           ) : member.initial ? (
@@ -459,8 +459,8 @@ const DashBoardTeam = () => {
                               {member.initial}
                             </div>
                           ) : member.status === 'invited' ? (
-                            <div className="w-full h-full border border-amber-500/50 border-dashed flex items-center justify-center">
-                              <Mail className="w-4 h-4 text-amber-500" />
+                            <div className="w-full h-full border border-semantic-warning/50 border-dashed flex items-center justify-center">
+                              <Mail className="w-4 h-4 text-semantic-warning" />
                             </div>
                           ) : (
                             <div className="w-full h-full bg-surface-interactive text-tertiary flex items-center justify-center text-[13px] font-medium">
@@ -478,7 +478,7 @@ const DashBoardTeam = () => {
                             {member.role}
                           </div>
                           {member.status === 'invited' && member.invitedAt && (
-                            <div className="text-[9px] sm:text-[10px] font-mono text-amber-500/70 mt-0.5">
+                            <div className="text-[9px] sm:text-[10px] font-mono text-semantic-warning/70 mt-0.5">
                               Sent {member.invitedAt}
                             </div>
                           )}
@@ -568,10 +568,10 @@ const DashBoardTeam = () => {
                       <button
                         key={pageNum}
                         onClick={() => setCurrentPage(pageNum)}
-                        className={`px-2 py-1 rounded text-[11px] sm:text-[12px] transition-colors ${
+                        className={`px-3 py-1 rounded text-[11px] sm:text-[12px] transition-colors ${
                           currentPage === pageNum
-                            ? 'bg-brand text-white'
-                            : 'text-neutral-400 hover:bg-surface-elevated hover:text-white'
+                            ? 'bg-brand text-on-brand'
+                            : 'text-subtle hover:bg-surface-elevated hover:text-primary'
                         }`}
                       >
                         {pageNum}
@@ -594,8 +594,8 @@ const DashBoardTeam = () => {
 
       {/* Invite Modal - Responsive */}
       {showInviteModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-surface-elevated border border-border-primary rounded-xl w-full max-w-md shadow-2xl overflow-hidden mx-4">
+        <div className="fixed inset-0 bg-overlay-scrim backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-surface-card border border-border-primary rounded-xl w-full max-w-md shadow-2xl overflow-hidden mx-4">
             <div className="px-4 sm:px-5 py-4 border-b border-border-primary flex items-center justify-between">
               <h3 className="text-[16px] font-semibold text-primary">Invite New Member</h3>
               <button onClick={() => setShowInviteModal(false)} className="text-subtle hover:text-primary">
@@ -627,10 +627,10 @@ const DashBoardTeam = () => {
               </div>
             </div>
             <div className="px-4 sm:px-5 py-4 border-t border-border-primary bg-surface-card flex justify-end gap-3">
-              <button onClick={() => setShowInviteModal(false)} className="px-4 py-2 bg-surface-card border border-border-primary rounded text-[13px] font-medium text-primary hover:bg-surface-interactive transition-colors">
+              <button onClick={() => setShowInviteModal(false)} className="btn-outline">
                 Cancel
               </button>
-              <button onClick={handleInvite} className="px-4 py-2 bg-brand-soft text-on-brand rounded text-[13px] font-medium hover:bg-brand-strong transition-colors shadow-sm flex items-center gap-2">
+              <button onClick={handleInvite} className="btn-primary">
                 <Send className="w-4 h-4" />
                 Send Invites
               </button>

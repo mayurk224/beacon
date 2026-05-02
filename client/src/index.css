@@ -76,6 +76,7 @@
   --surface-canvas: var(--muted);
   --border-primary: var(--border);
   --border-muted: color-mix(in srgb, var(--muted-foreground) 35%, var(--border));
+  --overlay-scrim: rgba(0, 0, 0, 0.6);
   --text-primary: var(--foreground);
   --text-secondary: var(--muted-foreground);
   --text-muted: var(--muted-foreground);
@@ -176,6 +177,7 @@
   --surface-canvas: var(--muted);
   --border-primary: var(--border);
   --border-muted: color-mix(in srgb, var(--muted-foreground) 40%, var(--border));
+  --overlay-scrim: rgba(0, 0, 0, 0.7);
   --text-primary: var(--foreground);
   --text-secondary: var(--muted-foreground);
   --text-muted: var(--muted-foreground);
@@ -187,7 +189,7 @@
   --brand: var(--chart-1);
   --brand-muted: color-mix(in srgb, var(--chart-1) 20%, transparent);
   --brand-soft: color-mix(in srgb, var(--chart-1) 48%, var(--background));
-  --brand-strong: color-mix(in srgb, var(--chart-1) 85%, white);
+  --brand-strong: var(--chart-1);
   --brand-hover: color-mix(in srgb, var(--chart-1) 70%, white);
 
   --semantic-error: var(--destructive);
@@ -288,6 +290,7 @@
   --color-surface-canvas: var(--surface-canvas);
   --color-border-primary: var(--border-primary);
   --color-border-muted: var(--border-muted);
+  --color-overlay-scrim: var(--overlay-scrim);
   /* Main body text: keep `text-primary` = foreground (existing app convention) */
   --color-primary: var(--text-primary);
   --color-secondary: var(--text-secondary);
@@ -369,11 +372,11 @@ body {
 }
 
 .btn-primary {
-  @apply flex items-center gap-2 px-3 py-1.5 border border-transparent rounded bg-brand hover:bg-brand-hover transition-colors text-[13px] font-medium text-white text-nowrap shadow-sm
+  @apply flex items-center justify-center gap-2 px-4 py-1.5 border border-transparent rounded bg-brand-strong hover:bg-brand-hover transition-colors text-[13px] font-medium text-white text-nowrap shadow-sm
 }
 
 .btn-outline {
-  @apply flex items-center gap-2 px-3 py-1.5 border border-border-primary rounded bg-transparent hover:bg-surface-elevated transition-colors text-[13px] font-medium text-primary
+  @apply flex items-center justify-center gap-2 px-4 py-1.5 border border-border-primary rounded bg-transparent hover:bg-surface-elevated transition-colors text-[13px] font-medium text-primary
 }
 
 ::-webkit-scrollbar {

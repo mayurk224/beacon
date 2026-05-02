@@ -187,7 +187,7 @@ const DashBoardAlertDetail = () => {
             </div>
             
             {/* Title */}
-            <h1 className="text-[24px] leading-[32px] tracking-[-0.02em] font-semibold text-primary">
+            <h1 className="text-[24px] leading-8 tracking-[-0.02em] font-semibold text-primary">
               {alert.title}
             </h1>
             
@@ -196,14 +196,14 @@ const DashBoardAlertDetail = () => {
               <div className="flex items-center gap-1.5 bg-surface-panel py-1 px-2.5 rounded-sm border border-border-muted">
                 <Server className="w-3.5 h-3.5 text-tertiary" />
                 <span className="text-[11px] font-medium text-tertiary uppercase">Source:</span>
-                <span className="text-[13px] leading-[18px] font-medium text-primary">
+                <span className="text-[13px] leading-4.5 font-medium text-primary">
                   {alert.source}
                 </span>
               </div>
               <div className="flex items-center gap-1.5 bg-surface-panel py-1 px-2.5 rounded-sm border border-border-muted">
                 <Globe className="w-3.5 h-3.5 text-tertiary" />
                 <span className="text-[11px] font-medium text-tertiary uppercase">Service:</span>
-                <span className="text-[13px] leading-[18px] font-medium text-primary">
+                <span className="text-[13px] leading-4.5 font-medium text-primary">
                   {alert.service}
                 </span>
               </div>
@@ -219,11 +219,11 @@ const DashBoardAlertDetail = () => {
               {/* Description Panel */}
               <section className="bg-surface-card border border-border-muted rounded-lg">
                 <div className="px-5 py-3 border-b border-border-muted bg-surface-elevated">
-                  <h2 className="text-[16px] leading-[24px] tracking-[-0.01em] font-semibold text-primary">
+                  <h2 className="text-[16px] leading-6 tracking-[-0.01em] font-semibold text-primary">
                     Description
                   </h2>
                 </div>
-                <div className="p-5 text-tertiary text-[13px] leading-[18px] font-medium space-y-3">
+                <div className="p-5 text-tertiary text-[13px] leading-4.5 font-medium space-y-3">
                   {alert.description.map((para, idx) => (
                     <p key={idx}>{para}</p>
                   ))}
@@ -233,8 +233,8 @@ const DashBoardAlertDetail = () => {
               {/* Raw Payload Panel */}
               <section className="bg-surface-card border border-border-muted rounded-lg flex flex-col">
                 <div className="px-5 py-3 border-b border-border-muted bg-surface-elevated flex justify-between items-center">
-                  <h2 className="text-[16px] leading-[24px] tracking-[-0.01em] font-semibold text-primary flex items-center gap-2">
-                    <FileText className="w-[18px] h-[18px]" />
+                  <h2 className="text-[16px] leading-6 tracking-[-0.01em] font-semibold text-primary flex items-center gap-2">
+                    <FileText className="w-4.5 h-4.5" />
                     Raw Payload
                   </h2>
                   <button
@@ -246,7 +246,7 @@ const DashBoardAlertDetail = () => {
                   </button>
                 </div>
                 <div className="p-3 bg-surface-inset overflow-x-auto">
-                  <pre className="font-mono text-[11px] leading-[16px] text-tertiary whitespace-pre-wrap">
+                  <pre className="font-mono text-[11px] leading-4 text-tertiary whitespace-pre-wrap">
                     {JSON.stringify(alert.rawPayload, null, 2)}
                   </pre>
                 </div>
@@ -255,7 +255,7 @@ const DashBoardAlertDetail = () => {
               {/* Event Timeline Panel */}
               <section className="bg-surface-card border border-border-muted rounded-lg">
                 <div className="px-5 py-3 border-b border-border-muted bg-surface-elevated">
-                  <h2 className="text-[16px] leading-[24px] tracking-[-0.01em] font-semibold text-primary">
+                  <h2 className="text-[16px] leading-6 tracking-[-0.01em] font-semibold text-primary">
                     Event Timeline
                   </h2>
                 </div>
@@ -263,18 +263,18 @@ const DashBoardAlertDetail = () => {
                   <div className="relative border-l border-border-muted ml-3 space-y-5">
                     {timeline.map((item) => (
                       <div key={item.id} className="relative pl-6">
-                        <div className={`absolute -left-[13px] top-0 w-6 h-6 rounded-full ${getTimelineColor(item.type)} border flex items-center justify-center`}>
+                        <div className={`absolute -left-3.25 top-0 w-6 h-6 rounded-full ${getTimelineColor(item.type)} border flex items-center justify-center`}>
                           {getTimelineIcon(item.type)}
                         </div>
                         <div className="flex flex-wrap items-baseline gap-2 mb-1">
-                          <span className="text-[14px] leading-[20px] font-medium text-primary">
+                          <span className="text-[14px] leading-5 font-medium text-primary">
                             {item.title}
                           </span>
                           <span className="font-mono text-[11px] text-subtle">
                             {item.time}
                           </span>
                         </div>
-                        <div className="text-[12px] leading-[16px] text-tertiary">
+                        <div className="text-[12px] leading-4 text-tertiary">
                           {item.description}
                         </div>
                       </div>
@@ -288,16 +288,16 @@ const DashBoardAlertDetail = () => {
             <div className="lg:col-span-4 flex flex-col gap-6">
               {/* Quick Actions */}
               <section className="bg-surface-card border border-border-muted rounded-lg p-5 flex flex-col gap-3">
-                <button className="w-full flex items-center justify-center gap-2 bg-brand-soft hover:bg-brand-strong text-on-brand py-2.5 px-4 rounded text-[13px] font-semibold transition-colors">
+                <button className="w-full btn-primary">
                   <CheckCircle className="w-4 h-4" />
                   Acknowledge Alert
                 </button>
                 <div className="grid grid-cols-2 gap-3">
-                  <button className="flex items-center justify-center gap-1.5 bg-transparent hover:bg-surface-interactive border border-border-muted text-brand-soft py-2 px-3 rounded text-[12px] font-medium transition-colors">
+                  <button className="btn-outline text-brand!">
                     <ArrowUpCircle className="w-4 h-4" />
                     Escalate
                   </button>
-                  <button className="flex items-center justify-center gap-1.5 bg-transparent hover:bg-surface-interactive border border-border-muted text-primary py-2 px-3 rounded text-[12px] font-medium transition-colors">
+                  <button className="btn-outline">
                     <BellOff className="w-4 h-4" />
                     Mute
                   </button>
@@ -307,7 +307,7 @@ const DashBoardAlertDetail = () => {
               {/* Status & Assignment */}
               <section className="bg-surface-card border border-border-muted rounded-lg">
                 <div className="px-5 py-3 border-b border-border-muted bg-surface-elevated">
-                  <h3 className="text-[16px] leading-[24px] tracking-[-0.01em] font-semibold text-primary">
+                  <h3 className="text-[16px] leading-6 tracking-[-0.01em] font-semibold text-primary">
                     Details
                   </h3>
                 </div>
@@ -345,7 +345,7 @@ const DashBoardAlertDetail = () => {
                         />
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-[13px] leading-[18px] font-medium text-primary group-hover:text-brand-soft transition-colors">
+                        <span className="text-[13px] leading-4.5 font-medium text-primary group-hover:text-brand-soft transition-colors">
                           Alex Chen
                         </span>
                         <span className="font-mono text-[10px] text-tertiary">
@@ -361,7 +361,7 @@ const DashBoardAlertDetail = () => {
                       <span className="text-[11px] font-medium text-tertiary uppercase tracking-wider">
                         Priority
                       </span>
-                      <span className="text-[13px] leading-[18px] font-medium text-primary font-semibold">
+                      <span className="text-[13px] leading-4.5 font-semibold text-primary">
                         P1
                       </span>
                     </div>
@@ -369,7 +369,7 @@ const DashBoardAlertDetail = () => {
                       <span className="text-[11px] font-medium text-tertiary uppercase tracking-wider">
                         Environment
                       </span>
-                      <span className="text-[13px] leading-[18px] font-medium text-primary">
+                      <span className="text-[13px] leading-4.5 font-medium text-primary">
                         Production
                       </span>
                     </div>

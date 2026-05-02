@@ -295,16 +295,16 @@ Initial assessment shows high CPU utilization on downstream auth microservices. 
               <div className="flex items-center gap-2 flex-none">
                 <button
                   onClick={() => setIsMuted(!isMuted)}
-                  className="px-3 py-1.5 bg-transparent border border-border-primary text-primary text-[11px] font-medium rounded hover:bg-surface-elevated transition-colors flex items-center gap-1.5"
+                  className="btn-outline"
                 >
                   {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
                   {isMuted ? 'Unmute' : 'Mute'}
                 </button>
-                <button className="px-3 py-1.5 bg-transparent border border-border-primary text-primary text-[11px] font-medium rounded hover:bg-surface-elevated transition-colors flex items-center gap-1.5">
+                <button className="btn-outline">
                   <Rocket className="w-4 h-4" />
                   Escalate
                 </button>
-                <button className="px-4 py-1.5 bg-brand-soft text-on-brand text-[11px] font-semibold rounded hover:bg-brand-strong transition-colors flex items-center gap-1.5">
+                <button className="btn-primary">
                   <CheckCircle2 className="w-4 h-4" />
                   Resolve
                 </button>
@@ -518,13 +518,13 @@ Initial assessment shows high CPU utilization on downstream auth microservices. 
                     <div className="flex justify-end gap-2 mt-3">
                       <button
                         onClick={() => setShowAddNote(false)}
-                        className="px-3 py-1.5 border border-border-primary rounded-lg text-[11px] text-tertiary hover:bg-surface-elevated transition-colors"
+                        className="btn-outline"
                       >
                         Cancel
                       </button>
                       <button
                         onClick={handleAddNote}
-                        className="px-3 py-1.5 bg-brand-soft text-on-brand rounded-lg text-[11px] font-semibold hover:bg-brand-strong transition-colors flex items-center gap-1"
+                        className="btn-primary"
                       >
                         <Send className="w-3 h-3" />
                         Post Note
