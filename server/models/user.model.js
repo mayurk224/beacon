@@ -15,7 +15,6 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
       lowercase: true,
-      index: true,
     },
 
     password: {
@@ -85,7 +84,7 @@ const userSchema = new mongoose.Schema(
     },
 
     lockUntil: {
-      type: Number,
+      type: Date,
     },
 
     // 🔹 Security
@@ -109,6 +108,8 @@ const userSchema = new mongoose.Schema(
         createdAt: { type: Date, default: Date.now },
         userAgent: String,
         ip: String,
+        device: String, // optional (parsed)
+        isCurrent: Boolean, // optional
       }
     ],
 
@@ -131,9 +132,20 @@ const userSchema = new mongoose.Schema(
         default: "dark",
       },
     },
+    role: {
+      type: String,
+      enum: ["user", "admin"],
+      default: "user",
+    },
   },
   { timestamps: true },
 );
+
+userSchema.index({ email: 1 });
+userSchema.index({ name: 1 });
+userSchema.index({ isActive: 1 });
+userSchema.index({ role: 1 });
+userSchema.index({ createdAt: -1 });
 
 const userModel = mongoose.model("users", userSchema);
 

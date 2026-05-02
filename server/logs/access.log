@@ -391,3 +391,22 @@
 ::1 - - [2026-05-02T11:48:54.670Z] "GET /profile/sessions HTTP/1.1" 200 134 "-" "PostmanRuntime/7.53.0" - 51.077 ms
 ::ffff:127.0.0.1 - - [2026-05-02T11:56:17.850Z] "POST /profile/logout HTTP/1.1" 200 54 "-" "-" - 22.627 ms
 ::ffff:127.0.0.1 - - [2026-05-02T11:56:17.864Z] "POST /profile/logout HTTP/1.1" 401 26 "-" "-" - 0.515 ms
+::1 - - [2026-05-02T12:03:33.458Z] "GET /profile/sessions HTTP/1.1" 401 26 "-" "PostmanRuntime/7.53.0" - 6.151 ms
+::1 - - [2026-05-02T12:03:40.030Z] "POST /refresh-token HTTP/1.1" 200 29 "-" "PostmanRuntime/7.53.0" - 116.731 ms
+::1 - - [2026-05-02T12:03:43.865Z] "GET /profile/sessions HTTP/1.1" 200 134 "-" "PostmanRuntime/7.53.0" - 34.056 ms
+::1 - - [2026-05-02T12:04:35.863Z] "POST /profile/logout HTTP/1.1" 200 54 "-" "PostmanRuntime/7.53.0" - 138.616 ms
+::1 - - [2026-05-02T12:18:51.168Z] "POST /profile/logout HTTP/1.1" 401 26 "-" "PostmanRuntime/7.53.0" - 2.544 ms
+::1 - - [2026-05-02T12:19:02.421Z] "POST /refresh-token HTTP/1.1" 401 35 "-" "PostmanRuntime/7.53.0" - 1.019 ms
+::1 - - [2026-05-02T12:19:10.158Z] "POST /login HTTP/1.1" 200 136 "-" "PostmanRuntime/7.53.0" - 533.816 ms
+::1 - - [2026-05-02T12:19:18.164Z] "POST /profile/logout HTTP/1.1" 200 54 "-" "PostmanRuntime/7.53.0" - 85.038 ms
+::1 - - [2026-05-02T12:32:55.147Z] "POST /signup HTTP/1.1" 201 222 "-" "PostmanRuntime/7.53.0" - 4116.226 ms
+::1 - - [2026-05-02T12:33:02.855Z] "GET /verify-email?token=%5BREDACTED%5D HTTP/1.1" 200 4771 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" - 105.851 ms
+::1 - - [2026-05-02T12:33:03.016Z] "GET /favicon.ico HTTP/1.1" 404 150 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" - 2.310 ms
+::1 - - [2026-05-02T12:34:38.594Z] "POST /login HTTP/1.1" 200 137 "-" "PostmanRuntime/7.53.0" - 743.215 ms
+::1 - - [2026-05-02T12:35:52.892Z] "GET /users HTTP/1.1" 200 5829 "-" "PostmanRuntime/7.53.0" - 361.164 ms
+::ffff:127.0.0.1 - - [2026-05-02T12:38:53.970Z] "GET /users HTTP/1.1" 200 1347 "-" "-" - 38.763 ms
+::ffff:127.0.0.1 - - [2026-05-02T12:38:54.008Z] "GET /users HTTP/1.1" 403 69 "-" "-" - 5.164 ms
+::ffff:127.0.0.1 - - [2026-05-02T12:38:54.019Z] "GET /users HTTP/1.1" 401 26 "-" "-" - 0.576 ms
+::ffff:127.0.0.1 - - [2026-05-02T12:38:54.054Z] "GET /users?isActive=true HTTP/1.1" 200 916 "-" "-" - 13.961 ms
+::ffff:127.0.0.1 - - [2026-05-02T12:38:54.088Z] "GET /users?search=Regular HTTP/1.1" 200 491 "-" "-" - 15.967 ms
+::ffff:127.0.0.1 - - [2026-05-02T12:38:54.121Z] "GET /users?limit=1&page=2 HTTP/1.1" 200 496 "-" "-" - 12.305 ms
