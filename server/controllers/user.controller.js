@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import { validationResult } from "express-validator";
@@ -281,6 +282,33 @@ export const changePassword = async (req, res) => {
 
     } catch (error) {
         console.error("Change Password Error:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+export const getActiveSessions = async (req, res) => {
+    try {
+        const userId = req.userId;
+
+        const user = await userModel.findById(userId).select("refreshTokens");
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const sessions = user.refreshTokens.map((session) => ({
+            id: session._id || crypto.randomUUID(),
+            createdAt: session.createdAt,
+            userAgent: session.userAgent,
+            ip: session.ip,
+        }));
+
+        return res.status(200).json({
+            sessions,
+        });
+
+    } catch (error) {
+        console.error("Get Sessions Error:", error);
         return res.status(500).json({ message: "Internal server error" });
     }
 };
