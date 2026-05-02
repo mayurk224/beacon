@@ -108,3 +108,140 @@ describe('GET /api/users/profile', () => {
         expect(res.body.message).toEqual('Account is deactivated');
     });
 });
+
+describe('PATCH /api/users/profile', () => {
+    const generateToken = (userId) => {
+        return jwt.sign({ userId }, config.ACCESS_TOKEN_SECRET || 'test_secret', {
+            expiresIn: '15m',
+        });
+    };
+
+    it('should update profile successfully', async () => {
+        const user = await userModel.create({
+            name: 'John Doe',
+            email: 'john@example.com',
+            password: 'password123',
+            isActive: true,
+        });
+
+        const token = generateToken(user._id);
+
+        const res = await request(app)
+            .patch('/api/users/profile')
+            .set('Cookie', [`accessToken=${token}`])
+            .send({
+                name: 'Jane Doe',
+                preferences: {
+                    theme: 'light',
+                    notifications: {
+                        email: false,
+                        slack: true
+                    }
+                }
+            });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.user.name).toEqual('Jane Doe');
+        expect(res.body.user.preferences.theme).toEqual('light');
+        expect(res.body.user.preferences.notifications.email).toEqual(false);
+        expect(res.body.user.preferences.notifications.slack).toEqual(true);
+        expect(res.body.user.preferences.notifications.sms).toEqual(false); // default
+    });
+
+    it('should update avatar successfully', async () => {
+        const user = await userModel.create({
+            name: 'John Doe',
+            email: 'john@example.com',
+            password: 'password123',
+            isActive: true,
+        });
+
+        const token = generateToken(user._id);
+        const avatarUrl = 'https://example.com/avatar.png';
+
+        const res = await request(app)
+            .patch('/api/users/profile')
+            .set('Cookie', [`accessToken=${token}`])
+            .send({ avatar: avatarUrl });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.user.avatar).toEqual(avatarUrl);
+    });
+
+    it('should return 400 for invalid name', async () => {
+        const user = await userModel.create({
+            name: 'John Doe',
+            email: 'john@example.com',
+            password: 'password123',
+            isActive: true,
+        });
+
+        const token = generateToken(user._id);
+
+        const res = await request(app)
+            .patch('/api/users/profile')
+            .set('Cookie', [`accessToken=${token}`])
+            .send({ name: 'J' }); // too short
+
+        expect(res.statusCode).toEqual(400);
+        expect(res.body.message).toEqual('Validation failed');
+        expect(res.body.errors[0].field).toEqual('name');
+    });
+
+    it('should return 400 for invalid theme', async () => {
+        const user = await userModel.create({
+            name: 'John Doe',
+            email: 'john@example.com',
+            password: 'password123',
+            isActive: true,
+        });
+
+        const token = generateToken(user._id);
+
+        const res = await request(app)
+            .patch('/api/users/profile')
+            .set('Cookie', [`accessToken=${token}`])
+            .send({ preferences: { theme: 'blue' } });
+
+        expect(res.statusCode).toEqual(400);
+        expect(res.body.message).toEqual('Validation failed');
+    });
+
+    it('should return 400 if no valid fields provided', async () => {
+        const user = await userModel.create({
+            name: 'John Doe',
+            email: 'john@example.com',
+            password: 'password123',
+            isActive: true,
+        });
+
+        const token = generateToken(user._id);
+
+        const res = await request(app)
+            .patch('/api/users/profile')
+            .set('Cookie', [`accessToken=${token}`])
+            .send({ invalidField: 'test' });
+
+        expect(res.statusCode).toEqual(400);
+        expect(res.body.message).toEqual('No valid fields to update');
+    });
+
+    it('should return 403 if account is deactivated', async () => {
+        const user = await userModel.create({
+            name: 'Inactive User',
+            email: 'inactive@example.com',
+            password: 'password123',
+            isActive: false,
+        });
+
+        const token = generateToken(user._id);
+
+        const res = await request(app)
+            .patch('/api/users/profile')
+            .set('Cookie', [`accessToken=${token}`])
+            .send({ name: 'New Name' });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.message).toEqual('Account is deactivated');
+    });
+});
