@@ -389,3 +389,5 @@
 ::1 - - [2026-05-02T11:48:33.056Z] "POST /login HTTP/1.1" 200 136 "-" "PostmanRuntime/7.53.0" - 580.229 ms
 ::1 - - [2026-05-02T11:48:39.909Z] "GET /api/users/profile/session HTTP/1.1" 404 164 "-" "PostmanRuntime/7.53.0" - 0.739 ms
 ::1 - - [2026-05-02T11:48:54.670Z] "GET /profile/sessions HTTP/1.1" 200 134 "-" "PostmanRuntime/7.53.0" - 51.077 ms
+::ffff:127.0.0.1 - - [2026-05-02T11:56:17.850Z] "POST /profile/logout HTTP/1.1" 200 54 "-" "-" - 22.627 ms
+::ffff:127.0.0.1 - - [2026-05-02T11:56:17.864Z] "POST /profile/logout HTTP/1.1" 401 26 "-" "-" - 0.515 ms
