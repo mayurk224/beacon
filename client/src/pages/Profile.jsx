@@ -60,7 +60,7 @@ const Profile = () => {
 
   return (
     <div className=" text-primary min-h-screen w-full flex justify-center p-6">
-      <div className="w-full max-w-[560px] flex flex-col gap-6">
+      <div className="w-full max-w-140 flex flex-col gap-6">
 
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -73,7 +73,7 @@ const Profile = () => {
 
           <button
             onClick={() => setIsEditing(!isEditing)}
-            className="flex items-center gap-2 text-sm px-4 py-2 border border-border-muted rounded hover:bg-surface-elevated"
+            className="btn-outline"
           >
             <Pencil className="w-4 h-4" />
             {isEditing ? 'Cancel' : 'Edit'}
@@ -81,7 +81,7 @@ const Profile = () => {
         </div>
 
         {/* Card */}
-        <div className="bg-surface-header border border-border-muted rounded-lg p-6 flex flex-col gap-6 shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
+        <div className="bg-surface-header border border-border-primary rounded-lg p-6 flex flex-col gap-6">
 
           {/* Profile Image */}
           <div className="flex flex-col items-center gap-3">
@@ -116,7 +116,7 @@ const Profile = () => {
                 value={name}
                 disabled={!isEditing}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full bg-surface-elevated border border-border-muted rounded pl-9 pr-3 py-2 text-[13px] focus:border-brand-soft outline-none disabled:opacity-60"
+                className="input pl-9!"
               />
             </div>
           </div>
@@ -132,7 +132,7 @@ const Profile = () => {
                 value={email}
                 disabled={!isEditing}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-surface-elevated border border-border-muted rounded pl-9 pr-3 py-2 text-[13px] focus:border-brand-soft outline-none disabled:opacity-60"
+                className="input pl-9!"
               />
             </div>
           </div>
@@ -147,7 +147,7 @@ const Profile = () => {
               disabled={!isEditing}
               onChange={(e) => setBio(e.target.value)}
               rows={3}
-              className="w-full bg-surface-elevated border border-border-muted rounded p-3 text-[13px] focus:border-brand-soft outline-none resize-none disabled:opacity-60"
+              className="input"
             />
           </div>
 
@@ -156,7 +156,7 @@ const Profile = () => {
             <button
               onClick={handleSave}
               disabled={isSaving}
-              className="w-full bg-brand-soft text-on-brand py-2.5 rounded font-medium flex items-center justify-center gap-2 hover:bg-brand-strong"
+              className="btn-primary"
             >
               {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
               Save Changes
@@ -164,14 +164,14 @@ const Profile = () => {
           )}
 
           {/* Divider */}
-          <div className="h-px bg-border-muted" />
+          <div className="h-px bg-border-primary" />
 
           {/* Actions */}
           <div className="flex flex-col gap-3">
 
             <button
               onClick={handleLogout}
-              className="flex items-center justify-center gap-2 w-full border border-border-muted py-2.5 rounded text-[13px] hover:bg-surface-elevated"
+              className="btn-outline"
             >
               <LogOut className="w-4 h-4" />
               Logout
@@ -179,7 +179,7 @@ const Profile = () => {
 
             <button
               onClick={handleDelete}
-              className="flex items-center justify-center gap-2 w-full bg-red-600 py-2.5 rounded text-[13px] hover:bg-red-700"
+              className="btn-destructive"
             >
               <Trash2 className="w-4 h-4" />
               Delete Account
