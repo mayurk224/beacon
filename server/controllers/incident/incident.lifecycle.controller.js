@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { validationResult } from "express-validator";
 import userModel from "../../models/user.model.js";
 import incidentModel from "../../models/incident.model.js";
+import incidentUpdateModel from "../../models/incidentUpdate.model.js";
 
 export const createIncident = async (req, res) => {
     try {
@@ -177,6 +178,70 @@ export const getIncidentById = async (req, res) => {
 
     } catch (error) {
         console.error("Get Incident Error:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+export const addIncidentUpdate = async (req, res) => {
+    try {
+        // 🔹 1. Check for validation errors
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({
+                message: "Validation failed",
+                errors: errors.array().map(err => ({ field: err.path, message: err.msg }))
+            });
+        }
+
+        const { id } = req.params; // incidentId
+        const userId = req.userId;
+        const { message, status } = req.body;
+
+        // 🔹 2. Get incident
+        const incident = await incidentModel.findById(id);
+        if (!incident) {
+            return res.status(404).json({ message: "Incident not found" });
+        }
+
+        // 🔹 3. Check org membership
+        const user = await userModel.findOne({
+            _id: userId,
+            "memberships.organization": incident.organization,
+        });
+
+        if (!user) {
+            return res.status(403).json({ message: "Access denied" });
+        }
+
+        // 🔹 4. Create update
+        const update = await incidentUpdateModel.create({
+            incident: id,
+            message,
+            status,
+            createdBy: userId,
+        });
+
+        // 🔹 5. Update incident status automatically
+        if (status) {
+            incident.status = status;
+
+            if (status === "resolved") {
+                incident.resolvedAt = new Date();
+            } else {
+                // If status changed back from resolved, clear resolvedAt
+                incident.resolvedAt = undefined;
+            }
+
+            await incident.save();
+        }
+
+        return res.status(201).json({
+            message: "Update added successfully",
+            update,
+        });
+
+    } catch (error) {
+        console.error("Add Update Error:", error);
         return res.status(500).json({ message: "Internal server error" });
     }
 };

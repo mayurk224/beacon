@@ -51,3 +51,15 @@ export const getIncidentByIdValidation = [
     param("id")
         .custom((value) => mongoose.Types.ObjectId.isValid(value)).withMessage("Invalid incident ID"),
 ];
+
+export const addIncidentUpdateValidation = [
+    param("id")
+        .custom((value) => mongoose.Types.ObjectId.isValid(value)).withMessage("Invalid incident ID"),
+    body("message")
+        .trim()
+        .notEmpty().withMessage("Update message is required")
+        .isLength({ max: 2000 }).withMessage("Message must be less than 2000 characters"),
+    body("status")
+        .optional()
+        .isIn(["open", "investigating", "resolved"]).withMessage("Invalid status level"),
+];
