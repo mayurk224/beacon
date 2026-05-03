@@ -245,3 +245,61 @@ export const addIncidentUpdate = async (req, res) => {
         return res.status(500).json({ message: "Internal server error" });
     }
 };
+
+export const getIncidentUpdates = async (req, res) => {
+    try {
+        // 🔹 1. Check for validation errors
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({
+                message: "Validation failed",
+                errors: errors.array().map(err => ({ field: err.path, message: err.msg }))
+            });
+        }
+
+        const { id } = req.params;
+        const userId = req.userId;
+        const { page = 1, limit = 10 } = req.query;
+
+        // 🔹 2. Check if incident exists
+        const incident = await incidentModel.findById(id);
+        if (!incident) {
+            return res.status(404).json({ message: "Incident not found" });
+        }
+
+        // 🔹 3. Check user belongs to same org
+        const user = await userModel.findOne({
+            _id: userId,
+            "memberships.organization": incident.organization,
+        });
+
+        if (!user) {
+            return res.status(403).json({ message: "Access denied" });
+        }
+
+        const skip = (Number(page) - 1) * Number(limit);
+
+        // 🔹 4. Fetch updates with pagination
+        const updates = await incidentUpdateModel.find({ incident: id })
+            .populate("createdBy", "name email avatar")
+            .sort({ createdAt: -1 }) // Newest first is often better for updates
+            .skip(skip)
+            .limit(Number(limit));
+
+        const total = await incidentUpdateModel.countDocuments({ incident: id });
+
+        return res.status(200).json({
+            updates,
+            pagination: {
+                total,
+                page: Number(page),
+                limit: Number(limit),
+                pages: Math.ceil(total / Number(limit)),
+            },
+        });
+
+    } catch (error) {
+        console.error("Get Updates Error:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};
