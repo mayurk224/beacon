@@ -161,57 +161,113 @@ export const updateUserStatus = async (req, res) => {
 };
 
 export const updateUserRole = async (req, res) => {
-  try {
-    // 🔹 1. Check for validation errors from express-validator
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({
-        message: "Validation failed",
-        errors: errors.array().map(err => ({ field: err.path, message: err.msg }))
-      });
+    try {
+        // 🔹 1. Check for validation errors from express-validator
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({
+                message: "Validation failed",
+                errors: errors.array().map(err => ({ field: err.path, message: err.msg }))
+            });
+        }
+
+        const { id } = req.params;
+        const { role } = req.body;
+        const adminId = req.userId;
+
+        // 🔹 Validate ID
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ message: "Invalid user ID" });
+        }
+
+        // 🔹 Prevent self-demotion
+        if (adminId === id && role !== "admin") {
+            return res.status(400).json({
+                message: "You cannot remove your own admin role",
+            });
+        }
+
+        const user = await userModel.findById(id);
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // 🔹 Update role
+        const oldRole = user.role;
+        user.role = role;
+        await user.save();
+
+        // 6. Audit Log
+        console.info(`[AUDIT] User role updated: ID: ${id}, Old Role: ${oldRole}, New Role: ${role} by Admin: ${adminId}`);
+
+        return res.status(200).json({
+            message: "User role updated successfully",
+            user: {
+                _id: user._id,
+                email: user.email,
+                role: user.role,
+            },
+        });
+
+    } catch (error) {
+        console.error("Update Role Error:", error);
+        return res.status(500).json({ message: "Internal server error" });
     }
+};
 
-    const { id } = req.params;
-    const { role } = req.body;
-    const adminId = req.userId;
+export const deleteUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const adminId = req.userId;
 
-    // 🔹 Validate ID
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "Invalid user ID" });
+        // 🔹 Validate ID
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ message: "Invalid user ID" });
+        }
+
+        // 🔹 Prevent self-delete
+        if (adminId === id) {
+            return res.status(400).json({
+                message: "You cannot delete your own account",
+            });
+        }
+
+        const user = await userModel.findById(id);
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // 🔹 Check if already deleted
+        if (user.deletedAt) {
+            return res.status(400).json({ message: "User is already deleted" });
+        }
+
+        // 🔥 Soft delete
+        user.isActive = false;
+        user.deletedAt = new Date();
+
+        // 🔥 Revoke all sessions
+        user.refreshTokens = [];
+
+        await user.save();
+
+        // 6. Audit Log
+        console.info(`[AUDIT] User soft-deleted: ID: ${id} by Admin: ${adminId}`);
+
+        return res.status(200).json({
+            message: "User deleted (deactivated) successfully",
+            user: {
+                _id: user._id,
+                email: user.email,
+                isActive: user.isActive,
+                deletedAt: user.deletedAt
+            }
+        });
+
+    } catch (error) {
+        console.error("Delete User Error:", error);
+        return res.status(500).json({ message: "Internal server error" });
     }
-
-    // 🔹 Prevent self-demotion
-    if (adminId === id && role !== "admin") {
-      return res.status(400).json({
-        message: "You cannot remove your own admin role",
-      });
-    }
-
-    const user = await userModel.findById(id);
-
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    // 🔹 Update role
-    const oldRole = user.role;
-    user.role = role;
-    await user.save();
-
-    // 6. Audit Log
-    console.info(`[AUDIT] User role updated: ID: ${id}, Old Role: ${oldRole}, New Role: ${role} by Admin: ${adminId}`);
-
-    return res.status(200).json({
-      message: "User role updated successfully",
-      user: {
-        _id: user._id,
-        email: user.email,
-        role: user.role,
-      },
-    });
-
-  } catch (error) {
-    console.error("Update Role Error:", error);
-    return res.status(500).json({ message: "Internal server error" });
-  }
 };
