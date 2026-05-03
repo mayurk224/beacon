@@ -54,3 +54,18 @@ export const removeMemberValidation = [
     param('userId')
         .isMongoId().withMessage('Invalid User ID format'),
 ];
+
+export const updateOrganizationValidation = [
+    param('id')
+        .isMongoId().withMessage('Invalid Organization ID format'),
+    body('name')
+        .optional()
+        .trim()
+        .isLength({ min: 2, max: 100 }).withMessage('Organization name must be between 2 and 100 characters')
+        .escape(),
+    body('description')
+        .optional()
+        .trim()
+        .isLength({ max: 500 }).withMessage('Description cannot exceed 500 characters')
+        .escape(),
+];

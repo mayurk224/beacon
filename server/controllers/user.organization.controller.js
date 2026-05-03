@@ -554,3 +554,76 @@ export const removeMember = async (req, res) => {
         return res.status(500).json({ message: "Internal server error" });
     }
 };
+
+export const updateOrganization = async (req, res) => {
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({
+                message: "Validation failed",
+                errors: errors.array().map(err => ({ field: err.path, message: err.msg }))
+            });
+        }
+
+        const { id } = req.params;
+        const { name, description } = req.body;
+        const userId = req.userId;
+
+        // 1. Check admin access
+        const requester = await userModel.findOne({
+            _id: userId,
+            "memberships.organization": id,
+            "memberships.role": "admin",
+        });
+
+        if (!requester) {
+            return res.status(403).json({ message: "Only admins can update organization details" });
+        }
+
+        // 2. Prepare update data
+        const updateData = {};
+        if (name) {
+            updateData.name = name.trim();
+            // Optional: Update slug if name changes
+            const baseSlug = slugify(updateData.name, { lower: true, strict: true });
+            let slug = baseSlug;
+            let existing = await organizationModel.findOne({ slug, _id: { $ne: id } });
+            let counter = 1;
+            while (existing) {
+                slug = `${baseSlug}-${counter++}`;
+                existing = await organizationModel.findOne({ slug, _id: { $ne: id } });
+            }
+            updateData.slug = slug;
+        }
+        if (description !== undefined) {
+            updateData.description = description.trim();
+        }
+
+        if (Object.keys(updateData).length === 0) {
+            return res.status(400).json({ message: "No update data provided" });
+        }
+
+        // 3. Update organization
+        const organization = await organizationModel.findByIdAndUpdate(
+            id,
+            { $set: updateData },
+            { new: true, runValidators: true }
+        );
+
+        if (!organization) {
+            return res.status(404).json({ message: "Organization not found" });
+        }
+
+        // 4. Audit Log
+        console.info(`[AUDIT] Organization ${id} updated by User ${userId}. Changes: ${Object.keys(updateData).join(", ")}`);
+
+        return res.status(200).json({
+            message: "Organization updated successfully",
+            organization,
+        });
+
+    } catch (error) {
+        console.error("Update Organization Error:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};

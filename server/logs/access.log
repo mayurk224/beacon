@@ -606,3 +606,10 @@
 ::1 - - [2026-05-03T04:47:20.738Z] "GET /organization/69f61699a6ef3389d7dc3267 HTTP/1.1" 200 632 "-" "PostmanRuntime/7.53.0" - 201.544 ms
 ::1 - - [2026-05-03T04:47:39.888Z] "DELETE /organization/69f61699a6ef3389d7dc3267/members/69f633feb0ab5cb04a0719c4/remove HTTP/1.1" 200 41 "-" "PostmanRuntime/7.53.0" - 449.702 ms
 ::1 - - [2026-05-03T04:47:46.865Z] "GET /organization/69f61699a6ef3389d7dc3267 HTTP/1.1" 200 507 "-" "PostmanRuntime/7.53.0" - 200.323 ms
+::ffff:127.0.0.1 - - [2026-05-03T04:58:07.374Z] "PATCH /organization/69f6d5dfd34d65aa0eb5b408 HTTP/1.1" 200 319 "-" "-" - 53.341 ms
+::ffff:127.0.0.1 - - [2026-05-03T04:58:07.408Z] "PATCH /organization/69f6d5dfd34d65aa0eb5b40e HTTP/1.1" 403 57 "-" "-" - 4.814 ms
+::ffff:127.0.0.1 - - [2026-05-03T04:58:07.434Z] "PATCH /organization/69f6d5dfd34d65aa0eb5b413 HTTP/1.1" 400 126 "-" "-" - 1.467 ms
+::ffff:127.0.0.1 - - [2026-05-03T04:58:07.455Z] "PATCH /organization/69f6d5dfd34d65aa0eb5b41c HTTP/1.1" 403 57 "-" "-" - 2.971 ms
+::ffff:127.0.0.1 - - [2026-05-03T04:58:07.486Z] "PATCH /organization/69f6d5dfd34d65aa0eb5b41e HTTP/1.1" 200 293 "-" "-" - 10.777 ms
+::1 - - [2026-05-03T04:59:38.038Z] "GET /organization/69f61699a6ef3389d7dc3267 HTTP/1.1" 200 507 "-" "PostmanRuntime/7.53.0" - 1555.701 ms
+::1 - - [2026-05-03T05:00:22.350Z] "PATCH /organization/69f61699a6ef3389d7dc3267 HTTP/1.1" 200 309 "-" "PostmanRuntime/7.53.0" - 408.736 ms
