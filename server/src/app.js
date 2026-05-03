@@ -7,6 +7,7 @@ import { setupLogger } from "../utils/logger.js";
 import config from "../config/config.js";
 import userRoutes from "../routes/user.routes.js";
 import adminRouter from "../routes/admin.routes.js";
+import incidentRoutes from "../routes/incident.routes.js";
 
 const app = express();
 
@@ -45,6 +46,9 @@ app.use("/api/users", userRoutes);
 
 // Import and use the admin routes
 app.use("/api/admin", adminRouter);
+
+// Import and use the incident routes
+app.use("/api/incidents", incidentRoutes);
 
 // Global Error Handler
 app.use((err, req, res, next) => {
