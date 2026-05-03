@@ -17,7 +17,7 @@ const organizationSchema = new mongoose.Schema(
     },
     owner: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "users",
       required: true,
     },
     description: {
@@ -38,6 +38,6 @@ const organizationSchema = new mongoose.Schema(
   }
 );
 
-const organizationModel = mongoose.model("organization", organizationSchema);
+const organizationModel = mongoose.model("organizations", organizationSchema);
 
 export default organizationModel;

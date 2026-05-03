@@ -50,7 +50,7 @@ const userSchema = new mongoose.Schema(
       {
         organization: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: "Organization",
+          ref: "organizations",
           required: true,
         },
         role: {
