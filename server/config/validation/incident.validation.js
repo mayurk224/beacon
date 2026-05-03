@@ -1,4 +1,4 @@
-import { body } from "express-validator";
+import { body, query } from "express-validator";
 import mongoose from "mongoose";
 
 export const createIncidentValidation = [
@@ -21,4 +21,28 @@ export const createIncidentValidation = [
             if (!Array.isArray(value)) return true;
             return value.every((id) => mongoose.Types.ObjectId.isValid(id));
         }).withMessage("One or more assigned user IDs are invalid"),
+];
+
+export const getAllIncidentsValidation = [
+    query("page")
+        .optional()
+        .isInt({ min: 1 }).withMessage("Page must be a positive integer"),
+    query("limit")
+        .optional()
+        .isInt({ min: 1, max: 100 }).withMessage("Limit must be between 1 and 100"),
+    query("status")
+        .optional()
+        .isIn(["open", "investigating", "resolved"]).withMessage("Invalid status"),
+    query("severity")
+        .optional()
+        .isIn(["low", "medium", "high", "critical"]).withMessage("Invalid severity"),
+    query("organizationId")
+        .optional()
+        .custom((value) => mongoose.Types.ObjectId.isValid(value)).withMessage("Invalid organization ID"),
+    query("sortBy")
+        .optional()
+        .isString().withMessage("Sort field must be a string"),
+    query("sortOrder")
+        .optional()
+        .isIn(["asc", "desc"]).withMessage("Sort order must be 'asc' or 'desc'"),
 ];
