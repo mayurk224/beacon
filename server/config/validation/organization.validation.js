@@ -36,3 +36,14 @@ export const acceptInviteValidation = [
         .notEmpty().withMessage('Invite token is required')
         .isLength({ min: 64, max: 64 }).withMessage('Invalid token format'),
 ];
+
+export const updateMemberRoleValidation = [
+    param('orgId')
+        .isMongoId().withMessage('Invalid Organization ID format'),
+    param('userId')
+        .isMongoId().withMessage('Invalid User ID format'),
+    body('role')
+        .trim()
+        .notEmpty().withMessage('Role is required')
+        .isIn(['admin', 'responder', 'viewer']).withMessage('Invalid role specified'),
+];

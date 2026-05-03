@@ -279,73 +279,164 @@ export const getMyOrganizations = async (req, res) => {
 };
 
 export const getOrganizationById = async (req, res) => {
-  try {
-    // 1. Validation
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({
-        message: "Validation failed",
-        errors: errors.array().map(err => ({ field: err.path, message: err.msg }))
-      });
+    try {
+        // 1. Validation
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({
+                message: "Validation failed",
+                errors: errors.array().map(err => ({ field: err.path, message: err.msg }))
+            });
+        }
+
+        const { id } = req.params;
+        const userId = req.userId;
+
+        // 2. Check membership (IMPORTANT for authorization)
+        const user = await userModel.findOne({
+            _id: userId,
+            "memberships.organization": id,
+        });
+
+        if (!user) {
+            return res.status(403).json({ message: "Access denied" });
+        }
+
+        // 3. Get organization details
+        const organization = await organizationModel.findById(id);
+
+        if (!organization) {
+            return res.status(404).json({ message: "Organization not found" });
+        }
+
+        // 4. Get members with specific roles in THIS organization
+        const members = await userModel.find({
+            "memberships.organization": id,
+        }).select("name avatar memberships");
+
+        // 5. Format members list
+        const formattedMembers = members.map((m) => {
+            const membership = m.memberships.find(
+                (mem) => mem.organization.toString() === id
+            );
+
+            return {
+                userId: m._id,
+                name: m.name,
+                avatar: m.avatar,
+                role: membership.role,
+                joinedAt: membership.joinedAt,
+            };
+        });
+
+        return res.status(200).json({
+            organization: {
+                id: organization._id,
+                name: organization.name,
+                slug: organization.slug,
+                description: organization.description || "",
+                isActive: organization.isActive,
+                membersCount: organization.membersCount,
+                owner: organization.owner,
+                createdAt: organization.createdAt,
+                updatedAt: organization.updatedAt,
+            },
+            members: formattedMembers,
+        });
+
+    } catch (error) {
+        console.error("Get Org Details Error:", error);
+        return res.status(500).json({ message: "Internal server error" });
     }
+};
 
-    const { id } = req.params;
-    const userId = req.userId;
+export const updateMemberRole = async (req, res) => {
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({
+                message: "Validation failed",
+                errors: errors.array().map(err => ({ field: err.path, message: err.msg }))
+            });
+        }
 
-    // 2. Check membership (IMPORTANT for authorization)
-    const user = await userModel.findOne({
-      _id: userId,
-      "memberships.organization": id,
-    });
+        const { orgId, userId } = req.params;
+        const { role } = req.body;
+        const requesterId = req.userId;
 
-    if (!user) {
-      return res.status(403).json({ message: "Access denied" });
+        // 1. Check organization existence and owner
+        const organization = await organizationModel.findById(orgId);
+        if (!organization) {
+            return res.status(404).json({ message: "Organization not found" });
+        }
+
+        // 2. Check requester permissions (must be admin)
+        const requester = await userModel.findOne({
+            _id: requesterId,
+            "memberships.organization": orgId,
+            "memberships.role": "admin",
+        });
+
+        if (!requester) {
+            return res.status(403).json({ message: "Only admins can update roles" });
+        }
+
+        // 3. Prevent changing owner's role
+        if (organization.owner.toString() === userId) {
+            return res.status(403).json({ message: "Organization owner's role cannot be changed" });
+        }
+
+        // 4. Self-demotion check (must not leave org with no admins)
+        if (requesterId === userId && role !== "admin") {
+            const adminCount = await userModel.countDocuments({
+                "memberships.organization": orgId,
+                "memberships.role": "admin",
+            });
+            if (adminCount <= 1) {
+                return res.status(400).json({ message: "Cannot demote the only admin" });
+            }
+        }
+
+        // 5. Get current user membership to check if change is needed and for audit log
+        const targetUser = await userModel.findOne({
+            _id: userId,
+            "memberships.organization": orgId
+        }, { "memberships.$": 1 });
+
+        if (!targetUser) {
+            return res.status(404).json({ message: "User not in organization" });
+        }
+
+        const oldRole = targetUser.memberships[0].role;
+        if (oldRole === role) {
+            return res.status(200).json({ message: "Role is already set to this value" });
+        }
+
+        // 6. Update role
+        const user = await userModel.findOneAndUpdate(
+            {
+                _id: userId,
+                "memberships.organization": orgId,
+            },
+            {
+                $set: {
+                    "memberships.$.role": role,
+                },
+            },
+            { new: true }
+        );
+
+        // 7. Audit Log
+        console.info(`[AUDIT] User ${requesterId} updated role of User ${userId} in Organization ${orgId} from ${oldRole} to ${role}`);
+
+        return res.status(200).json({
+            message: "Member role updated successfully",
+            oldRole,
+            newRole: role
+        });
+
+    } catch (error) {
+        console.error("Update Member Role Error:", error);
+        return res.status(500).json({ message: "Internal server error" });
     }
-
-    // 3. Get organization details
-    const organization = await organizationModel.findById(id);
-
-    if (!organization) {
-      return res.status(404).json({ message: "Organization not found" });
-    }
-
-    // 4. Get members with specific roles in THIS organization
-    const members = await userModel.find({
-      "memberships.organization": id,
-    }).select("name avatar memberships");
-
-    // 5. Format members list
-    const formattedMembers = members.map((m) => {
-      const membership = m.memberships.find(
-        (mem) => mem.organization.toString() === id
-      );
-
-      return {
-        userId: m._id,
-        name: m.name,
-        avatar: m.avatar,
-        role: membership.role,
-        joinedAt: membership.joinedAt,
-      };
-    });
-
-    return res.status(200).json({
-      organization: {
-        id: organization._id,
-        name: organization.name,
-        slug: organization.slug,
-        description: organization.description || "",
-        isActive: organization.isActive,
-        membersCount: organization.membersCount,
-        owner: organization.owner,
-        createdAt: organization.createdAt,
-        updatedAt: organization.updatedAt,
-      },
-      members: formattedMembers,
-    });
-
-  } catch (error) {
-    console.error("Get Org Details Error:", error);
-    return res.status(500).json({ message: "Internal server error" });
-  }
 };
