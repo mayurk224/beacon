@@ -379,6 +379,18 @@ body {
   @apply flex items-center justify-center gap-2 px-4 py-1.5 border border-border-primary rounded bg-transparent hover:bg-surface-elevated transition-colors text-[13px] font-medium text-primary
 }
 
+.input {
+  @apply w-full bg-surface-elevated border border-border-primary rounded px-3 py-2 text-[13px] text-primary placeholder:text-subtle focus:border-brand-strong focus:outline-none focus:ring-1 focus:ring-brand-strong transition-colors
+}
+
+.input-secondary {
+  @apply w-full bg-surface border border-border-primary rounded px-3 py-2 text-[13px] text-primary placeholder:text-subtle focus:border-brand-strong focus:outline-none focus:ring-1 focus:ring-brand-strong transition-colors
+}
+
+.select {
+  @apply w-full bg-surface border border-border-primary rounded px-3 py-2 text-[13px] text-primary placeholder:text-subtle focus:border-brand-strong focus:outline-none focus:ring-1 focus:ring-brand-strong transition-colors min-w-50 appearance-none
+}
+
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;

@@ -412,7 +412,7 @@ const DashBoardTeam = () => {
               placeholder="Search team members..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-surface border border-border-primary rounded-lg pl-9 pr-3 py-2 text-[13px] text-primary placeholder:text-subtle focus:border-brand-soft focus:outline-none transition-colors"
+              className="input pl-9!"
             />
           </div>
         </div>
@@ -608,7 +608,7 @@ const DashBoardTeam = () => {
                 <textarea
                   value={inviteEmails}
                   onChange={(e) => setInviteEmails(e.target.value)}
-                  className="bg-surface border border-border-primary rounded p-3 text-[13px] text-primary placeholder:text-subtle focus:border-brand-soft focus:outline-none resize-none h-24 font-mono"
+                  className="input-secondary resize-none text-start"
                   placeholder="jane@company.com, john@company.com"
                 />
                 <span className="text-[10px] font-mono text-subtle">Separate multiple emails with commas.</span>
@@ -618,7 +618,7 @@ const DashBoardTeam = () => {
                 <select
                   value={inviteRole}
                   onChange={(e) => setInviteRole(e.target.value)}
-                  className="bg-surface border border-border-primary rounded p-2 text-[13px] text-primary focus:border-brand-soft focus:outline-none"
+                  className="input-secondary"
                 >
                   <option value="admin">Admin - Full access to all resources</option>
                   <option value="editor">Editor - Can view and modify incidents</option>

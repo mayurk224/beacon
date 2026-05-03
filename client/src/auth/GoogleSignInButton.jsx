@@ -77,7 +77,7 @@ const GoogleSignInButton = ({
         type: "standard",
         shape: "rectangular",
         text: "continue_with",
-        width: 332,
+        width: 448,
       });
 
       initializedRef.current = true;

@@ -84,7 +84,7 @@ const SignUp = () => {
 
   return (
     <div className="bg-surface-inset text-primary min-h-screen w-full flex items-center justify-center p-4">
-      <div className="w-full max-w-[380px] flex flex-col gap-6">
+      <div className="w-full max-w-md flex flex-col gap-6">
         <div className="flex flex-col items-center gap-2">
           <div className="flex items-center gap-2">
             <Bolt className="w-7 h-7 text-brand-soft" />
@@ -96,7 +96,7 @@ const SignUp = () => {
         </div>
 
         {/* Card */}
-        <div className="bg-surface-header border border-border-muted rounded-lg p-6 flex flex-col gap-4 shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
+        <div className="bg-surface-header border border-border-muted rounded-lg p-6 flex flex-col gap-4 ">
 
           {/* Success */}
           {success && (
@@ -192,7 +192,7 @@ const SignUp = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-surface-elevated text-primary text-[14px] font-medium rounded py-2.5 mt-2 transition flex items-center justify-center gap-2 disabled:opacity-50"
+              className="btn-primary"
             >
               {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
               Create Account

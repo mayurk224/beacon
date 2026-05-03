@@ -24,7 +24,7 @@ export default function SideBar() {
   ];
 
   return (
-    <aside className={`w-[180px] lg:w-[260px] border-r flex flex-col h-full bg-surface-bar border-border-primary text-primary`}>
+    <aside className="w-45 lg:w-65 border-r flex flex-col h-full bg-surface-bar border-border-primary text-primary">
 
       {/* Logo */}
       <div className="px-3 lg:px-6 py-4 lg:py-3.5 border-b border-border-primary">

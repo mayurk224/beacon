@@ -67,6 +67,163 @@ import {
   MoreHorizontal
 } from 'lucide-react';
 
+const resolveThemeColor = (token, fallback) => {
+  if (typeof window === 'undefined') return fallback;
+  const value = getComputedStyle(document.documentElement).getPropertyValue(token).trim();
+  return value || fallback;
+};
+
+const getDashboardTheme = () => ({
+  brand: resolveThemeColor('--brand', '#F26A4B'),
+  brandMuted: resolveThemeColor('--brand-muted', 'var(--brand-muted)'),
+  brandSoft: resolveThemeColor('--brand-soft', 'var(--brand-soft)'),
+  brandStrong: resolveThemeColor('--brand-strong', 'var(--brand-strong)'),
+  semanticSuccess: resolveThemeColor('--semantic-success', 'var(--semantic-success)'),
+  semanticWarning: resolveThemeColor('--semantic-warning', 'var(--semantic-warning)'),
+  semanticError: resolveThemeColor('--semantic-error', 'var(--semantic-error)'),
+  semanticInfo: resolveThemeColor('--semantic-info', 'var(--semantic-info)'),
+  surface: resolveThemeColor('--surface', 'var(--surface)'),
+  surfaceCard: resolveThemeColor('--surface-card', 'var(--surface-card)'),
+  surfaceElevated: resolveThemeColor('--surface-elevated', 'var(--surface-elevated)'),
+  borderPrimary: resolveThemeColor('--border-primary', 'var(--border-primary)'),
+  borderMuted: resolveThemeColor('--border-muted', 'var(--border-muted)'),
+  textPrimary: resolveThemeColor('--text-primary', 'var(--text-primary)'),
+  textSecondary: resolveThemeColor('--text-secondary', 'var(--text-secondary)'),
+  textSubtle: resolveThemeColor('--text-subtle', 'var(--text-subtle)'),
+  chartNeutral: resolveThemeColor('--chart-neutral', 'var(--chart-neutral)'),
+  chartGrid: resolveThemeColor('--chart-grid', 'var(--chart-grid)'),
+  chartTooltip: resolveThemeColor('--surface-card', 'var(--surface-card)'),
+  chartTooltipText: resolveThemeColor('--text-primary', 'var(--text-primary)'),
+  chartTooltipBorder: resolveThemeColor('--border-primary', 'var(--border-primary)'),
+  chartAxis: resolveThemeColor('--text-secondary', 'var(--text-secondary)'),
+  chartSeriesPrimary: resolveThemeColor('--brand', 'var(--brand)'),
+  chartSeriesPrimaryMuted: resolveThemeColor('--brand-muted', 'var(--brand-muted)'),
+  chartSeriesSecondary: resolveThemeColor('--chart-neutral', 'var(--chart-neutral)'),
+  chartSeriesSecondaryMuted: resolveThemeColor('--border-muted', 'var(--border-muted)'),
+  chartSeriesSuccess: resolveThemeColor('--semantic-success', 'var(--semantic-success)'),
+  chartSeriesWarning: resolveThemeColor('--semantic-warning', 'var(--semantic-warning)'),
+  chartSeriesError: resolveThemeColor('--semantic-error', 'var(--semantic-error)'),
+});
+
+const createMockIncidentFrequency = (theme) => ({
+  labels: ['Day 01', 'Day 05', 'Day 10', 'Day 15', 'Day 20', 'Day 25', 'Day 30'],
+  datasets: [
+    {
+      label: 'P1 Critical',
+      data: [4, 3, 5, 4, 6, 5, 4],
+      borderColor: theme.chartSeriesPrimary,
+      backgroundColor: theme.chartSeriesPrimaryMuted,
+      tension: 0.4,
+      fill: true,
+      pointBackgroundColor: theme.chartSeriesPrimary,
+      pointBorderColor: theme.surface,
+      pointRadius: 4,
+      pointHoverRadius: 6,
+    },
+    {
+      label: 'P2 Standard',
+      data: [6, 8, 7, 9, 8, 10, 8],
+      borderColor: theme.chartSeriesSecondary,
+      backgroundColor: theme.chartSeriesSecondaryMuted,
+      tension: 0.4,
+      fill: true,
+      pointBackgroundColor: theme.chartSeriesSecondary,
+      pointBorderColor: theme.surface,
+      pointRadius: 4,
+      pointHoverRadius: 6,
+    }
+  ]
+});
+
+const createUserActivityData = (theme) => ({
+  labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+  datasets: [{
+    label: 'Active Users',
+    data: [45, 52, 49, 60, 55, 30, 25],
+    backgroundColor: theme.chartSeriesPrimary,
+    borderRadius: 4,
+  }]
+});
+
+const createIncidentTypeData = (theme) => ({
+  labels: ['Database', 'Network', 'Application', 'Security', 'Other'],
+  datasets: [{
+    data: [30, 25, 20, 15, 10],
+    backgroundColor: [
+      theme.chartSeriesPrimary,
+      theme.chartSeriesSuccess,
+      theme.chartSeriesWarning,
+      theme.chartSeriesError,
+      theme.chartSeriesSecondary,
+    ],
+    borderColor: theme.surface,
+    borderWidth: 2,
+  }]
+});
+
+const createChartOptions = (theme) => ({
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { display: false },
+    tooltip: {
+      mode: 'index',
+      intersect: false,
+      backgroundColor: theme.chartTooltip,
+      titleColor: theme.chartTooltipText,
+      bodyColor: theme.textSecondary,
+      borderColor: theme.chartTooltipBorder,
+      borderWidth: 1,
+      padding: 12,
+      cornerRadius: 4,
+    }
+  },
+  scales: {
+    x: {
+      grid: { color: theme.chartGrid, drawBorder: false },
+      ticks: { color: theme.chartAxis, font: { size: 10, family: 'Inter' } },
+    },
+    y: {
+      grid: { color: theme.chartGrid, drawBorder: false },
+      ticks: { color: theme.chartAxis, font: { size: 10, family: 'Inter' }, stepSize: 2 },
+      beginAtZero: true,
+      max: 12,
+    }
+  },
+  interaction: {
+    mode: 'index',
+    intersect: false,
+  },
+});
+
+const createBarChartOptions = (theme) => ({
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { display: false },
+    tooltip: {
+      backgroundColor: theme.chartTooltip,
+      titleColor: theme.chartTooltipText,
+      bodyColor: theme.textSecondary,
+      borderColor: theme.chartTooltipBorder,
+      borderWidth: 1,
+      padding: 12,
+      cornerRadius: 4,
+    }
+  },
+  scales: {
+    x: {
+      grid: { display: false },
+      ticks: { color: theme.chartAxis, font: { size: 10 } },
+    },
+    y: {
+      grid: { color: theme.chartGrid },
+      ticks: { color: theme.chartAxis, font: { size: 10 } },
+      beginAtZero: true,
+    }
+  }
+});
+
 // Register Chart.js components
 ChartJS.register(
   CategoryScale,
@@ -106,119 +263,6 @@ const systemMetrics = {
   memory: 73,
   disk: 45,
   network: 89,
-};
-
-const mockIncidentFrequency = {
-  labels: ['Day 01', 'Day 05', 'Day 10', 'Day 15', 'Day 20', 'Day 25', 'Day 30'],
-  datasets: [
-    {
-      label: 'P1 Critical',
-      data: [4, 3, 5, 4, 6, 5, 4],
-      borderColor: '#4F8CFF',
-      backgroundColor: 'rgba(79, 140, 255, 0.1)',
-      tension: 0.4,
-      fill: true,
-      pointBackgroundColor: '#4F8CFF',
-      pointBorderColor: '#0D0D0D',
-      pointRadius: 4,
-      pointHoverRadius: 6,
-    },
-    {
-      label: 'P2 Standard',
-      data: [6, 8, 7, 9, 8, 10, 8],
-      borderColor: '#6B7280',
-      backgroundColor: 'rgba(107, 114, 128, 0.05)',
-      tension: 0.4,
-      fill: true,
-      pointBackgroundColor: '#6B7280',
-      pointBorderColor: '#0D0D0D',
-      pointRadius: 4,
-      pointHoverRadius: 6,
-    }
-  ]
-};
-
-const userActivityData = {
-  labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-  datasets: [{
-    label: 'Active Users',
-    data: [45, 52, 49, 60, 55, 30, 25],
-    backgroundColor: '#4F8CFF',
-    borderRadius: 4,
-  }]
-};
-
-const incidentTypeData = {
-  labels: ['Database', 'Network', 'Application', 'Security', 'Other'],
-  datasets: [{
-    data: [30, 25, 20, 15, 10],
-    backgroundColor: ['#4F8CFF', '#34D399', '#F59E0B', '#EF4444', '#6B7280'],
-    borderColor: '#0D0D0D',
-    borderWidth: 2,
-  }]
-};
-
-const chartOptions = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: { display: false },
-    tooltip: {
-      mode: 'index',
-      intersect: false,
-      backgroundColor: '#1A1A1A',
-      titleColor: '#E2E2E3',
-      bodyColor: '#9CA3AF',
-      borderColor: '#262626',
-      borderWidth: 1,
-      padding: 12,
-      cornerRadius: 4,
-    }
-  },
-  scales: {
-    x: {
-      grid: { color: 'rgba(38, 38, 38, 0.5)', drawBorder: false },
-      ticks: { color: '#6B7280', font: { size: 10, family: 'Inter' } },
-    },
-    y: {
-      grid: { color: 'rgba(38, 38, 38, 0.5)', drawBorder: false },
-      ticks: { color: '#6B7280', font: { size: 10, family: 'Inter' }, stepSize: 2 },
-      beginAtZero: true,
-      max: 12,
-    }
-  },
-  interaction: {
-    mode: 'index',
-    intersect: false,
-  },
-};
-
-const barChartOptions = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: { display: false },
-    tooltip: {
-      backgroundColor: '#1A1A1A',
-      titleColor: '#E2E2E3',
-      bodyColor: '#9CA3AF',
-      borderColor: '#262626',
-      borderWidth: 1,
-      padding: 12,
-      cornerRadius: 4,
-    }
-  },
-  scales: {
-    x: {
-      grid: { display: false },
-      ticks: { color: '#6B7280', font: { size: 10 } },
-    },
-    y: {
-      grid: { color: 'rgba(38, 38, 38, 0.3)' },
-      ticks: { color: '#6B7280', font: { size: 10 } },
-      beginAtZero: true,
-    }
-  }
 };
 
 const serviceHealthData = [
@@ -282,7 +326,7 @@ const liveFeedEvents = [
 ];
 
 // ---------- Sub-components ----------
-const Sparkline = ({ data, color = '#4F8CFF', height = 40 }) => {
+const Sparkline = ({ data, color, height = 40 }) => {
   const canvasRef = useRef(null);
   
   useEffect(() => {
@@ -290,10 +334,11 @@ const Sparkline = ({ data, color = '#4F8CFF', height = 40 }) => {
     const ctx = canvasRef.current.getContext('2d');
     const width = canvasRef.current.offsetWidth;
     const h = height;
+    const sparklineColor = color || resolveThemeColor('--brand', 'var(--brand)');
     
     ctx.clearRect(0, 0, width, h);
     ctx.beginPath();
-    ctx.strokeStyle = color;
+    ctx.strokeStyle = sparklineColor;
     ctx.lineWidth = 1.5;
     
     const step = width / (data.length - 1);
@@ -312,8 +357,11 @@ const Sparkline = ({ data, color = '#4F8CFF', height = 40 }) => {
     ctx.lineTo((data.length - 1) * step, h);
     ctx.lineTo(0, h);
     ctx.closePath();
-    ctx.fillStyle = `${color}15`;
+    ctx.save();
+    ctx.globalAlpha = 0.08;
+    ctx.fillStyle = sparklineColor;
     ctx.fill();
+    ctx.restore();
   }, [data, color, height]);
   
   return <canvas ref={canvasRef} className="w-full" style={{ height: `${height}px` }} />;
@@ -321,12 +369,12 @@ const Sparkline = ({ data, color = '#4F8CFF', height = 40 }) => {
 
 const StatusBadge = ({ status }) => {
   const config = {
-    operational: { color: 'text-emerald-500', bg: 'bg-emerald-500/10', label: 'Operational' },
-    latency: { color: 'text-amber-500', bg: 'bg-amber-500/10', label: 'Latency Spike' },
-    critical: { color: 'text-red-400', bg: 'bg-red-400/10', label: 'Critical' },
-    active: { color: 'text-emerald-500', bg: 'bg-emerald-500/10', label: 'Active' },
-    away: { color: 'text-amber-500', bg: 'bg-amber-500/10', label: 'Away' },
-    offline: { color: 'text-gray-500', bg: 'bg-gray-500/10', label: 'Offline' },
+    operational: { color: 'text-semantic-success', bg: 'bg-semantic-success/10', label: 'Operational' },
+    latency: { color: 'text-semantic-warning', bg: 'bg-semantic-warning/10', label: 'Latency Spike' },
+    critical: { color: 'text-semantic-error', bg: 'bg-semantic-error/10', label: 'Critical' },
+    active: { color: 'text-semantic-success', bg: 'bg-semantic-success/10', label: 'Active' },
+    away: { color: 'text-semantic-warning', bg: 'bg-semantic-warning/10', label: 'Away' },
+    offline: { color: 'text-secondary', bg: 'bg-surface-canvas', label: 'Offline' },
   };
   const { color, bg, label } = config[status] || config.operational;
   
@@ -340,15 +388,15 @@ const StatusBadge = ({ status }) => {
 
 const EventIcon = ({ type }) => {
   const colors = {
-    critical: 'bg-red-500',
-    success: 'bg-emerald-500',
-    warning: 'bg-amber-500',
+    critical: 'bg-semantic-error',
+    success: 'bg-semantic-success',
+    warning: 'bg-semantic-warning',
     info: 'bg-brand',
   };
-  return <div className={`w-2 h-2 rounded-full ${colors[type] || 'bg-gray-600'} border border-black absolute -left-1 top-1.5 z-10`} />;
+  return <div className={`w-2 h-2 rounded-full ${colors[type] || 'bg-secondary'} border border-border-primary absolute -left-1 top-1.5 z-10`} />;
 };
 
-const ProgressBar = ({ value, color = '#4F8CFF' }) => (
+const ProgressBar = ({ value, color = 'var(--brand)' }) => (
   <div className="w-full bg-surface rounded-full h-1.5">
     <div className="h-full rounded-full transition-all duration-500" style={{ width: `${value}%`, backgroundColor: color }}></div>
   </div>
@@ -362,6 +410,13 @@ const AdminHome = () => {
   const [mttr] = useState('28m');
   const [totalUsers] = useState(48);
   const [activeUsers] = useState(32);
+
+  const theme = getDashboardTheme();
+  const mockIncidentFrequency = createMockIncidentFrequency(theme);
+  const userActivityData = createUserActivityData(theme);
+  const incidentTypeData = createIncidentTypeData(theme);
+  const chartOptions = createChartOptions(theme);
+  const barChartOptions = createBarChartOptions(theme);
   
   const uptimeSparkline = generateSparklineData(12, 'stable', 0.1);
   const incidentsSparkline = generateSparklineData(12, 'up');
@@ -375,11 +430,11 @@ const AdminHome = () => {
         {/* Page Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-white">Admin Dashboard</h1>
-            <p className="text-sm text-gray-500 mt-1">Welcome back, Admin. Here's what's happening today.</p>
+            <h1 className="text-2xl font-bold text-foreground">Admin Dashboard</h1>
+            <p className="text-sm text-secondary mt-1">Welcome back, Admin. Here's what's happening today.</p>
           </div>
           <div className="flex items-center gap-3">
-            <button className="flex items-center gap-2 px-4 py-2 bg-surface-card border border-border-primary rounded text-sm text-gray-300 hover:text-white hover:border-gray-600 transition-colors">
+            <button className="flex items-center gap-2 px-4 py-2 bg-surface-card border border-border-primary rounded text-sm text-secondary hover:text-foreground hover:border-border-muted transition-colors">
               <RefreshCw className="w-4 h-4" />
               Refresh
             </button>
@@ -388,62 +443,62 @@ const AdminHome = () => {
 
         {/* KPI Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-surface-card border border-border-primary p-4 rounded shadow-sm">
+          <div className="bg-surface-card border border-border-primary p-4 rounded ">
             <div className="flex justify-between items-start mb-2">
-              <span className="text-gray-500 text-[11px] font-bold uppercase tracking-wider">Active Incidents</span>
+              <span className="text-secondary text-[11px] font-bold uppercase tracking-wider">Active Incidents</span>
               <span className="text-brand text-[10px] bg-brand/10 px-1.5 py-0.5 rounded flex items-center gap-1">
                 <TrendingUp className="w-3 h-3" /> +2%
               </span>
             </div>
             <div className="flex items-end gap-3">
-              <span className="text-2xl font-bold text-white tracking-tight">{activeIncidents}</span>
+              <span className="text-2xl font-bold text-foreground tracking-tight">{activeIncidents}</span>
               <div className="flex-1 h-10">
-                <Sparkline data={incidentsSparkline} color="#4F8CFF" />
+                <Sparkline data={incidentsSparkline} color={theme.chartSeriesPrimary} />
               </div>
             </div>
           </div>
 
-          <div className="bg-surface-card border border-border-primary p-4 rounded shadow-sm">
+          <div className="bg-surface-card border border-border-primary p-4 rounded ">
             <div className="flex justify-between items-start mb-2">
-              <span className="text-gray-500 text-[11px] font-bold uppercase tracking-wider">Critical Alerts</span>
-              <span className="text-red-400 text-[10px] bg-red-400/10 px-1.5 py-0.5 rounded flex items-center gap-1">
+              <span className="text-secondary text-[11px] font-bold uppercase tracking-wider">Critical Alerts</span>
+              <span className="text-semantic-error text-[10px] bg-semantic-error/10 px-1.5 py-0.5 rounded flex items-center gap-1">
                 <AlertTriangle className="w-3 h-3" /> High Risk
               </span>
             </div>
             <div className="flex items-end gap-3">
-              <span className="text-2xl font-bold text-white tracking-tight">0{criticalAlerts}</span>
+              <span className="text-2xl font-bold text-foreground tracking-tight">0{criticalAlerts}</span>
               <div className="flex-1 h-10">
-                <Sparkline data={criticalSparkline} color="#EF4444" />
+                <Sparkline data={criticalSparkline} color={theme.chartSeriesError} />
               </div>
             </div>
           </div>
 
-          <div className="bg-surface-card border border-border-primary p-4 rounded shadow-sm">
+          <div className="bg-surface-card border border-border-primary p-4 rounded ">
             <div className="flex justify-between items-start mb-2">
-              <span className="text-gray-500 text-[11px] font-bold uppercase tracking-wider">Total Users</span>
-              <span className="text-emerald-400 text-[10px] bg-emerald-400/10 px-1.5 py-0.5 rounded flex items-center gap-1">
+              <span className="text-secondary text-[11px] font-bold uppercase tracking-wider">Total Users</span>
+              <span className="text-semantic-success text-[10px] bg-semantic-success/10 px-1.5 py-0.5 rounded flex items-center gap-1">
                 <TrendingUp className="w-3 h-3" /> +12%
               </span>
             </div>
             <div className="flex items-end gap-3">
-              <span className="text-2xl font-bold text-white tracking-tight">{totalUsers}</span>
+              <span className="text-2xl font-bold text-foreground tracking-tight">{totalUsers}</span>
               <div className="flex-1 h-10">
-                <Sparkline data={usersSparkline} color="#34D399" />
+                <Sparkline data={usersSparkline} color={theme.chartSeriesSuccess} />
               </div>
             </div>
           </div>
 
-          <div className="bg-surface-card border border-border-primary p-4 rounded shadow-sm">
+          <div className="bg-surface-card border border-border-primary p-4 rounded ">
             <div className="flex justify-between items-start mb-2">
-              <span className="text-gray-500 text-[11px] font-bold uppercase tracking-wider">System Uptime</span>
+              <span className="text-secondary text-[11px] font-bold uppercase tracking-wider">System Uptime</span>
               <span className="text-brand text-[10px] bg-brand/10 px-1.5 py-0.5 rounded flex items-center gap-1">
                 <Radio className="w-3 h-3" /> Stable
               </span>
             </div>
             <div className="flex items-end gap-3">
-              <span className="text-2xl font-bold text-white tracking-tight">99.99%</span>
+              <span className="text-2xl font-bold text-foreground tracking-tight">99.99%</span>
               <div className="flex-1 h-10">
-                <Sparkline data={uptimeSparkline} color="#4F8CFF" />
+                <Sparkline data={uptimeSparkline} color={theme.chartSeriesPrimary} />
               </div>
             </div>
           </div>
@@ -457,21 +512,21 @@ const AdminHome = () => {
             <div className="bg-surface-card border border-border-primary p-6 rounded relative overflow-hidden">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h3 className="text-lg font-semibold text-white">Incident Frequency</h3>
-                  <p className="text-xs text-gray-500">Last 30 days performance analysis</p>
+                  <h3 className="text-lg font-semibold text-foreground">Incident Frequency</h3>
+                  <p className="text-xs text-secondary">Last 30 days performance analysis</p>
                 </div>
                 <div className="flex items-center gap-4">
-                  <span className="flex items-center gap-1.5 text-[10px] text-gray-400 font-mono">
+                  <span className="flex items-center gap-1.5 text-[10px] text-subtle font-mono">
                     <span className="w-2 h-2 rounded-full bg-brand"></span> P1 Critical
                   </span>
-                  <span className="flex items-center gap-1.5 text-[10px] text-gray-400 font-mono">
-                    <span className="w-2 h-2 rounded-full bg-gray-500"></span> P2 Standard
+                  <span className="flex items-center gap-1.5 text-[10px] text-subtle font-mono">
+                    <span className="w-2 h-2 rounded-full bg-secondary"></span> P2 Standard
                   </span>
                 </div>
               </div>
-              <div className="h-[300px] w-full relative">
+              <div className="h-75 w-full relative">
                 <div className="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none select-none">
-                  <span className="text-4xl font-black italic tracking-tighter text-white">ANALYTICS ENGINE</span>
+                  <span className="text-4xl font-black italic tracking-tighter text-foreground">ANALYTICS ENGINE</span>
                 </div>
                 <Line data={mockIncidentFrequency} options={chartOptions} />
               </div>
@@ -480,21 +535,21 @@ const AdminHome = () => {
             {/* User Activity & Incident Types */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="bg-surface-card border border-border-primary p-6 rounded">
-                <h3 className="text-lg font-semibold text-white mb-4">User Activity</h3>
-                <div className="h-[250px]">
+                <h3 className="text-lg font-semibold text-foreground mb-4">User Activity</h3>
+                <div className="h-62.5">
                   <Bar data={userActivityData} options={barChartOptions} />
                 </div>
               </div>
               <div className="bg-surface-card border border-border-primary p-6 rounded">
-                <h3 className="text-lg font-semibold text-white mb-4">Incident Types</h3>
-                <div className="h-[250px] flex items-center justify-center">
+                <h3 className="text-lg font-semibold text-foreground mb-4">Incident Types</h3>
+                <div className="h-62.5 flex items-center justify-center">
                   <Doughnut data={incidentTypeData} options={{ 
                     responsive: true, 
                     maintainAspectRatio: false,
                     plugins: { 
                       legend: { 
                         position: 'bottom',
-                        labels: { color: '#9CA3AF', padding: 16, font: { size: 11 } }
+                        labels: { color: theme.textSecondary, padding: 16, font: { size: 11 } }
                       } 
                     }
                   }} />
@@ -508,19 +563,19 @@ const AdminHome = () => {
           <div className="col-span-12 lg:col-span-4 space-y-6">
             {/* Quick Stats */}
             <div className="bg-surface-card border border-border-primary rounded p-6">
-              <h3 className="text-lg font-semibold text-white mb-4">Quick Stats</h3>
+              <h3 className="text-lg font-semibold text-foreground mb-4">Quick Stats</h3>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-emerald-500/10 rounded flex items-center justify-center">
-                      <UserCheck className="w-4 h-4 text-emerald-500" />
+                    <div className="w-8 h-8 bg-semantic-success/10 rounded flex items-center justify-center">
+                      <UserCheck className="w-4 h-4 text-semantic-success" />
                     </div>
                     <div>
-                      <div className="text-sm font-medium text-gray-200">Active Users</div>
-                      <div className="text-[10px] text-gray-500">Currently online</div>
+                      <div className="text-sm font-medium text-foreground">Active Users</div>
+                      <div className="text-[10px] text-secondary">Currently online</div>
                     </div>
                   </div>
-                  <span className="text-lg font-bold text-white">{activeUsers}</span>
+                  <span className="text-lg font-bold text-foreground">{activeUsers}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -528,35 +583,35 @@ const AdminHome = () => {
                       <AlertTriangle className="w-4 h-4 text-brand" />
                     </div>
                     <div>
-                      <div className="text-sm font-medium text-gray-200">Open Incidents</div>
-                      <div className="text-[10px] text-gray-500">Requiring attention</div>
+                      <div className="text-sm font-medium text-foreground">Open Incidents</div>
+                      <div className="text-[10px] text-secondary">Requiring attention</div>
                     </div>
                   </div>
-                  <span className="text-lg font-bold text-white">{activeIncidents}</span>
+                  <span className="text-lg font-bold text-foreground">{activeIncidents}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-amber-500/10 rounded flex items-center justify-center">
-                      <Timer className="w-4 h-4 text-amber-500" />
+                    <div className="w-8 h-8 bg-semantic-warning/10 rounded flex items-center justify-center">
+                      <Timer className="w-4 h-4 text-semantic-warning" />
                     </div>
                     <div>
-                      <div className="text-sm font-medium text-gray-200">Avg Response</div>
-                      <div className="text-[10px] text-gray-500">Time to acknowledge</div>
+                      <div className="text-sm font-medium text-foreground">Avg Response</div>
+                      <div className="text-[10px] text-secondary">Time to acknowledge</div>
                     </div>
                   </div>
-                  <span className="text-lg font-bold text-white">3.2m</span>
+                  <span className="text-lg font-bold text-foreground">3.2m</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-purple-500/10 rounded flex items-center justify-center">
-                      <Globe className="w-4 h-4 text-purple-500" />
+                    <div className="w-8 h-8 bg-chip-violet-bg rounded flex items-center justify-center">
+                      <Globe className="w-4 h-4 text-chip-violet-fg" />
                     </div>
                     <div>
-                      <div className="text-sm font-medium text-gray-200">Services</div>
-                      <div className="text-[10px] text-gray-500">Total monitored</div>
+                      <div className="text-sm font-medium text-foreground">Services</div>
+                      <div className="text-[10px] text-secondary">Total monitored</div>
                     </div>
                   </div>
-                  <span className="text-lg font-bold text-white">24</span>
+                  <span className="text-lg font-bold text-foreground">24</span>
                 </div>
               </div>
             </div>
