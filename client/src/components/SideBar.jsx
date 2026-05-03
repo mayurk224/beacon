@@ -27,7 +27,7 @@ export default function SideBar() {
     <aside className="w-45 lg:w-65 border-r flex flex-col h-full bg-surface-bar border-border-primary text-primary">
 
       {/* Logo */}
-      <div className="px-3 lg:px-6 py-4 lg:py-3.5 border-b border-border-primary">
+      <div className="px-3 lg:px-6 flex items-center h-16 border-b border-border-primary">
         <div className="flex items-center gap-2 lg:gap-3">
           <div className="w-8 lg:w-9 h-8 lg:h-9 rounded-lg overflow-hidden bg-surface-inset flex items-center justify-center">
             <img
