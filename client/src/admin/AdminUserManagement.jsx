@@ -64,26 +64,26 @@ const AdminUserManagement = () => {
   const getStatusColor = (status) => {
     switch (status) {
       case 'Active':
-        return { dot: 'bg-emerald-500', text: 'text-emerald-500' };
+        return { dot: 'bg-semantic-success', text: 'text-semantic-success' };
       case 'Pending':
-        return { dot: 'bg-amber-500', text: 'text-amber-500' };
+        return { dot: 'bg-semantic-warning', text: 'text-semantic-warning' };
       case 'Suspended':
-        return { dot: 'bg-rose-500', text: 'text-rose-500' };
+        return { dot: 'bg-semantic-error', text: 'text-semantic-error' };
       default:
-        return { dot: 'bg-gray-500', text: 'text-gray-500' };
+        return { dot: 'bg-secondary', text: 'text-secondary' };
     }
   };
 
   const getRoleBadge = (role) => {
     switch (role) {
       case 'Administrator':
-        return 'bg-brand/10 text-brand border border-brand/30';
+        return 'bg-brand-muted text-brand-strong border border-brand-muted';
       case 'Editor':
-        return 'bg-zinc-800 text-zinc-300 border border-zinc-700';
+        return 'bg-chip-sky-bg text-chip-sky-fg border border-border-muted';
       case 'Viewer':
-        return 'bg-zinc-800 text-zinc-400 border border-zinc-700';
+        return 'bg-chip-violet-bg text-chip-violet-fg border border-border-muted';
       default:
-        return 'bg-zinc-800 text-zinc-300 border border-zinc-700';
+        return 'bg-surface-elevated text-secondary border border-border-muted';
     }
   };
 
@@ -98,20 +98,17 @@ const AdminUserManagement = () => {
       {/* Main */}
       <main className="flex-1 flex flex-col overflow-hidden w-full">
         {/* Header */}
-        <div className="p-4 sm:p-6 border-b border-zinc-800 flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3">
+        <div className="p-4 sm:p-6 border-b border-border-primary flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3">
           <div>
-            <h1 className="text-xl sm:text-2xl font-semibold text-white">User Management</h1>
-            <p className="text-xs sm:text-sm text-zinc-400 mt-1">Manage platform users, roles, and administrative permissions.</p>
+            <h1 className="text-xl sm:text-2xl font-semibold text-foreground">User Management</h1>
+            <p className="text-xs sm:text-sm text-secondary mt-1">Manage platform users, roles, and administrative permissions.</p>
           </div>
           <div className="flex gap-2">
-            <button className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-brand text-white text-sm rounded-lg hover:bg-brand transition-colors">
+            <button className="btn-primary max-sm:w-full">
               <UserPlus className="w-4 h-4" />
               Add User
             </button>
-            <button className="flex sm:hidden items-center justify-center w-9 h-9 bg-brand text-white rounded-lg hover:bg-brand transition-colors">
-              <UserPlus className="w-4 h-4" />
-            </button>
-            <button className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-zinc-800 border border-zinc-700 text-white text-sm rounded-lg hover:bg-zinc-700 transition-colors">
+            <button className="btn-outline max-sm:w-full">
               <Download className="w-4 h-4" />
               Export
             </button>
@@ -119,13 +116,13 @@ const AdminUserManagement = () => {
         </div>
 
         {/* Filter Bar - Responsive */}
-        <div className="p-3 sm:p-4 border-b border-zinc-800">
+        <div className="p-3 sm:p-4 border-b border-border-primary">
           <div className="flex flex-col sm:flex-row sm:items-center gap-3">
             {/* Search - Full width on mobile */}
             <div className="relative flex-1 min-w-0">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 w-4 h-4" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary w-4 h-4" />
               <input
-                className="bg-surface border border-border-primary text-white text-sm pl-9 pr-4 py-2 w-full rounded-lg outline-none focus:border-brand transition-colors"
+                className="input-secondary pl-9!"
                 placeholder="Search users..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -135,7 +132,7 @@ const AdminUserManagement = () => {
             {/* Filters - Scrollable on mobile */}
             <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 scrollbar-thin">
               <select
-                className="bg-surface border border-border-primary text-white text-sm px-2 sm:px-3 py-2 rounded-lg min-w-[120px] sm:min-w-[140px] outline-none focus:border-brand transition-colors"
+                className="bg-surface border border-border-primary text-foreground text-sm px-2 sm:px-3 py-2 rounded-lg min-w-30 sm:min-w-35 outline-none focus:border-brand transition-colors"
                 value={roleFilter}
                 onChange={(e) => setRoleFilter(e.target.value)}
               >
@@ -145,7 +142,7 @@ const AdminUserManagement = () => {
                 <option>Viewer</option>
               </select>
               <select
-                className="bg-surface border border-border-primary text-white text-sm px-2 sm:px-3 py-2 rounded-lg min-w-[120px] sm:min-w-[140px] outline-none focus:border-brand transition-colors"
+                className="bg-surface border border-border-primary text-foreground text-sm px-2 sm:px-3 py-2 rounded-lg min-w-30 sm:min-w-35 outline-none focus:border-brand transition-colors"
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
               >
@@ -154,7 +151,7 @@ const AdminUserManagement = () => {
                 <option>Suspended</option>
                 <option>Pending</option>
               </select>
-              <button className="hidden lg:flex items-center gap-1.5 px-3 py-2 bg-zinc-800 border border-zinc-700 text-zinc-300 text-sm rounded-lg hover:bg-zinc-700 transition-colors">
+              <button className="hidden lg:flex items-center gap-1.5 px-3 py-2 bg-surface-card border border-border-primary text-secondary text-sm rounded-lg hover:bg-surface-elevated transition-colors">
                 <Filter className="w-3.5 h-3.5" />
                 More Filters
               </button>
@@ -164,40 +161,40 @@ const AdminUserManagement = () => {
 
         {/* Table - Horizontal scroll on small screens */}
         <div className="flex-1 overflow-auto">
-          <div className="min-w-[640px] lg:min-w-full">
+          <div className="min-w-160 lg:min-w-full">
             <table className="w-full text-left border-collapse">
-              <thead className="sticky top-0 bg-surface-header border-b border-zinc-800 z-10">
+              <thead className="sticky top-0 bg-surface-header border-b border-border-primary z-10">
                 <tr>
-                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs font-semibold text-zinc-500 uppercase tracking-wider">User</th>
-                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs font-semibold text-zinc-500 uppercase tracking-wider hidden sm:table-cell">Role</th>
-                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs font-semibold text-zinc-500 uppercase tracking-wider">Status</th>
-                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs font-semibold text-zinc-500 uppercase tracking-wider hidden md:table-cell">Last Active</th>
-                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs font-semibold text-zinc-500 uppercase tracking-wider hidden lg:table-cell">Joined</th>
-                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs font-semibold text-zinc-500 uppercase tracking-wider text-right">Actions</th>
+                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs font-semibold text-secondary uppercase tracking-wider">User</th>
+                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs font-semibold text-secondary uppercase tracking-wider hidden sm:table-cell">Role</th>
+                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs font-semibold text-secondary uppercase tracking-wider">Status</th>
+                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs font-semibold text-secondary uppercase tracking-wider hidden md:table-cell">Last Active</th>
+                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs font-semibold text-secondary uppercase tracking-wider hidden lg:table-cell">Joined</th>
+                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs font-semibold text-secondary uppercase tracking-wider text-right">Actions</th>
                 </tr>
               </thead>
 
-              <tbody className="divide-y divide-zinc-800/50">
+              <tbody className="divide-y divide-border-muted">
                 {users.map((user) => (
                   <tr
                     key={user.id}
                     className={`hover:bg-surface-elevated transition-colors cursor-pointer group border-l-2 ${
-                      selectedUser?.id === user.id ? 'bg-zinc-900/30 border-l-brand' : 'border-l-transparent'
+                      selectedUser?.id === user.id ? 'bg-brand-muted border-l-brand' : 'border-l-transparent'
                     }`}
                     onClick={() => setSelectedUser(user)}
                   >
                     <td className="px-4 sm:px-6 py-3 sm:py-4">
                       <div className="flex items-center gap-2 sm:gap-3">
                         {user.avatar ? (
-                          <img src={user.avatar} alt={user.name} className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-zinc-700 object-cover" />
+                          <img src={user.avatar} alt={user.name} className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-border-primary object-cover" />
                         ) : (
-                          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-indigo-900 flex items-center justify-center border border-indigo-700 text-[10px] sm:text-xs text-white font-medium">
+                          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-chip-sky-bg flex items-center justify-center border border-border-muted text-[10px] sm:text-xs text-chip-sky-fg font-medium">
                             {user.initials}
                           </div>
                         )}
                         <div className="min-w-0">
-                          <p className="text-xs sm:text-sm font-medium text-white truncate max-w-[120px] sm:max-w-none">{user.name}</p>
-                          <p className="text-[10px] sm:text-[11px] text-zinc-500 truncate max-w-[120px] sm:max-w-[180px]">{user.email}</p>
+                          <p className="text-xs sm:text-sm font-medium text-foreground truncate max-w-30 sm:max-w-none">{user.name}</p>
+                          <p className="text-[10px] sm:text-[11px] text-secondary truncate max-w-30 sm:max-w-45">{user.email}</p>
                         </div>
                       </div>
                     </td>
@@ -218,28 +215,28 @@ const AdminUserManagement = () => {
                     </td>
 
                     <td className="px-4 sm:px-6 py-3 sm:py-4 hidden md:table-cell">
-                      <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs text-zinc-400">
-                        <Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-zinc-500" />
+                      <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs text-secondary">
+                        <Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-secondary" />
                         <span className="whitespace-nowrap">{user.lastActive}</span>
                       </div>
                     </td>
 
                     <td className="px-4 sm:px-6 py-3 sm:py-4 hidden lg:table-cell">
-                      <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs text-zinc-400">
-                        <Calendar className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-zinc-500" />
+                      <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs text-secondary">
+                        <Calendar className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-secondary" />
                         <span className="whitespace-nowrap">{user.joined}</span>
                       </div>
                     </td>
 
                     <td className="px-4 sm:px-6 py-3 sm:py-4 text-right">
                       <div className="flex items-center justify-end gap-0.5 sm:gap-1">
-                        <button className="p-1 sm:p-1.5 hover:bg-zinc-800 rounded transition-colors text-zinc-500 hover:text-white" onClick={(e) => e.stopPropagation()}>
+                        <button className="p-1 sm:p-1.5 hover:bg-surface-elevated rounded transition-colors text-secondary hover:text-foreground" onClick={(e) => e.stopPropagation()}>
                           <Edit className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                         </button>
-                        <button className="p-1 sm:p-1.5 hover:bg-zinc-800 rounded transition-colors text-zinc-500 hover:text-rose-400" onClick={(e) => e.stopPropagation()}>
+                        <button className="p-1 sm:p-1.5 hover:bg-danger-bg-subtle rounded transition-colors text-secondary hover:text-semantic-error" onClick={(e) => e.stopPropagation()}>
                           <Trash2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                         </button>
-                        <button className="p-1 sm:p-1.5 hover:bg-zinc-800 rounded transition-colors text-zinc-500 hover:text-white sm:hidden" onClick={(e) => e.stopPropagation()}>
+                        <button className="p-1 sm:p-1.5 hover:bg-surface-elevated rounded transition-colors text-secondary hover:text-foreground sm:hidden" onClick={(e) => e.stopPropagation()}>
                           <MoreVertical className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                         </button>
                       </div>
@@ -252,17 +249,17 @@ const AdminUserManagement = () => {
         </div>
 
         {/* Pagination - Responsive */}
-        <div className="px-3 sm:px-6 py-3 border-t border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-zinc-500">
-          <p className="text-center sm:text-left">Showing <span className="text-white">1-3</span> of <span className="text-white">422</span> users</p>
+        <div className="px-3 sm:px-6 py-3 border-t border-border-primary flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-secondary">
+          <p className="text-center sm:text-left">Showing <span className="text-foreground">1-3</span> of <span className="text-foreground">422</span> users</p>
           <div className="flex items-center justify-center gap-1.5 sm:gap-2">
-            <button className="px-2 sm:px-3 py-1 bg-zinc-900 border border-zinc-800 rounded hover:text-white disabled:opacity-50 transition-colors text-xs sm:text-sm" disabled>
+            <button className="px-2 sm:px-3 py-1 bg-surface-card border border-border-primary rounded hover:text-foreground disabled:opacity-50 transition-colors text-xs sm:text-sm" disabled>
               <span className="hidden sm:inline">Previous</span>
               <ChevronLeft className="w-3.5 h-3.5 sm:hidden" />
             </button>
-            <button className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center bg-zinc-800 text-white border border-zinc-700 rounded text-xs sm:text-sm">1</button>
-            <button className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center bg-zinc-900 border border-zinc-800 rounded hover:text-white transition-colors text-xs sm:text-sm">2</button>
-            <button className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center bg-zinc-900 border border-zinc-800 rounded hover:text-white transition-colors text-xs sm:text-sm">3</button>
-            <button className="px-2 sm:px-3 py-1 bg-zinc-900 border border-zinc-800 rounded hover:text-white transition-colors text-xs sm:text-sm">
+            <button className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center bg-surface-elevated text-foreground border border-border-primary rounded text-xs sm:text-sm">1</button>
+            <button className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center bg-surface-card border border-border-primary rounded hover:text-foreground transition-colors text-xs sm:text-sm">2</button>
+            <button className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center bg-surface-card border border-border-primary rounded hover:text-foreground transition-colors text-xs sm:text-sm">3</button>
+            <button className="px-2 sm:px-3 py-1 bg-surface-card border border-border-primary rounded hover:text-foreground transition-colors text-xs sm:text-sm">
               <span className="hidden sm:inline">Next</span>
               <ChevronRight className="w-3.5 h-3.5 sm:hidden" />
             </button>
@@ -275,17 +272,17 @@ const AdminUserManagement = () => {
         <>
           {/* Backdrop for mobile */}
           <div 
-            className="fixed inset-0 bg-black/60 z-40 md:hidden"
+            className="fixed inset-0 bg-overlay-scrim z-40 md:hidden"
             onClick={() => setSelectedUser(null)}
           />
           
-          <aside className="fixed md:relative right-0 top-0 h-full w-full sm:w-[400px] md:w-[340px] bg-surface-elevated border-l border-border-primary flex flex-col shadow-2xl z-50 md:z-auto animate-in slide-in-from-right duration-300">
+          <aside className="fixed md:relative right-0 top-0 h-full w-full sm:w-100 md:w-85 bg-surface-elevated border-l border-border-primary flex flex-col shadow-2xl z-50 md:z-auto animate-in slide-in-from-right duration-300">
             {/* Header */}
             <div className="p-4 sm:p-6 border-b border-border-primary flex justify-between items-center">
-              <h3 className="text-base sm:text-lg font-semibold text-white">User Details</h3>
+              <h3 className="text-base sm:text-lg font-semibold text-foreground">User Details</h3>
               <button 
                 onClick={() => setSelectedUser(null)}
-                className="text-zinc-500 hover:text-white transition-colors"
+                className="text-secondary hover:text-foreground transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -303,56 +300,56 @@ const AdminUserManagement = () => {
                       className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-brand object-cover" 
                     />
                   ) : (
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-indigo-900 flex items-center justify-center border-2 border-brand text-base sm:text-xl text-white font-medium">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-chip-sky-bg flex items-center justify-center border-2 border-brand text-base sm:text-xl text-chip-sky-fg font-medium">
                       {selectedUser.initials}
                     </div>
                   )}
-                  <div className="absolute bottom-0 right-0 w-3.5 h-3.5 sm:w-4 sm:h-4 bg-emerald-500 border-2 border-surface-elevated rounded-full"></div>
+                  <div className="absolute bottom-0 right-0 w-3.5 h-3.5 sm:w-4 sm:h-4 bg-semantic-success border-2 border-surface-elevated rounded-full"></div>
                 </div>
                 <div className="text-center">
-                  <h4 className="text-white text-base sm:text-lg font-semibold">{selectedUser.name}</h4>
-                  <p className="text-xs sm:text-sm text-zinc-400">{selectedUser.role}</p>
+                  <h4 className="text-foreground text-base sm:text-lg font-semibold">{selectedUser.name}</h4>
+                  <p className="text-xs sm:text-sm text-secondary">{selectedUser.role}</p>
                 </div>
               </div>
 
               {/* Info Cards - Responsive grid */}
               <div className="space-y-3 sm:space-y-4">
                 <div className="bg-surface border border-border-primary p-2.5 sm:p-3 rounded">
-                  <p className="text-[9px] sm:text-[10px] text-zinc-500 uppercase tracking-widest font-bold flex items-center gap-1 mb-1">
+                  <p className="text-[9px] sm:text-[10px] text-secondary uppercase tracking-widest font-bold flex items-center gap-1 mb-1">
                     <Mail className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                     Email
                   </p>
-                  <p className="text-xs sm:text-sm text-white break-all">{selectedUser.email}</p>
+                  <p className="text-xs sm:text-sm text-foreground break-all">{selectedUser.email}</p>
                 </div>
 
                 <div className="bg-surface border border-border-primary p-2.5 sm:p-3 rounded">
-                  <p className="text-[9px] sm:text-[10px] text-zinc-500 uppercase tracking-widest font-bold mb-1">
+                  <p className="text-[9px] sm:text-[10px] text-secondary uppercase tracking-widest font-bold mb-1">
                     Bio
                   </p>
-                  <p className="text-xs sm:text-sm text-white">
+                  <p className="text-xs sm:text-sm text-foreground">
                     {selectedUser.bio || 'No bio provided'}
                   </p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 sm:gap-3">
                   <div className="bg-surface border border-border-primary p-2.5 sm:p-3 rounded">
-                    <p className="text-[9px] sm:text-[10px] text-zinc-500 uppercase tracking-widest font-bold flex items-center gap-1 mb-1">
+                    <p className="text-[9px] sm:text-[10px] text-secondary uppercase tracking-widest font-bold flex items-center gap-1 mb-1">
                       <Calendar className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                       Joined
                     </p>
-                    <p className="text-[11px] sm:text-xs text-white">{selectedUser.joined}</p>
+                    <p className="text-[11px] sm:text-xs text-foreground">{selectedUser.joined}</p>
                   </div>
                   <div className="bg-surface border border-border-primary p-2.5 sm:p-3 rounded">
-                    <p className="text-[9px] sm:text-[10px] text-zinc-500 uppercase tracking-widest font-bold flex items-center gap-1 mb-1">
+                    <p className="text-[9px] sm:text-[10px] text-secondary uppercase tracking-widest font-bold flex items-center gap-1 mb-1">
                       <Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                       Last Active
                     </p>
-                    <p className="text-[11px] sm:text-xs text-white">{selectedUser.lastActive}</p>
+                    <p className="text-[11px] sm:text-xs text-foreground">{selectedUser.lastActive}</p>
                   </div>
                 </div>
 
                 <div className="bg-surface border border-border-primary p-2.5 sm:p-3 rounded">
-                  <p className="text-[9px] sm:text-[10px] text-zinc-500 uppercase tracking-widest font-bold flex items-center gap-1 mb-1">
+                  <p className="text-[9px] sm:text-[10px] text-secondary uppercase tracking-widest font-bold flex items-center gap-1 mb-1">
                     <Shield className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                     Status
                   </p>
@@ -368,12 +365,12 @@ const AdminUserManagement = () => {
 
             {/* Actions - Sticky at bottom */}
             <div className="p-4 sm:p-6 border-t border-border-primary flex flex-col gap-2 bg-surface-elevated">
-              <button className="w-full bg-brand text-white py-2 rounded text-sm font-semibold hover:bg-brand transition-colors">
+              <button className="w-full bg-brand text-on-brand py-2 rounded text-sm font-semibold hover:bg-brand-hover transition-colors">
                 Edit User
               </button>
               <button
                 onClick={() => handleDeleteUser(selectedUser.id)}
-                className="w-full bg-transparent border border-rose-500/30 text-rose-500 py-2 rounded text-sm font-semibold hover:bg-rose-500/10 transition-colors"
+                className="w-full bg-transparent border border-semantic-error/30 text-semantic-error py-2 rounded text-sm font-semibold hover:bg-semantic-error/10 transition-colors"
               >
                 Delete User
               </button>

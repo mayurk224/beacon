@@ -328,15 +328,15 @@ export default function DashBoardPlayBook() {
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <button className="flex items-center gap-1.5 px-3 py-1.5 border border-border-primary rounded-lg text-[12px] text-muted hover:bg-surface-card hover:text-primary transition-colors">
+              <button className="btn-outline">
                 <Sparkles className="w-3.5 h-3.5 text-brand" />
                 Generate with AI
               </button>
-              <button className="flex items-center gap-1.5 px-3 py-1.5 border border-border-primary rounded-lg text-[12px] text-muted hover:bg-surface-card hover:text-primary transition-colors">
+              <button className="btn-outline">
                 <Play className="w-3.5 h-3.5" />
                 Test
               </button>
-              <button className="px-4 py-1.5 bg-brand text-on-brand rounded-lg text-[12px] font-semibold hover:bg-brand-hover transition-colors">
+              <button className="btn-primary">
                 Deploy
               </button>
             </div>

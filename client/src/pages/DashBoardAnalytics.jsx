@@ -480,16 +480,16 @@ const DashBoardAnalytics = () => {
               </div>
               <div className="flex items-center gap-2">
                 <div className="relative">
-                  <Filter className="absolute left-2 top-1.5 w-4 h-4 text-tertiary" />
+                  <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-subtle" />
                   <input
-                    className="bg-surface border border-border-muted rounded px-2 py-1 pl-8 text-[12px] text-primary focus:border-brand-strong outline-none font-mono w-52 h-7"
+                    className="input-secondary pl-9!"
                     placeholder="Filter node, cluster..."
                     type="text"
                     value={filterText}
                     onChange={(e) => setFilterText(e.target.value)}
                   />
                 </div>
-                <button className="w-7 h-7 border border-border-muted rounded flex items-center justify-center text-tertiary hover:text-primary hover:bg-surface-interactive transition-colors">
+                <button className="w-9 h-9 border border-border-muted rounded flex items-center justify-center text-tertiary hover:text-primary hover:bg-surface-interactive transition-colors">
                   <SlidersHorizontal className="w-4 h-4" />
                 </button>
               </div>

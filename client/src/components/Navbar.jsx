@@ -3,23 +3,9 @@ import { Link } from "react-router-dom";
 
 export default function Navbar() {
   return (
-    <div className="h-full flex items-center justify-between px-3 sm:px-6 gap-2 sm:gap-4 ">
-
-
-      <div className="flex items-center w-full max-w-[320px] h-[38px] px-3 rounded-lg border border-border-primary bg-surface-input focus-within:border-brand transition-colors">
-
-        <Search className="w-4 h-4 text-muted mr-2 flex-shrink-0" />
-
-        <input
-          type="text"
-          placeholder="Search..."
-          className="w-full bg-transparent outline-none text-sm text-secondary placeholder:text-muted"
-        />
-
-      </div>
+    <div className="h-full flex items-center justify-end px-3 sm:px-6 gap-2 sm:gap-4 ">
       {/* Right Side */}
       <div className="flex items-center gap-2 sm:gap-4">
-
         {/* Admin Panel */}
         <Link
           to="/admin"
@@ -29,13 +15,12 @@ export default function Navbar() {
           <Shield size={18} />
         </Link>
 
-
         {/* Divider */}
         <div className="w-px h-6 bg-border-primary hidden sm:block"></div>
 
         {/* Avatar */}
         <Link
-          to={'/home/profile'}
+          to={"/home/profile"}
           className="w-9 h-9 rounded-full bg-surface-interactive flex items-center justify-center text-sm font-medium cursor-pointer hover:ring-2 hover:ring-border-muted transition overflow-hidden"
         >
           <img
@@ -44,8 +29,7 @@ export default function Navbar() {
             className="w-full h-full object-cover"
           />
         </Link>
-
       </div>
     </div>
   );
-};
+}

@@ -73,7 +73,7 @@ const DashBoardSetting = () => {
 
           <button
             onClick={handleSave}
-            className="px-4 py-2 bg-brand text-white rounded-lg text-sm font-semibold"
+            className="btn-primary"
           >
             Save Changes
           </button>
@@ -99,7 +99,7 @@ const DashBoardSetting = () => {
 
           <button
             onClick={handleChangePassword}
-            className="px-4 py-2 border border-border-primary rounded-lg text-sm"
+            className="btn-outline"
           >
             Change Password
           </button>
@@ -111,7 +111,7 @@ const DashBoardSetting = () => {
 
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 px-4 py-2 border border-border-primary rounded-lg text-sm"
+            className="flex items-center gap-2 btn-outline"
           >
             <LogOut size={16} />
             Logout
@@ -121,7 +121,8 @@ const DashBoardSetting = () => {
 
           <button
             onClick={handleDelete}
-            className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-semibold"
+            className="flex items-center justify-center gap-2 px-4 py-1.5 border border-transparent rounded bg-semantic-error hover:bg-danger-hover transition-colors text-[13px] font-medium text-white shadow-sm
+}"
           >
             <Trash2 size={16} />
             Delete Account

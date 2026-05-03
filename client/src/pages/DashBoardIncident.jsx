@@ -287,7 +287,7 @@ const DashBoardIncident = () => {
           </div>
           <div>
             <label className="text-[11px] font-medium text-subtle uppercase tracking-wider">Role</label>
-            <select className="mt-1 w-full bg-surface border border-border-primary rounded-lg p-2 text-[13px] text-primary">
+            <select className="select">
               <option>Incident Commander</option>
               <option>Communications Lead</option>
               <option>Technical Lead</option>
@@ -315,7 +315,7 @@ const DashBoardIncident = () => {
         <div className="p-5 flex flex-col gap-4">
           <div>
             <label className="text-[11px] font-medium text-subtle uppercase tracking-wider">Severity</label>
-            <select className="mt-1 w-full bg-surface border border-border-primary rounded p-2 text-[13px] text-primary">
+            <select className="select">
               <option>All</option>
               <option>SEV-1 Critical</option>
               <option>SEV-2 High</option>
@@ -325,7 +325,7 @@ const DashBoardIncident = () => {
           </div>
           <div>
             <label className="text-[11px] font-medium text-subtle uppercase tracking-wider">Status</label>
-            <select className="mt-1 w-full bg-surface border border-border-primary rounded p-2 text-[13px] text-primary">
+            <select className="select">
               <option>All</option>
               <option>Investigating</option>
               <option>Identified</option>
@@ -335,7 +335,7 @@ const DashBoardIncident = () => {
           </div>
           <div>
             <label className="text-[11px] font-medium text-subtle uppercase tracking-wider">Time Range</label>
-            <select className="mt-1 w-full bg-surface border border-border-primary rounded p-2 text-[13px] text-primary">
+            <select className="select">
               <option>Last 24 Hours</option>
               <option>Last 7 Days</option>
               <option>Last 30 Days</option>
@@ -368,7 +368,7 @@ const DashBoardIncident = () => {
             <select 
               value={selectedSeverity}
               onChange={(e) => setSelectedSeverity(e.target.value)}
-              className="w-full bg-surface border border-border-primary rounded-lg p-2.5 text-[13px] text-primary"
+              className="select"
             >
               {severityFilterOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
             </select>
@@ -378,7 +378,7 @@ const DashBoardIncident = () => {
             <select 
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
-              className="w-full bg-surface border border-border-primary rounded-lg p-2.5 text-[13px] text-primary"
+              className="select"
             >
               {statusFilterOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
             </select>
@@ -388,7 +388,7 @@ const DashBoardIncident = () => {
             <select 
               value={selectedTimeRange}
               onChange={(e) => setSelectedTimeRange(e.target.value)}
-              className="w-full bg-surface border border-border-primary rounded-lg p-2.5 text-[13px] text-primary"
+              className="select"
             >
               {timeRanges.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
             </select>
@@ -398,7 +398,7 @@ const DashBoardIncident = () => {
             <select 
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="w-full bg-surface border border-border-primary rounded-lg p-2.5 text-[13px] text-primary"
+              className="select"
             >
               <option value="newest">Newest First</option>
               <option value="oldest">Oldest First</option>
@@ -472,7 +472,7 @@ const DashBoardIncident = () => {
                 placeholder="Search by title, ID, or assignee..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full bg-surface-elevated border border-border-primary rounded-lg pl-9 pr-3 py-2 text-[13px] text-primary placeholder:text-subtle focus:border-brand-strong focus:outline-none"
+                className="input pl-9!"
               />
             </div>
           </div>
@@ -542,7 +542,7 @@ const DashBoardIncident = () => {
                   <select 
                     value={selectedSeverity}
                     onChange={(e) => setSelectedSeverity(e.target.value)}
-                    className="appearance-none bg-surface-elevated border border-border-primary text-sm text-secondary py-1.5 pl-4 pr-10 rounded focus:ring-1 focus:ring-brand-strong outline-none cursor-pointer"
+                    className="select"
                   >
                     {severityFilterOptions.map((option) => (
                       <option key={option.value} value={option.value}>
@@ -558,7 +558,7 @@ const DashBoardIncident = () => {
                   <select 
                     value={selectedStatus}
                     onChange={(e) => setSelectedStatus(e.target.value)}
-                    className="appearance-none bg-surface-elevated border border-border-primary text-sm text-secondary py-1.5 pl-4 pr-10 rounded focus:ring-1 focus:ring-brand-strong outline-none cursor-pointer"
+                    className="select"
                   >
                     {statusFilterOptions.map((option) => (
                       <option key={option.value} value={option.value}>
@@ -574,7 +574,7 @@ const DashBoardIncident = () => {
                   <select 
                     value={selectedTimeRange}
                     onChange={(e) => setSelectedTimeRange(e.target.value)}
-                    className="appearance-none bg-surface-elevated border border-border-primary text-sm text-secondary py-1.5 pl-4 pr-10 rounded focus:ring-1 focus:ring-brand-strong outline-none cursor-pointer"
+                    className="select"
                   >
                     {timeRanges.map((option) => (
                       <option key={option.value} value={option.value}>
@@ -607,7 +607,7 @@ const DashBoardIncident = () => {
                   <select 
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
-                    className="appearance-none bg-surface-elevated border border-border-primary text-sm text-secondary py-1.5 pl-4 pr-10 rounded focus:ring-1 focus:ring-brand-strong outline-none cursor-pointer"
+                    className="select"
                   >
                     <option value="newest">Newest First</option>
                     <option value="oldest">Oldest First</option>

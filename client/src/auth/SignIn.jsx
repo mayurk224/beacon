@@ -51,25 +51,25 @@ const SignIn = () => {
 
   return (
     <div className="bg-surface-inset text-primary min-h-screen w-full flex items-center justify-center p-4">
-      <div className="w-full max-w-[380px] flex flex-col gap-6">
+      <div className="w-full max-w-md flex flex-col gap-6">
         <div className="flex flex-col items-center gap-2">
           <div className="flex items-center gap-2">
             <Bolt className="w-7 h-7 text-brand-soft" />
-            <h1 className="text-[24px] leading-[32px] tracking-[-0.02em] font-semibold text-primary">
+            <h1 className="text-[24px] leading-8 tracking-[-0.02em] font-semibold text-primary">
               Beacon
             </h1>
           </div>
-          <p className="text-[13px] leading-[18px] font-medium text-tertiary">
+          <p className="text-[13px] leading-4.5 font-medium text-tertiary">
             Sign in to your workspace
           </p>
         </div>
 
         {/* Login Card */}
-        <div className="bg-surface-header border border-border-muted rounded-lg p-6 flex flex-col gap-4 shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
+        <div className="bg-surface-header border border-border-muted rounded-lg p-6 flex flex-col gap-4">
           {error && (
             <div className="bg-semantic-error/10 border border-semantic-error/25 rounded p-3 flex items-start gap-2">
-              <AlertCircle className="w-5 h-5 text-danger-soft mt-0.5 flex-shrink-0" />
-              <p className="text-[13px] leading-[18px] font-medium text-danger-soft">
+              <AlertCircle className="w-5 h-5 text-danger-soft mt-0.5 shrink-0" />
+              <p className="text-[13px] leading-4.5 font-medium text-danger-soft">
                 {error}
               </p>
             </div>
@@ -118,12 +118,12 @@ const SignIn = () => {
               </div>
             </div>
 
-            <label className="flex items-center gap-2 text-[12px] text-[#c2c6d6]">
+            <label className="flex items-center gap-2 text-[12px] text-tertiary">
               <input
                 type="checkbox"
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
-                className="h-4 w-4 rounded border border-[#424753] bg-[#1a1c1d]"
+                className="h-4 w-4 rounded border border-border-primary bg-surface-card accent-brand-strong"
               />
               Remember my email
             </label>
@@ -131,7 +131,7 @@ const SignIn = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-surface-elevated text-primary text-[14px] font-medium rounded py-2.5 mt-2  transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+              className="btn-primary"
             >
               {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
               Sign In
