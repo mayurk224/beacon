@@ -93,3 +93,57 @@ export const getUserById = async (req, res) => {
         return res.status(500).json({ message: "Internal server error" });
     }
 };
+
+export const updateUserStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { isActive } = req.body;
+        const adminId = req.userId;
+
+        // 🔹 Validate ID
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ message: "Invalid user ID" });
+        }
+
+        // 🔹 Validate input
+        if (typeof isActive !== "boolean") {
+            return res.status(400).json({ message: "isActive must be boolean" });
+        }
+
+        // 🔹 Prevent self-deactivation
+        if (adminId === id && isActive === false) {
+            return res.status(400).json({
+                message: "You cannot deactivate your own account",
+            });
+        }
+
+        const user = await userModel.findById(id);
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // 🔹 Update status
+        user.isActive = isActive;
+
+        // 🔥 If deactivated → logout from all devices
+        if (!isActive) {
+            user.refreshTokens = [];
+        }
+
+        await user.save();
+
+        return res.status(200).json({
+            message: `User ${isActive ? "activated" : "deactivated"} successfully`,
+            user: {
+                _id: user._id,
+                email: user.email,
+                isActive: user.isActive,
+            },
+        });
+
+    } catch (error) {
+        console.error("Update Status Error:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};

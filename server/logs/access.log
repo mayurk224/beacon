@@ -613,3 +613,9 @@
 ::ffff:127.0.0.1 - - [2026-05-03T04:58:07.486Z] "PATCH /organization/69f6d5dfd34d65aa0eb5b41e HTTP/1.1" 200 293 "-" "-" - 10.777 ms
 ::1 - - [2026-05-03T04:59:38.038Z] "GET /organization/69f61699a6ef3389d7dc3267 HTTP/1.1" 200 507 "-" "PostmanRuntime/7.53.0" - 1555.701 ms
 ::1 - - [2026-05-03T05:00:22.350Z] "PATCH /organization/69f61699a6ef3389d7dc3267 HTTP/1.1" 200 309 "-" "PostmanRuntime/7.53.0" - 408.736 ms
+::1 - - [2026-05-03T05:26:18.045Z] "POST /profile/logout HTTP/1.1" 401 26 "-" "PostmanRuntime/7.53.0" - 29.975 ms
+::1 - - [2026-05-03T05:26:29.453Z] "POST /refresh-token HTTP/1.1" 200 29 "-" "PostmanRuntime/7.53.0" - 666.985 ms
+::1 - - [2026-05-03T05:26:34.862Z] "POST /profile/logout HTTP/1.1" 200 54 "-" "PostmanRuntime/7.53.0" - 305.285 ms
+::1 - - [2026-05-03T05:26:52.579Z] "POST /login HTTP/1.1" 200 137 "-" "PostmanRuntime/7.53.0" - 693.179 ms
+::1 - - [2026-05-03T05:27:21.126Z] "PATCH /users/69f57aad58d88a88e71389dc HTTP/1.1" 500 35 "-" "PostmanRuntime/7.53.0" - 67.877 ms
+::1 - - [2026-05-03T05:28:16.787Z] "PATCH /users/69f57aad58d88a88e71389dc HTTP/1.1" 200 132 "-" "PostmanRuntime/7.53.0" - 142.796 ms
