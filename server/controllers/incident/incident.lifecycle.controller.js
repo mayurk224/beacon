@@ -61,79 +61,122 @@ export const createIncident = async (req, res) => {
 };
 
 export const getAllIncidents = async (req, res) => {
-  try {
-    // 🔹 1. Check for validation errors
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({
-        message: "Validation failed",
-        errors: errors.array().map(err => ({ field: err.path, message: err.msg }))
-      });
+    try {
+        // 🔹 1. Check for validation errors
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({
+                message: "Validation failed",
+                errors: errors.array().map(err => ({ field: err.path, message: err.msg }))
+            });
+        }
+
+        const userId = req.userId;
+
+        const {
+            page = 1,
+            limit = 10,
+            status,
+            severity,
+            organizationId,
+            sortBy = "createdAt",
+            sortOrder = "desc"
+        } = req.query;
+
+        // 🔹 2. Get user's organizations
+        const user = await userModel.findById(userId).select("memberships.organization");
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const orgIds = user.memberships.map((m) => m.organization.toString());
+
+        // 🔹 3. Build query
+        const query = {
+            organization: { $in: orgIds },
+        };
+
+        if (status) query.status = status;
+        if (severity) query.severity = severity;
+
+        // If organizationId is provided, check if user belongs to it
+        if (organizationId) {
+            if (!orgIds.includes(organizationId)) {
+                return res.status(403).json({ message: "You do not have access to this organization" });
+            }
+            query.organization = organizationId;
+        }
+
+        const skip = (Number(page) - 1) * Number(limit);
+
+        // 🔹 4. Fetch incidents with dynamic sorting
+        const sort = {};
+        sort[sortBy] = sortOrder === "desc" ? -1 : 1;
+
+        const incidents = await incidentModel.find(query)
+            .populate("createdBy", "name email")
+            .populate("assignedUsers", "name email")
+            .sort(sort)
+            .skip(skip)
+            .limit(Number(limit));
+
+        const total = await incidentModel.countDocuments(query);
+
+        return res.status(200).json({
+            incidents,
+            pagination: {
+                total,
+                page: Number(page),
+                limit: Number(limit),
+                pages: Math.ceil(total / Number(limit)),
+            },
+        });
+
+    } catch (error) {
+        console.error("Get Incidents Error:", error);
+        return res.status(500).json({ message: "Internal server error" });
     }
+};
 
-    const userId = req.userId;
+export const getIncidentById = async (req, res) => {
+    try {
+        // 🔹 1. Check for validation errors
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({
+                message: "Validation failed",
+                errors: errors.array().map(err => ({ field: err.path, message: err.msg }))
+            });
+        }
 
-    const {
-      page = 1,
-      limit = 10,
-      status,
-      severity,
-      organizationId,
-      sortBy = "createdAt",
-      sortOrder = "desc"
-    } = req.query;
+        const { id } = req.params;
+        const userId = req.userId;
 
-    // 🔹 2. Get user's organizations
-    const user = await userModel.findById(userId).select("memberships.organization");
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
+        // 🔹 2. Get incident
+        const incident = await incidentModel.findById(id)
+            .populate("createdBy", "name email avatar")
+            .populate("assignedUsers", "name email avatar");
+
+        if (!incident) {
+            return res.status(404).json({ message: "Incident not found" });
+        }
+
+        // 🔹 3. Check user belongs to same org
+        const user = await userModel.findOne({
+            _id: userId,
+            "memberships.organization": incident.organization,
+        });
+
+        if (!user) {
+            return res.status(403).json({ message: "Access denied" });
+        }
+
+        return res.status(200).json({
+            incident,
+        });
+
+    } catch (error) {
+        console.error("Get Incident Error:", error);
+        return res.status(500).json({ message: "Internal server error" });
     }
-
-    const orgIds = user.memberships.map((m) => m.organization.toString());
-
-    // 🔹 3. Build query
-    const query = {
-      organization: { $in: orgIds },
-    };
-
-    if (status) query.status = status;
-    if (severity) query.severity = severity;
-
-    // If organizationId is provided, check if user belongs to it
-    if (organizationId) {
-      if (!orgIds.includes(organizationId)) {
-        return res.status(403).json({ message: "You do not have access to this organization" });
-      }
-      query.organization = organizationId;
-    }
-
-    const skip = (Number(page) - 1) * Number(limit);
-
-    // 🔹 4. Fetch incidents with dynamic sorting
-    const sort = {};
-    sort[sortBy] = sortOrder === "desc" ? -1 : 1;
-
-    const incidents = await incidentModel.find(query)
-      .populate("createdBy", "name email")
-      .populate("assignedUsers", "name email")
-      .sort(sort)
-      .skip(skip)
-      .limit(Number(limit));
-
-    const total = await incidentModel.countDocuments(query);
-
-    return res.status(200).json({
-      incidents,
-      pagination: {
-        total,
-        page: Number(page),
-        limit: Number(limit),
-        pages: Math.ceil(total / Number(limit)),
-      },
-    });
-
-  } catch (error) {
-    console.error("Get Incidents Error:", error);
-    return res.status(500).json({ message: "Internal server error" });
-  }
 };

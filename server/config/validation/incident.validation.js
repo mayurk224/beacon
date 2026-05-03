@@ -1,4 +1,4 @@
-import { body, query } from "express-validator";
+import { body, query, param } from "express-validator";
 import mongoose from "mongoose";
 
 export const createIncidentValidation = [
@@ -45,4 +45,9 @@ export const getAllIncidentsValidation = [
     query("sortOrder")
         .optional()
         .isIn(["asc", "desc"]).withMessage("Sort order must be 'asc' or 'desc'"),
+];
+
+export const getIncidentByIdValidation = [
+    param("id")
+        .custom((value) => mongoose.Types.ObjectId.isValid(value)).withMessage("Invalid incident ID"),
 ];

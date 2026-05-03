@@ -216,4 +216,68 @@ describe('Get All Incidents API', () => {
     expect(res.body.errors.some(e => e.field === 'limit')).toBe(true);
     expect(res.body.errors.some(e => e.field === 'status')).toBe(true);
   });
+
+  describe('Get Incident By ID', () => {
+    it('should get an incident by ID successfully', async () => {
+      const { token, org1 } = await setupTestData();
+      const incident = await incidentModel.findOne({ organization: org1._id });
+
+      const res = await request(app)
+        .get(`/api/incidents/${incident._id}`)
+        .set('Cookie', [`accessToken=${token}`]);
+
+      expect(res.statusCode).toEqual(200);
+      expect(res.body.incident._id).toEqual(incident._id.toString());
+      expect(res.body.incident.title).toEqual(incident.title);
+      expect(res.body.incident.createdBy).toBeDefined();
+    });
+
+    it('should return 400 for invalid incident ID format', async () => {
+      const { token } = await setupTestData();
+
+      const res = await request(app)
+        .get('/api/incidents/invalid-id')
+        .set('Cookie', [`accessToken=${token}`]);
+
+      expect(res.statusCode).toEqual(400);
+      expect(res.body.message).toEqual('Validation failed');
+      expect(res.body.errors[0].field).toEqual('id');
+    });
+
+    it('should return 404 for non-existent incident ID', async () => {
+      const { token } = await setupTestData();
+      const nonExistentId = new mongoose.Types.ObjectId();
+
+      const res = await request(app)
+        .get(`/api/incidents/${nonExistentId}`)
+        .set('Cookie', [`accessToken=${token}`]);
+
+      expect(res.statusCode).toEqual(404);
+      expect(res.body.message).toEqual('Incident not found');
+    });
+
+    it('should return 403 if user does not belong to the incident organization', async () => {
+      const { org1 } = await setupTestData();
+      const incident = await incidentModel.findOne({ organization: org1._id });
+
+      // Create a user who is not in org1
+      const otherUserId = new mongoose.Types.ObjectId();
+      await userModel.create({
+        _id: otherUserId,
+        name: 'Other User',
+        email: 'other@example.com',
+        password: 'Password123!',
+        isEmailVerified: true,
+        memberships: [],
+      });
+      const otherToken = createToken(otherUserId);
+
+      const res = await request(app)
+        .get(`/api/incidents/${incident._id}`)
+        .set('Cookie', [`accessToken=${otherToken}`]);
+
+      expect(res.statusCode).toEqual(403);
+      expect(res.body.message).toEqual('Access denied');
+    });
+  });
 });
