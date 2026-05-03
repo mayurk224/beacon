@@ -1,7 +1,20 @@
 import { Search, Bell, Moon, Sun, Shield, Settings } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useTheme } from 'next-themes'
+import { useEffect, useState } from 'react'
 
 export default function Navbar() {
+  const { theme, resolvedTheme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => setMounted(true), [])
+
+  const toggleTheme = (e) => {
+    e.preventDefault()
+    const active = resolvedTheme || theme
+    setTheme(active === 'dark' ? 'light' : 'dark')
+  }
+
   return (
     <div className="h-full flex items-center justify-end px-3 sm:px-6 gap-2 sm:gap-4 ">
       {/* Right Side */}
@@ -14,6 +27,17 @@ export default function Navbar() {
         >
           <Shield size={18} />
         </Link>
+
+        {/* Theme toggle */}
+        <button
+          onClick={toggleTheme}
+          aria-label="Toggle theme"
+          className="p-2 rounded-lg hover:bg-surface-interactive transition-colors text-muted hover:text-secondary"
+          title="Toggle theme"
+          disabled={!mounted}
+        >
+          {mounted && (resolvedTheme === 'dark' ? <Sun size={16} /> : <Moon size={16} />)}
+        </button>
 
         {/* Divider */}
         <div className="w-px h-6 bg-border-primary hidden sm:block"></div>
