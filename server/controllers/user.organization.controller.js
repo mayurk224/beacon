@@ -440,3 +440,117 @@ export const updateMemberRole = async (req, res) => {
         return res.status(500).json({ message: "Internal server error" });
     }
 };
+
+export const removeMember = async (req, res) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({
+                message: "Validation failed",
+                errors: errors.array().map(err => ({ field: err.path, message: err.msg }))
+            });
+        }
+
+        const { orgId, userId } = req.params;
+        const requesterId = req.userId;
+
+        // 1. Check organization existence
+        const organization = await organizationModel.findById(orgId).session(session);
+        if (!organization) {
+            await session.abortTransaction();
+            session.endSession();
+            return res.status(404).json({ message: "Organization not found" });
+        }
+
+        // 2. Authorization Logic: Admin removing someone OR User leaving
+        const isSelfRemoval = requesterId === userId;
+        
+        const requester = await userModel.findOne({
+            _id: requesterId,
+            "memberships.organization": orgId,
+        }).session(session);
+
+        if (!requester) {
+            await session.abortTransaction();
+            session.endSession();
+            return res.status(403).json({ message: "You are not a member of this organization" });
+        }
+
+        const requesterMembership = requester.memberships.find(m => m.organization.toString() === orgId);
+        const isAdmin = requesterMembership.role === "admin";
+
+        if (!isAdmin && !isSelfRemoval) {
+            await session.abortTransaction();
+            session.endSession();
+            return res.status(403).json({ message: "Only admins can remove other members" });
+        }
+
+        // 3. Prevent removing/leaving for the Owner
+        if (organization.owner.toString() === userId) {
+            await session.abortTransaction();
+            session.endSession();
+            const msg = isSelfRemoval 
+                ? "Organization owner cannot leave the organization. Transfer ownership first." 
+                : "Organization owner cannot be removed.";
+            return res.status(403).json({ message: msg });
+        }
+
+        // 4. If self-demoting/leaving as the only admin, check if others exist
+        if (isSelfRemoval && isAdmin) {
+            const adminCount = await userModel.countDocuments({
+                "memberships.organization": orgId,
+                "memberships.role": "admin",
+            }).session(session);
+            
+            if (adminCount <= 1) {
+                const totalMembers = await userModel.countDocuments({
+                    "memberships.organization": orgId
+                }).session(session);
+
+                if (totalMembers > 1) {
+                    await session.abortTransaction();
+                    session.endSession();
+                    return res.status(400).json({ message: "Cannot leave as the only admin while other members exist. Promote another member first." });
+                }
+            }
+        }
+
+        // 5. Execute removal
+        const user = await userModel.findOneAndUpdate(
+            { _id: userId, "memberships.organization": orgId },
+            { $pull: { memberships: { organization: orgId } } },
+            { new: true, session }
+        );
+
+        if (!user) {
+            await session.abortTransaction();
+            session.endSession();
+            return res.status(404).json({ message: "Member not found in this organization" });
+        }
+
+        // 6. Decrement members count
+        await organizationModel.findByIdAndUpdate(orgId, {
+            $inc: { membersCount: -1 },
+        }, { session });
+
+        await session.commitTransaction();
+        session.endSession();
+
+        // 7. Audit Log
+        const action = isSelfRemoval ? "left" : `removed User ${userId} from`;
+        console.info(`[AUDIT] User ${requesterId} ${action} Organization ${orgId}`);
+
+        return res.status(200).json({
+            message: isSelfRemoval ? "You have left the organization" : "Member removed successfully",
+        });
+
+    } catch (error) {
+        await session.abortTransaction();
+        session.endSession();
+        console.error("Remove Member Error:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};

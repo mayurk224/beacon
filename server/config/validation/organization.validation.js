@@ -47,3 +47,10 @@ export const updateMemberRoleValidation = [
         .notEmpty().withMessage('Role is required')
         .isIn(['admin', 'responder', 'viewer']).withMessage('Invalid role specified'),
 ];
+
+export const removeMemberValidation = [
+    param('orgId')
+        .isMongoId().withMessage('Invalid Organization ID format'),
+    param('userId')
+        .isMongoId().withMessage('Invalid User ID format'),
+];

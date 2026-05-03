@@ -4,8 +4,8 @@ import { changePassword, deleteAvatar, getActiveSessions, getProfile, logoutAllS
 import { changePasswordValidation, updateProfileValidation } from "../config/validation/user.validation.js";
 import { upload } from "../middleware/upload.middleware.js";
 import { logoutAllLimiter, passwordChangeLimiter, apiLimiter } from "../utils/rateLimiter.js";
-import { createOrganization, acceptInvite, sendInvite, getMyOrganizations, getOrganizationById, updateMemberRole } from "../controllers/user.organization.controller.js";
-import { createOrganizationValidation, sendInviteValidation, acceptInviteValidation, getOrganizationByIdValidation, updateMemberRoleValidation } from "../config/validation/organization.validation.js";
+import { createOrganization, acceptInvite, sendInvite, getMyOrganizations, getOrganizationById, updateMemberRole, removeMember } from "../controllers/user.organization.controller.js";
+import { createOrganizationValidation, sendInviteValidation, acceptInviteValidation, getOrganizationByIdValidation, updateMemberRoleValidation, removeMemberValidation } from "../config/validation/organization.validation.js";
 
 const userRoute = Router();
 
@@ -23,5 +23,6 @@ userRoute.post("/organization/user/invite/accept", protect, acceptInviteValidati
 userRoute.get("/organization", protect, apiLimiter, getMyOrganizations);
 userRoute.get("/organization/:id", protect, apiLimiter, getOrganizationByIdValidation, getOrganizationById);
 userRoute.post("/organization/:orgId/members/:userId/role", protect, updateMemberRoleValidation, updateMemberRole);
+userRoute.delete("/organization/:orgId/members/:userId/remove", protect, removeMemberValidation, removeMember);
 
 export default userRoute;
