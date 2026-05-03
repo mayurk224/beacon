@@ -76,6 +76,11 @@ const userSchema = new mongoose.Schema(
       default: true,
     },
 
+    deletedAt: {
+      type: Date,
+      default: null,
+    },
+
     // 🔹 Account Lockout
     loginAttempts: {
       type: Number,

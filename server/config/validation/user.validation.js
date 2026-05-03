@@ -29,6 +29,29 @@ export const updateProfileValidation = [
         .isBoolean().withMessage('Slack notification preference must be a boolean'),
 ];
 
+export const updateUserRoleValidation = [
+    body('role')
+        .trim()
+        .notEmpty().withMessage('Role is required')
+        .isIn(['user', 'admin']).withMessage('Invalid role'),
+];
+
+export const updateUserStatusValidation = [
+    body('isActive')
+        .notEmpty().withMessage('isActive is required')
+        .customSanitizer(value => {
+            if (typeof value === 'string') {
+                if (value.toLowerCase() === 'true') return true;
+                if (value.toLowerCase() === 'false') return false;
+            }
+            if (typeof value === 'number') {
+                return value !== 0;
+            }
+            return value;
+        })
+        .isBoolean().withMessage('isActive must be a boolean or a valid boolean-like value'),
+];
+
 export const changePasswordValidation = [
     body('currentPassword')
         .notEmpty().withMessage('Current password is required'),
