@@ -32,7 +32,7 @@ import {
 } from 'chart.js';
 import { Line, Bar, Doughnut } from 'react-chartjs-2';
 import { useAuth } from '../auth/useAuth';
-import { getIncidentsForOrganization } from '../incidents/incidentApi';
+import { getIncidentsForOrganization } from '../incident/incidentApi';
 
 const resolveThemeColor = (variableName, fallback = '') => {
   if (typeof window === 'undefined') {
