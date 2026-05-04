@@ -1,6 +1,7 @@
 import organizationModel from "../models/organization.model.js";
 import userModel from "../models/user.model.js";
 import inviteModel from "../models/invite.model.js";
+import joinRequestModel from "../models/joinRequest.model.js";
 import slugify from "slugify";
 import mongoose from "mongoose";
 import { validationResult } from "express-validator";
@@ -312,7 +313,7 @@ export const getOrganizationById = async (req, res) => {
         // 4. Get members with specific roles in THIS organization
         const members = await userModel.find({
             "memberships.organization": id,
-        }).select("name avatar memberships");
+        }).select("name avatar memberships lastLoginAt");
 
         // 5. Format members list
         const formattedMembers = members.map((m) => {
@@ -326,6 +327,7 @@ export const getOrganizationById = async (req, res) => {
                 avatar: m.avatar,
                 role: membership.role,
                 joinedAt: membership.joinedAt,
+                lastLoginAt: m.lastLoginAt,
             };
         });
 
@@ -624,6 +626,210 @@ export const updateOrganization = async (req, res) => {
 
     } catch (error) {
         console.error("Update Organization Error:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+/**
+ * @api {post} /organization/:orgId/join Request to join an organization
+ * @apiName RequestJoinOrganization
+ * @apiGroup Organization
+ */
+export const requestJoinOrganization = async (req, res) => {
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({
+                message: "Validation failed",
+                errors: errors.array().map(err => ({ field: err.path, message: err.msg }))
+            });
+        }
+
+        const { orgId } = req.params;
+        const userId = req.userId;
+
+        // 1. Verify organization exists
+        const organization = await organizationModel.findById(orgId);
+        if (!organization) {
+            return res.status(404).json({ message: "Organization not found" });
+        }
+
+        // 2. Check if user is already a member
+        const user = await userModel.findById(userId);
+        const isAlreadyMember = user.memberships.some(
+            m => m.organization.toString() === orgId
+        );
+        if (isAlreadyMember) {
+            return res.status(409).json({ message: "You are already a member of this organization" });
+        }
+
+        // 3. Check for existing pending request
+        const existingRequest = await joinRequestModel.findOne({
+            user: userId,
+            organization: orgId,
+            status: "pending"
+        });
+
+        if (existingRequest) {
+            return res.status(409).json({ message: "You already have a pending join request for this organization" });
+        }
+
+        // 4. Create join request
+        const joinRequest = await joinRequestModel.create({
+            user: userId,
+            organization: orgId,
+            status: "pending",
+            role: "viewer" // Default role as per requirements
+        });
+
+        // 5. Audit Log
+        console.info(`[AUDIT] Join request created by User: ${userId} for Organization: ${orgId}`);
+
+        return res.status(201).json({
+            message: "Join request submitted successfully",
+            joinRequest
+        });
+
+    } catch (error) {
+        console.error("Request Join Org Error:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+/**
+ * @api {post} /organization/requests/:requestId/handle Approve or decline a join request
+ * @apiName HandleJoinRequest
+ * @apiGroup Organization
+ */
+export const handleJoinRequest = async (req, res) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            await session.abortTransaction();
+            session.endSession();
+            return res.status(400).json({
+                message: "Validation failed",
+                errors: errors.array().map(err => ({ field: err.path, message: err.msg }))
+            });
+        }
+
+        const { requestId } = req.params;
+        const { status } = req.body; // 'accepted' or 'declined'
+        const adminId = req.userId;
+
+        // 1. Find the join request
+        const joinRequest = await joinRequestModel.findById(requestId).session(session);
+        if (!joinRequest) {
+            await session.abortTransaction();
+            session.endSession();
+            return res.status(404).json({ message: "Join request not found" });
+        }
+
+        if (joinRequest.status !== "pending") {
+            await session.abortTransaction();
+            session.endSession();
+            return res.status(400).json({ message: `Request has already been ${joinRequest.status}` });
+        }
+
+        // 2. Verify requester is admin of the organization
+        const organizationId = joinRequest.organization;
+        const admin = await userModel.findOne({
+            _id: adminId,
+            "memberships.organization": organizationId,
+            "memberships.role": "admin"
+        }).session(session);
+
+        if (!admin) {
+            await session.abortTransaction();
+            session.endSession();
+            return res.status(403).json({ message: "Only organization admins can handle join requests" });
+        }
+
+        // 3. Update request status
+        joinRequest.status = status;
+        await joinRequest.save({ session });
+
+        if (status === "accepted") {
+            // 4. Add user to organization
+            const userToJoin = await userModel.findById(joinRequest.user).session(session);
+            if (!userToJoin) {
+                await session.abortTransaction();
+                session.endSession();
+                return res.status(404).json({ message: "User who requested to join no longer exists" });
+            }
+
+            // Double check membership
+            const isAlreadyMember = userToJoin.memberships.some(
+                m => m.organization.toString() === organizationId.toString()
+            );
+
+            if (!isAlreadyMember) {
+                userToJoin.memberships.push({
+                    organization: organizationId,
+                    role: joinRequest.role || "viewer",
+                    joinedAt: new Date()
+                });
+                await userToJoin.save({ session });
+
+                // 5. Increment members count
+                await organizationModel.findByIdAndUpdate(organizationId, {
+                    $inc: { membersCount: 1 }
+                }, { session });
+            }
+        }
+
+        await session.commitTransaction();
+        session.endSession();
+
+        // 6. Audit Log
+        console.info(`[AUDIT] Join request ${requestId} ${status} by Admin: ${adminId}`);
+
+        return res.status(200).json({
+            message: `Join request ${status} successfully`,
+            joinRequest
+        });
+
+    } catch (error) {
+        await session.abortTransaction();
+        session.endSession();
+        console.error("Handle Join Request Error:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+/**
+ * @api {get} /organization/:orgId/requests Get all join requests for an organization
+ * @apiName GetJoinRequests
+ * @apiGroup Organization
+ */
+export const getJoinRequests = async (req, res) => {
+    try {
+        const { orgId } = req.params;
+        const userId = req.userId;
+
+        // 1. Verify requester is admin of the organization
+        const admin = await userModel.findOne({
+            _id: userId,
+            "memberships.organization": orgId,
+            "memberships.role": "admin"
+        });
+
+        if (!admin) {
+            return res.status(403).json({ message: "Only organization admins can view join requests" });
+        }
+
+        // 2. Get requests
+        const requests = await joinRequestModel.find({ organization: orgId })
+            .populate("user", "name email avatar")
+            .sort({ createdAt: -1 });
+
+        return res.status(200).json({ requests });
+
+    } catch (error) {
+        console.error("Get Join Requests Error:", error);
         return res.status(500).json({ message: "Internal server error" });
     }
 };

@@ -69,3 +69,17 @@ export const updateOrganizationValidation = [
         .isLength({ max: 500 }).withMessage('Description cannot exceed 500 characters')
         .escape(),
 ];
+
+export const requestJoinOrganizationValidation = [
+    param('orgId')
+        .isMongoId().withMessage('Invalid Organization ID format'),
+];
+
+export const handleJoinRequestValidation = [
+    param('requestId')
+        .isMongoId().withMessage('Invalid Request ID format'),
+    body('status')
+        .trim()
+        .notEmpty().withMessage('Status is required')
+        .isIn(['accepted', 'declined']).withMessage('Status must be accepted or declined'),
+];

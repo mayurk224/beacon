@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   AlertTriangle,
   Timer,
   BarChart3,
   Building2,
+  Activity,
   User,
   Clock,
   ChevronRight,
@@ -16,14 +17,28 @@ import {
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { useAuth } from "../auth/useAuth";
-import { createOrganization } from "../organization/organizationApi";
+import { getIncidentsForOrganization } from "../incident/incidentApi";
+import {
+  createOrganization,
+  getOrganizationById,
+  requestToJoinOrganization,
+} from "../organization/organizationApi";
 
 const DashBoardHome = () => {
   const { user, refreshUser } = useAuth();
   const hasOrganizations = Boolean(user?.memberships?.length);
+  const primaryMembership = user?.memberships?.[0];
+  const primaryOrganizationId =
+    primaryMembership?.organization?._id || primaryMembership?.organization;
   const [isCreateOrgOpen, setIsCreateOrgOpen] = useState(false);
+  const [isJoinOrgOpen, setIsJoinOrgOpen] = useState(false);
   const [organizationName, setOrganizationName] = useState("");
+  const [organizationId, setOrganizationId] = useState("");
   const [isSubmittingOrganization, setIsSubmittingOrganization] = useState(false);
+  const [isSubmittingJoinRequest, setIsSubmittingJoinRequest] = useState(false);
+  const [organizationSummary, setOrganizationSummary] = useState(null);
+  const [isLoadingOrganizationSummary, setIsLoadingOrganizationSummary] =
+    useState(false);
 
   const topMetrics = [
     {
@@ -157,6 +172,15 @@ const DashBoardHome = () => {
     setOrganizationName("");
   };
 
+  const closeJoinOrganizationModal = () => {
+    if (isSubmittingJoinRequest) {
+      return;
+    }
+
+    setIsJoinOrgOpen(false);
+    setOrganizationId("");
+  };
+
   const handleCreateOrganization = async (event) => {
     event.preventDefault();
 
@@ -185,6 +209,117 @@ const DashBoardHome = () => {
       setIsSubmittingOrganization(false);
     }
   };
+
+  const handleJoinOrganization = async (event) => {
+    event.preventDefault();
+
+    const trimmedOrgId = organizationId.trim();
+    if (!trimmedOrgId) {
+      toast.error("Organization ID is required.");
+      return;
+    }
+
+    setIsSubmittingJoinRequest(true);
+
+    try {
+      await requestToJoinOrganization(trimmedOrgId);
+      closeJoinOrganizationModal();
+      toast.success("Join request sent successfully.");
+    } catch (error) {
+      const message =
+        error.response?.data?.message ||
+        error.response?.data?.errors?.[0]?.message ||
+        "Unable to send your join request right now. Please try again.";
+      toast.error(message);
+    } finally {
+      setIsSubmittingJoinRequest(false);
+    }
+  };
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadOrganizationSummary = async () => {
+      if (!primaryOrganizationId) {
+        if (isMounted) {
+          setOrganizationSummary(null);
+        }
+        return;
+      }
+
+      if (isMounted) {
+        setIsLoadingOrganizationSummary(true);
+      }
+
+      try {
+        const [organizationData, incidents] = await Promise.all([
+          getOrganizationById(primaryOrganizationId),
+          getIncidentsForOrganization(primaryOrganizationId),
+        ]);
+
+        if (!isMounted) {
+          return;
+        }
+
+        const activeIncidents = incidents.filter(
+          (incident) => incident.status !== "resolved"
+        );
+
+        const severityCounts = activeIncidents.reduce(
+          (counts, incident) => {
+            counts[incident.severity] += 1;
+            return counts;
+          },
+          {
+            low: 0,
+            medium: 0,
+            high: 0,
+            critical: 0,
+          }
+        );
+
+        const totalMembers = organizationData.members?.length || 0;
+        const onlineMembers = (organizationData.members || []).filter((member) => {
+          if (!member.lastLoginAt) {
+            return false;
+          }
+
+          return (
+            Date.now() - new Date(member.lastLoginAt).getTime() <= 15 * 60 * 1000
+          );
+        }).length;
+
+        setOrganizationSummary({
+          organization: organizationData.organization,
+          role: primaryMembership?.role || "viewer",
+          severityCounts,
+          totalMembers,
+          onlineMembers,
+          activeIncidents: activeIncidents.length,
+        });
+      } catch (error) {
+        if (!isMounted) {
+          return;
+        }
+
+        setOrganizationSummary(null);
+        const message =
+          error.response?.data?.message ||
+          "Unable to load organization summary right now.";
+        toast.error(message);
+      } finally {
+        if (isMounted) {
+          setIsLoadingOrganizationSummary(false);
+        }
+      }
+    };
+
+    loadOrganizationSummary();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [primaryMembership?.role, primaryOrganizationId]);
 
   const getStatusIndicator = (status) => {
     switch (status) {
@@ -243,7 +378,11 @@ const DashBoardHome = () => {
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3">
                   <Link
-                    to="/home/team"
+                    to="#"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      setIsJoinOrgOpen(true);
+                    }}
                     className="btn-primary inline-flex items-center justify-center gap-2"
                   >
                     <ArrowRight className="w-4 h-4" />
@@ -262,6 +401,92 @@ const DashBoardHome = () => {
             </div>
           ) : (
             <>
+              <div className="mb-8">
+                <div className="bg-surface-widget border border-border-primary rounded-2xl p-5 sm:p-6 overflow-hidden relative">
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.10),transparent_25%),radial-gradient(circle_at_bottom_left,rgba(59,130,246,0.08),transparent_30%)] pointer-events-none" />
+                  <div className="relative">
+                    <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                      <div>
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="w-11 h-11 rounded-xl bg-surface-elevated border border-border-primary flex items-center justify-center">
+                            <Building2 className="w-5 h-5 text-brand-strong" />
+                          </div>
+                          <div>
+                            <p className="text-[11px] uppercase tracking-wider text-tertiary font-medium">
+                              Current Organization
+                            </p>
+                            <h3 className="text-[22px] sm:text-[26px] font-semibold text-primary leading-tight">
+                              {organizationSummary?.organization?.name ||
+                                "Loading organization..."}
+                            </h3>
+                          </div>
+                        </div>
+                        <p className="text-sm text-secondary">
+                          Role:{" "}
+                          <span className="text-primary font-medium capitalize">
+                            {organizationSummary?.role || primaryMembership?.role || "viewer"}
+                          </span>
+                        </p>
+                      </div>
+
+                      <div className="inline-flex items-center gap-2 rounded-full border border-border-primary bg-surface-elevated px-3 py-1.5">
+                        <Activity className="w-4 h-4 text-semantic-success" />
+                        <span className="text-sm text-primary">
+                          {isLoadingOrganizationSummary
+                            ? "Loading activity..."
+                            : `${organizationSummary?.onlineMembers ?? 0} online / ${
+                                organizationSummary?.totalMembers ?? 0
+                              } members`}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mt-6">
+                      <div className="rounded-xl border border-border-primary bg-surface-elevated p-4">
+                        <p className="text-[11px] uppercase tracking-wider text-tertiary font-medium mb-2">
+                          Active Incidents
+                        </p>
+                        <p className="text-2xl font-semibold text-primary">
+                          {organizationSummary?.activeIncidents ?? 0}
+                        </p>
+                      </div>
+                      <div className="rounded-xl border border-border-primary bg-surface-elevated p-4">
+                        <p className="text-[11px] uppercase tracking-wider text-tertiary font-medium mb-2">
+                          Low
+                        </p>
+                        <p className="text-2xl font-semibold text-primary">
+                          {organizationSummary?.severityCounts?.low ?? 0}
+                        </p>
+                      </div>
+                      <div className="rounded-xl border border-border-primary bg-surface-elevated p-4">
+                        <p className="text-[11px] uppercase tracking-wider text-tertiary font-medium mb-2">
+                          Medium
+                        </p>
+                        <p className="text-2xl font-semibold text-brand-strong">
+                          {organizationSummary?.severityCounts?.medium ?? 0}
+                        </p>
+                      </div>
+                      <div className="rounded-xl border border-border-primary bg-surface-elevated p-4">
+                        <p className="text-[11px] uppercase tracking-wider text-tertiary font-medium mb-2">
+                          High
+                        </p>
+                        <p className="text-2xl font-semibold text-semantic-warning">
+                          {organizationSummary?.severityCounts?.high ?? 0}
+                        </p>
+                      </div>
+                      <div className="rounded-xl border border-danger-border-strong bg-danger-bg-subtle p-4">
+                        <p className="text-[11px] uppercase tracking-wider text-danger-soft font-medium mb-2">
+                          Critical
+                        </p>
+                        <p className="text-2xl font-semibold text-danger-soft">
+                          {organizationSummary?.severityCounts?.critical ?? 0}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 mb-8">
                 {topMetrics.map((metric) => (
                   <div
@@ -527,6 +752,67 @@ const DashBoardHome = () => {
                     <Loader2 className="w-4 h-4 animate-spin" />
                   )}
                   Create Organization
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {isJoinOrgOpen && (
+        <div className="fixed inset-0 z-50 bg-overlay-scrim backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-md rounded-2xl border border-border-primary bg-surface-widget shadow-2xl overflow-hidden">
+            <div className="flex items-start justify-between gap-4 border-b border-border-primary px-5 py-4">
+              <div>
+                <h3 className="text-lg font-semibold text-primary">
+                  Join organization
+                </h3>
+                <p className="mt-1 text-sm text-secondary">
+                  Enter the organization ID to send a join request to its admins.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={closeJoinOrganizationModal}
+                className="rounded-lg p-2 text-subtle hover:bg-surface-elevated hover:text-primary transition-colors"
+                disabled={isSubmittingJoinRequest}
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleJoinOrganization} className="px-5 py-5">
+              <label className="block text-[11px] font-medium text-tertiary uppercase tracking-wider mb-2">
+                Organization ID
+              </label>
+              <input
+                type="text"
+                value={organizationId}
+                onChange={(event) => setOrganizationId(event.target.value)}
+                placeholder="680f4f9d2d5f1a1234567890"
+                className="input w-full"
+                autoFocus
+                disabled={isSubmittingJoinRequest}
+              />
+
+              <div className="mt-5 flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={closeJoinOrganizationModal}
+                  className="btn-outline"
+                  disabled={isSubmittingJoinRequest}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn-primary"
+                  disabled={isSubmittingJoinRequest}
+                >
+                  {isSubmittingJoinRequest && (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  )}
+                  Send Request
                 </button>
               </div>
             </form>
