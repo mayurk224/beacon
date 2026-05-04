@@ -29,8 +29,14 @@ import {
   Download,
   Loader2,
 } from 'lucide-react';
+import { useAuth } from '../auth/useAuth';
+import { getIncidentsForOrganization } from '../incident/incidentApi';
 
 const DashBoardIncident = () => {
+  const { user } = useAuth();
+  const primaryMembership = user?.memberships?.[0];
+  const primaryOrganizationId = primaryMembership?.organization?._id || primaryMembership?.organization;
+
   // Tab state
   const [activeTab, setActiveTab] = useState('all');
   const [activePage, setActivePage] = useState(1);
@@ -48,42 +54,36 @@ const DashBoardIncident = () => {
   const [selectedIncident, setSelectedIncident] = useState(null);
 
   const tabs = [
-    { id: 'all', label: 'All', count: 24 },
-    { id: 'assigned', label: 'Assigned to me', count: 8 },
-    { id: 'unassigned', label: 'Unassigned', count: 12 },
-    { id: 'resolved', label: 'Resolved', count: 45 },
-    { id: 'critical', label: 'Critical (P1)', count: 3 },
+    { id: 'all', label: 'All', count: 0 },
+    { id: 'assigned', label: 'Assigned to me', count: 0 },
+    { id: 'unassigned', label: 'Unassigned', count: 0 },
+    { id: 'resolved', label: 'Resolved', count: 0 },
+    { id: 'critical', label: 'Critical (P1)', count: 0 },
   ];
 
-  // State-driven data (API-first). Keep small sample fallbacks so UI renders
   const [statsCards, setStatsCards] = useState([
-    { id: 1, label: 'Mean Time to Resolve', value: '42m 12s', icon: Timer, trend: '12% vs last week', trendIcon: TrendingDown, trendColor: 'text-emerald-500' },
-    { id: 2, label: 'Open Critical (P1)', value: '03', icon: AlertTriangle, iconColor: 'text-accent-orange', iconFill: true, subtitle: 'Immediate action required', subtitleColor: 'text-muted' },
-    { id: 3, label: 'Success Rate', value: '99.98%', icon: CheckCircle2, iconColor: 'text-brand-strong', trend: '0.02% recovery', trendIcon: ArrowUp, trendColor: 'text-emerald-500' },
+    { id: 1, label: 'Active Incidents', value: '0', icon: Timer, trend: 'Current active', trendIcon: TrendingDown, trendColor: 'text-emerald-500' },
+    { id: 2, label: 'Open Critical (P1)', value: '0', icon: AlertTriangle, iconColor: 'text-accent-orange', iconFill: true, subtitle: 'Immediate action required', subtitleColor: 'text-muted' },
+    { id: 3, label: 'Resolved', value: '0', icon: CheckCircle2, iconColor: 'text-brand-strong', trend: 'Total resolved', trendIcon: ArrowUp, trendColor: 'text-emerald-500' },
   ]);
 
-  const [incidents, setIncidents] = useState([
-    { id: 'INC-8492', name: 'Database replica latency spike in us-east-1', severity: 'SEV-1', severityColor: 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]', status: 'Investigating', statusClass: 'bg-red-500/20 text-red-500 border border-red-500/30', assignee: 'J. Doe', assigneeInitials: 'JD', assigneeClass: 'bg-brand-strong text-on-brand', timeAgo: '12m ago', timestamp: '2024-01-15T14:32:00', isResolved: false, isUnassigned: false, assignedToMe: true, description: 'Database replica experiencing high latency spikes affecting read operations', tags: ['database','performance'] },
-  ]);
+  const [incidents, setIncidents] = useState([]);
 
   const [onCallTeam, setOnCallTeam] = useState([
-    { id: 1, name: 'Alex Chen', role: 'Primary', roleColor: 'text-emerald-500', initials: 'AC', imageUrl: '', hasShield: true },
-    { id: 2, name: 'Sarah Jenkins', role: 'Secondary', roleColor: 'text-muted', initials: 'SJ', imageUrl: '', hasShield: false },
+    { id: 1, name: user?.name || 'You', role: 'Primary', roleColor: 'text-emerald-500', initials: user?.name?.split(' ').map(n => n[0]).join('') || 'U', imageUrl: '', hasShield: true },
   ]);
 
-  const [recentActivities, setRecentActivities] = useState([
-    { id: 1, title: '#INC-8480 Resolved', description: 'Primary responder J. Doe applied DNS hotfix to production. Recovery confirmed by automated health checks.', timestamp: '10:45 AM Today', status: 'resolved' },
-  ]);
+  const [recentActivities, setRecentActivities] = useState([]);
 
   // API base (swap to env var when ready)
   const API_BASE = '/api';
 
   const mapSeverityToClass = (sev) => {
-    switch ((sev || '').toUpperCase()) {
-      case 'SEV-1': return 'bg-red-500';
-      case 'SEV-2': return 'bg-orange-500';
-      case 'SEV-3': return 'bg-yellow-500';
-      case 'SEV-4': return 'bg-blue-500';
+    switch ((sev || '').toLowerCase()) {
+      case 'critical': return 'bg-red-500';
+      case 'high': return 'bg-orange-500';
+      case 'medium': return 'bg-yellow-500';
+      case 'low': return 'bg-blue-500';
       default: return 'bg-muted';
     }
   };
@@ -91,51 +91,81 @@ const DashBoardIncident = () => {
   const mapStatusToClass = (status) => {
     if (!status) return 'bg-surface-interactive text-secondary';
     const s = status.toLowerCase();
-    if (s.includes('investigat') || s.includes('identif')) return 'bg-red-500/20 text-red-500 border border-red-500/30';
-    if (s.includes('monitor')) return 'bg-yellow-500/20 text-yellow-500 border border-yellow-500/30';
-    if (s.includes('resolv')) return 'bg-green-500/20 text-green-400 border border-green-500/30';
+    if (s === 'open' || s === 'investigating' || s === 'identified') return 'bg-red-500/20 text-red-500 border border-red-500/30';
+    if (s === 'monitoring') return 'bg-yellow-500/20 text-yellow-500 border border-yellow-500/30';
+    if (s === 'resolved') return 'bg-green-500/20 text-green-400 border border-green-500/30';
     return 'bg-surface-interactive text-secondary';
   };
 
-  const normalizeIncident = (inc) => ({
-    id: inc.id,
-    name: inc.name,
-    severity: inc.severity || 'SEV-3',
-    severityColor: inc.severityColor || mapSeverityToClass(inc.severity),
-    status: inc.status || 'Unknown',
-    statusClass: inc.statusClass || mapStatusToClass(inc.status),
-    assignee: inc.assignee || 'Unassigned',
-    assigneeInitials: inc.assigneeInitials || null,
-    assigneeClass: inc.assigneeClass || '',
-    timeAgo: inc.timeAgo || '',
-    timestamp: inc.timestamp || null,
-    isResolved: !!inc.isResolved,
-    isUnassigned: !!inc.isUnassigned,
-    assignedToMe: !!inc.assignedToMe,
-    description: inc.description || '',
-    tags: inc.tags || [],
-  });
+  const normalizeIncident = (inc) => {
+    const severityMap = {
+      critical: 'SEV-1',
+      high: 'SEV-2',
+      medium: 'SEV-3',
+      low: 'SEV-4'
+    };
+
+    return {
+      id: inc._id,
+      name: inc.title,
+      severity: severityMap[inc.severity] || 'SEV-3',
+      severityColor: mapSeverityToClass(inc.severity),
+      status: inc.status?.charAt(0).toUpperCase() + inc.status?.slice(1) || 'Open',
+      statusClass: mapStatusToClass(inc.status),
+      assignee: inc.assignee?.name || (inc.assignee ? 'Assigned' : 'Unassigned'),
+      assigneeInitials: inc.assignee?.name?.split(' ').map(n => n[0]).join('') || null,
+      assigneeClass: inc.assignee ? 'bg-brand-strong text-on-brand' : 'bg-surface-interactive text-secondary',
+      timeAgo: new Date(inc.createdAt).toLocaleDateString(),
+      timestamp: inc.createdAt,
+      isResolved: inc.status === 'resolved',
+      isUnassigned: !inc.assignee,
+      assignedToMe: inc.assignee?._id === user?._id || inc.assignee === user?._id,
+      description: inc.description || '',
+      tags: inc.tags || [],
+    };
+  };
 
   const fetchData = useCallback(async () => {
+    if (!primaryOrganizationId) return;
+
+    setIsLoading(true);
     try {
-      const [incRes, statsRes, oncallRes, activityRes] = await Promise.all([
-        fetch(`${API_BASE}/incidents`).catch(() => null),
-        fetch(`${API_BASE}/stats`).catch(() => null),
-        fetch(`${API_BASE}/oncall`).catch(() => null),
-        fetch(`${API_BASE}/activities`).catch(() => null),
+      const incidentsData = await getIncidentsForOrganization(primaryOrganizationId);
+      const normalized = (incidentsData || []).map(normalizeIncident);
+      setIncidents(normalized);
+
+      // Update stats cards
+      const active = normalized.filter(i => !i.isResolved).length;
+      const critical = normalized.filter(i => i.severity === 'SEV-1' && !i.isResolved).length;
+      const resolved = normalized.filter(i => i.isResolved).length;
+
+      setStatsCards([
+        { id: 1, label: 'Active Incidents', value: active.toString(), icon: Timer, trend: 'Current active', trendIcon: TrendingDown, trendColor: 'text-emerald-500' },
+        { id: 2, label: 'Open Critical (P1)', value: critical.toString().padStart(2, '0'), icon: AlertTriangle, iconColor: 'text-accent-orange', iconFill: true, subtitle: 'Immediate action required', subtitleColor: 'text-muted' },
+        { id: 3, label: 'Resolved', value: resolved.toString(), icon: CheckCircle2, iconColor: 'text-brand-strong', trend: 'Total resolved', trendIcon: ArrowUp, trendColor: 'text-emerald-500' },
       ]);
 
-      if (incRes && incRes.ok) {
-        const data = await incRes.json();
-        setIncidents((data || []).map(normalizeIncident));
-      }
-      if (statsRes && statsRes.ok) setStatsCards(await statsRes.json());
-      if (oncallRes && oncallRes.ok) setOnCallTeam(await oncallRes.json());
-      if (activityRes && activityRes.ok) setRecentActivities(await activityRes.json());
+      // Update recent activity with last 3 resolved incidents
+      const lastResolved = normalized
+        .filter(i => i.isResolved)
+        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+        .slice(0, 3)
+        .map(i => ({
+          id: i.id,
+          title: `#${i.id.slice(-6).toUpperCase()} Resolved`,
+          description: i.name,
+          timestamp: new Date(i.timestamp).toLocaleString(),
+          status: 'resolved'
+        }));
+      
+      setRecentActivities(lastResolved);
+
     } catch (err) {
-      // keep sample data on error
+      console.error("Error fetching incidents:", err);
+    } finally {
+      setIsLoading(false);
     }
-  }, []);
+  }, [primaryOrganizationId, user?._id]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 

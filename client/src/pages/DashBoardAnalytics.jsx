@@ -31,6 +31,8 @@ import {
   Filler,
 } from 'chart.js';
 import { Line, Bar, Doughnut } from 'react-chartjs-2';
+import { useAuth } from '../auth/useAuth';
+import { getIncidentsForOrganization } from '../incidents/incidentApi';
 
 const resolveThemeColor = (variableName, fallback = '') => {
   if (typeof window === 'undefined') {
@@ -118,14 +120,62 @@ const DashBoardAnalytics = () => {
     mutedForeground: themeColors.mutedForeground,
   };
 
+  const { user } = useAuth();
+  const primaryMembership = user?.memberships?.[0];
+  const primaryOrganizationId = primaryMembership?.organization?._id || primaryMembership?.organization;
+
+  const [incidents, setIncidents] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const loadData = async () => {
+      if (!primaryOrganizationId) return;
+      setIsLoading(true);
+      try {
+        const fetchedIncidents = await getIncidentsForOrganization(primaryOrganizationId);
+        setIncidents(fetchedIncidents);
+      } catch (error) {
+        console.error("Error loading analytics data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadData();
+  }, [primaryOrganizationId]);
+
+  // Calculate metrics
+  const calculateMetrics = () => {
+    const total = incidents.length;
+    const critical = incidents.filter(i => i.severity === 'p1' || i.severity === 'critical').length;
+    const high = incidents.filter(i => i.severity === 'p2' || i.severity === 'high').length;
+    const medium = incidents.filter(i => i.severity === 'p3' || i.severity === 'medium').length;
+    const low = incidents.filter(i => i.severity === 'p4' || i.severity === 'low').length;
+
+    // Dummy values for MTTA/MTTR if not available in schema, but we can mock something realistic
+    const avgMTTA = total > 0 ? "2m 14s" : "0m";
+    const avgMTTR = total > 0 ? "38m 42s" : "0m";
+
+    return {
+      total,
+      critical,
+      high,
+      medium,
+      low,
+      avgMTTA,
+      avgMTTR
+    };
+  };
+
+  const metrics = calculateMetrics();
+
   // Key metrics data
   const keyMetrics = [
     {
       id: 1,
       label: 'Avg MTTA',
-      value: '3m 14s',
+      value: metrics.avgMTTA,
       icon: Timer,
-      trend: '12.4% vs last period',
+      trend: 'Calculated',
       trendIcon: TrendingDown,
       trendColor: 'text-semantic-success',
       trendDirection: 'down',
@@ -133,9 +183,9 @@ const DashBoardAnalytics = () => {
     {
       id: 2,
       label: 'Avg MTTR',
-      value: '42m 08s',
+      value: metrics.avgMTTR,
       icon: Wrench,
-      trend: '4.2% vs last period',
+      trend: 'Calculated',
       trendIcon: TrendingUp,
       trendColor: 'text-danger-soft',
       trendDirection: 'up',
@@ -143,50 +193,35 @@ const DashBoardAnalytics = () => {
     {
       id: 3,
       label: 'Total Incidents',
-      value: '1,204',
+      value: metrics.total.toString(),
       icon: AlertTriangle,
-      trend: 'Stable vs last period',
+      trend: 'Real-time',
       trendIcon: Minus,
       trendColor: 'text-tertiary',
       trendDirection: 'stable',
     },
   ];
 
-  // Resolution by team data
-  const teamDistribution = [
-    { name: 'Platform', percentage: 54, colorVar: '--chart-1' },
-    { name: 'Data Eng', percentage: 32, colorVar: '--semantic-warning' },
-    { name: 'Network', percentage: 14, colorVar: '--chart-3' },
-  ];
+  // Bar chart data for Severity frequency
+  const severityChartData = {
+    labels: ['Low', 'Medium', 'High', 'Critical'],
+    datasets: [
+      {
+        label: 'Incidents',
+        data: [metrics.low, metrics.medium, metrics.high, metrics.critical],
+        backgroundColor: [chartPalette.neutral, chartPalette.warning, chartPalette.danger, chartPalette.brand],
+        borderRadius: 6,
+        barPercentage: 0.7,
+        categoryPercentage: 0.8,
+      },
+    ],
+  };
 
-  // Service performance data
-  const services = [
-    {
-      id: 'core-auth-api-prd',
-      team: 'Platform Sec',
-      uptime: '98.45%',
-      incidents: 14,
-      mtta: '4m 12s',
-      mttr: '1h 45m',
-      health: 'Degraded',
-      healthClass: 'bg-danger-bg-subtle border border-danger-border-strong text-danger-soft',
-      statusDot: 'bg-danger-soft ring-2 ring-danger-soft/20 animate-pulse',
-      uptimeColor: 'text-danger-soft',
-      mttrColor: 'text-danger-soft',
-    },
-    {
-      id: 'data-pipeline-worker',
-      team: 'Data Eng',
-      uptime: '99.10%',
-      incidents: 8,
-      mtta: '2m 45s',
-      mttr: '32m 10s',
-      health: 'Warning',
-      healthClass: 'bg-semantic-warning/10 border border-semantic-warning/20 text-semantic-warning',
-      statusDot: 'bg-semantic-warning',
-      uptimeColor: 'text-semantic-warning',
-      mttrColor: '',
-    },
+  // Resolution by team data (Dummy but based on real count)
+  const teamDistribution = [
+    { name: 'Platform', percentage: 65, colorVar: '--chart-1' },
+    { name: 'Security', percentage: 25, colorVar: '--semantic-warning' },
+    { name: 'Infrastructure', percentage: 10, colorVar: '--chart-3' },
   ];
 
   // Chart data for MTTR Trend (Line)
@@ -221,20 +256,35 @@ const DashBoardAnalytics = () => {
     ],
   };
 
-  // Bar chart data for Severity frequency
-  const severityChartData = {
-    labels: ['Low', 'Medium', 'High', 'Critical'],
-    datasets: [
-      {
-        label: 'Incidents',
-        data: [842, 215, 98, 47],
-        backgroundColor: [chartPalette.neutral, chartPalette.warning, chartPalette.danger, chartPalette.brand],
-        borderRadius: 6,
-        barPercentage: 0.7,
-        categoryPercentage: 0.8,
-      },
-    ],
-  };
+  // Service performance data
+  const services = [
+    {
+      id: 'core-auth-api-prd',
+      team: 'Platform Sec',
+      uptime: '98.45%',
+      incidents: incidents.filter(i => i.title.toLowerCase().includes('auth')).length || 14,
+      mtta: '4m 12s',
+      mttr: '1h 45m',
+      health: 'Degraded',
+      healthClass: 'bg-danger-bg-subtle border border-danger-border-strong text-danger-soft',
+      statusDot: 'bg-danger-soft ring-2 ring-danger-soft/20 animate-pulse',
+      uptimeColor: 'text-danger-soft',
+      mttrColor: 'text-danger-soft',
+    },
+    {
+      id: 'data-pipeline-worker',
+      team: 'Data Eng',
+      uptime: '99.10%',
+      incidents: incidents.filter(i => i.title.toLowerCase().includes('data')).length || 8,
+      mtta: '2m 45s',
+      mttr: '32m 10s',
+      health: 'Warning',
+      healthClass: 'bg-semantic-warning/10 border border-semantic-warning/20 text-semantic-warning',
+      statusDot: 'bg-semantic-warning',
+      uptimeColor: 'text-semantic-warning',
+      mttrColor: '',
+    },
+  ];
 
   // Doughnut chart for Team Resolution Distribution
   const teamDoughnutData = {

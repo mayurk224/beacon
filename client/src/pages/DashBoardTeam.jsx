@@ -29,6 +29,8 @@ import {
   UserX,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../auth/useAuth';
+import { getOrganizationById } from '../organization/organizationApi';
 
 const DashBoardTeam = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -42,100 +44,46 @@ const DashBoardTeam = () => {
   const [selectedStatusFilter, setSelectedStatusFilter] = useState('all');
   const [isLoading, setIsLoading] = useState(false);
 
-  const teamMembers = [
-    {
-      id: 1,
-      name: 'Sarah Chen',
-      role: 'Lead Incident Commander',
-      email: 'schen@platform.os',
-      userId: 'USR-9928-A',
-      userRole: 'Admin',
-      status: 'active',
-      avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCGBtCUQMoQQwRsmB0plLmNokN4b_AccQtqtSveEnkoj3miUz72qFxVHEqBSVOqbVLP-3gWGiCfDE_Kv5yJD2XS0dthhXO-qD8tubdPxojFK0aFW-VMCkHZmGMC_RZ0x3ObGUcfU3m8yObqpGCOLucCryftLrp7L_vqzRrVjx6vVjfbsEOlk50mhCwe8txCRIfSZXrQ8jc74grPg-ttzBXDIFnBqxa0s6oHDESLaSrzh32dq8pTunTPAjWy2hj0yUbfnkjNppWDX_t7',
-      initial: null,
-      lastActive: '2024-01-15T14:30:00',
-      department: 'Engineering',
-    },
-    {
-      id: 2,
-      name: 'Marcus Johnson',
-      role: 'Security Analyst',
-      email: 'mjohnson@platform.os',
-      userId: 'USR-8472-B',
-      userRole: 'Editor',
-      status: 'active',
-      avatar: null,
-      initial: 'MJ',
-      lastActive: '2024-01-15T13:20:00',
-      department: 'Security',
-    },
-    {
-      id: 3,
-      name: 'David Kim',
-      role: 'External Auditor',
-      email: 'dkim.ext@audit.com',
-      userId: 'USR-1104-X',
-      userRole: 'Viewer',
-      status: 'offline',
-      avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCYMB7f6Sm0rHGNZF1RETyXRkFnGdO0lOSe7ou4Hy06wYWZ0m54Cnq0NpUV9VNZIyXlOmSBnSif5pq8U_NALy2-kbDiCJBP85iZ6Dc5cCIj4FEN4Dyrhui8AJpbJCcGZg0CDGGyKJDYpiABoxL6Uqtmk-F4s0gmQgx-bynrQ36JEpB_RKRN32di6SUilDmF9KWjrS1iJCOoyZGnonnCwugsfml8CilzQ0bcSWTeCuG35lqq7J9_JyCbub-Z2i9eDs5NWnil-vMg_hUw',
-      initial: null,
-      lastActive: '2024-01-14T16:00:00',
-      department: 'Audit',
-    },
-    {
-      id: 4,
-      name: 'Alex Smith',
-      role: 'Pending Invite',
-      email: 'alex.smith@platform.os',
-      userId: null,
-      userRole: 'Editor',
-      status: 'invited',
-      avatar: null,
-      initial: null,
-      invitedAt: '2 days ago',
-      lastActive: null,
-      department: 'Engineering',
-    },
-    {
-      id: 5,
-      name: 'Emily Rodriguez',
-      role: 'SRE Lead',
-      email: 'emily.rodriguez@platform.os',
-      userId: 'USR-7213-C',
-      userRole: 'Admin',
-      status: 'active',
-      avatar: null,
-      initial: 'ER',
-      lastActive: '2024-01-15T12:45:00',
-      department: 'SRE',
-    },
-    {
-      id: 6,
-      name: 'James Wilson',
-      role: 'Database Administrator',
-      email: 'jwilson@platform.os',
-      userId: 'USR-5639-D',
-      userRole: 'Editor',
-      status: 'active',
-      avatar: null,
-      initial: 'JW',
-      lastActive: '2024-01-15T11:30:00',
-      department: 'Database',
-    },
-    {
-      id: 7,
-      name: 'Nina Patel',
-      role: 'Cloud Architect',
-      email: 'npatel@platform.os',
-      userId: 'USR-4082-E',
-      userRole: 'Editor',
-      status: 'away',
-      avatar: null,
-      initial: 'NP',
-      lastActive: '2024-01-15T09:15:00',
-      department: 'Infrastructure',
-    },
-  ];
+  const { user } = useAuth();
+  const primaryMembership = user?.memberships?.[0];
+  const primaryOrganizationId = primaryMembership?.organization?._id || primaryMembership?.organization;
+
+  const [teamMembers, setTeamMembers] = useState([]);
+
+  React.useEffect(() => {
+    const loadTeam = async () => {
+      if (!primaryOrganizationId) return;
+      setIsLoading(true);
+      try {
+        const data = await getOrganizationById(primaryOrganizationId);
+        if (data.members) {
+          const members = data.members.map(m => {
+            const memberUser = m.user || m;
+            const role = m.role || 'Member';
+            return {
+              id: memberUser._id,
+              name: memberUser.name,
+              role: role.charAt(0).toUpperCase() + role.slice(1),
+              email: memberUser.email,
+              userId: memberUser._id.slice(-8).toUpperCase(),
+              userRole: role === 'owner' ? 'Admin' : (role === 'admin' ? 'Admin' : 'Editor'),
+              status: (Date.now() - new Date(memberUser.lastLoginAt || 0).getTime() < 15 * 60 * 1000) ? 'active' : 'offline',
+              avatar: null,
+              initial: memberUser.name?.split(' ').map(n => n[0]).join('') || 'U',
+              lastActive: memberUser.lastLoginAt,
+              department: 'Engineering',
+            };
+          });
+          setTeamMembers(members);
+        }
+      } catch (error) {
+        console.error("Error loading team:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadTeam();
+  }, [primaryOrganizationId]);
 
   const getStatusConfig = (status) => {
     switch (status) {

@@ -40,128 +40,8 @@ const DashBoardHome = () => {
   const [isLoadingOrganizationSummary, setIsLoadingOrganizationSummary] =
     useState(false);
 
-  const topMetrics = [
-    {
-      id: 1,
-      label: "Active Incidents",
-      value: "3",
-      change: "+1 from yesterday",
-      changeColor: "text-danger-soft",
-      icon: AlertTriangle,
-      iconColor: "text-danger-soft",
-      iconFill: true,
-      borderClass: "",
-      bgClass: "",
-      valueColor: "text-danger-soft",
-    },
-    {
-      id: 2,
-      label: "MTTR (Avg)",
-      value: "42m",
-      change: "12% improvement",
-      changeColor: "text-brand-strong",
-      icon: Timer,
-      iconColor: "text-brand-strong",
-      iconFill: false,
-      borderClass: "",
-      bgClass: "",
-      valueColor: "text-primary",
-    },
-    {
-      id: 3,
-      label: "Total This Month",
-      value: "28",
-      change: "Same as last month",
-      changeColor: "text-subtle",
-      icon: BarChart3,
-      iconColor: "text-subtle",
-      iconFill: false,
-      borderClass: "",
-      bgClass: "",
-      valueColor: "text-primary",
-    },
-    {
-      id: 4,
-      label: "Critical (P1)",
-      value: "1",
-      change: "Action required",
-      changeColor: "text-danger-soft",
-      icon: AlertTriangle,
-      iconColor: "text-danger-soft pulse-glow",
-      iconFill: true,
-      borderClass: "border-danger-border-strong",
-      bgClass: "bg-danger-bg-subtle",
-      valueColor: "text-danger-soft",
-    },
-  ];
-
-  const activeIncidents = [
-    {
-      id: "INC-001",
-      severity: "P1",
-      severityColor: "text-danger-soft",
-      severityBg: "bg-danger-bg-subtle border-danger-border-strong",
-      badgeText: "Critical",
-      badgeBg: "bg-danger-bg-subtle text-danger-soft border-danger-border-strong",
-      title: "Database Latency in us-east-1",
-      assignee: "Sarah Connor",
-      timeAgo: "14m ago",
-    },
-    {
-      id: "INC-002",
-      severity: "P2",
-      severityColor: "text-brand-strong",
-      severityBg: "bg-brand-muted border-brand/25",
-      badgeText: "Major",
-      badgeBg: "bg-brand-muted text-brand-strong border-brand/25",
-      title: "Payment Gateway Timeout",
-      assignee: "John Doe",
-      timeAgo: "52m ago",
-    },
-    {
-      id: "INC-003",
-      severity: "P3",
-      severityColor: "text-subtle",
-      severityBg: "bg-surface-elevated border-border-primary",
-      badgeText: "Minor",
-      badgeBg: "bg-surface-elevated text-subtle border-border-primary",
-      title: "Internal Admin Slow Loading",
-      assignee: "Mike Ross",
-      timeAgo: "2h ago",
-    },
-  ];
-
-  const systemHealth = [
-    { id: 1, name: "Core API", status: "operational", uptime: "99.98%" },
-    { id: 2, name: "User Auth", status: "operational", uptime: "100.0%" },
-    { id: 3, name: "DB Cluster", status: "degraded", uptime: "Degraded" },
-    { id: 4, name: "Edge CDN", status: "operational", uptime: "99.99%" },
-    { id: 5, name: "Billing Engine", status: "operational", uptime: "99.95%" },
-  ];
-
-  const resolvedIncidents = [
-    {
-      id: "IF-4921",
-      title: "Elasticsearch Index Corruption",
-      duration: "2h 15m",
-      resolvedAt: "Oct 24, 14:20",
-      responder: "Alex Rivera",
-    },
-    {
-      id: "IF-4920",
-      title: "Image Upload API failure",
-      duration: "42m",
-      resolvedAt: "Oct 24, 09:12",
-      responder: "Sarah Connor",
-    },
-    {
-      id: "IF-4918",
-      title: "SSL Certificate Expiration",
-      duration: "12m",
-      resolvedAt: "Oct 23, 23:45",
-      responder: "DevOps Bot",
-    },
-  ];
+  const [activeIncidentsList, setActiveIncidentsList] = useState([]);
+  const [resolvedIncidentsList, setResolvedIncidentsList] = useState([]);
 
   const closeCreateOrganizationModal = () => {
     if (isSubmittingOrganization) {
@@ -265,6 +145,10 @@ const DashBoardHome = () => {
           (incident) => incident.status !== "resolved"
         );
 
+        const resolvedIncidents = incidents.filter(
+          (incident) => incident.status === "resolved"
+        );
+
         const severityCounts = activeIncidents.reduce(
           (counts, incident) => {
             counts[incident.severity] += 1;
@@ -289,6 +173,9 @@ const DashBoardHome = () => {
           );
         }).length;
 
+        setActiveIncidentsList(activeIncidents);
+        setResolvedIncidentsList(resolvedIncidents);
+
         setOrganizationSummary({
           organization: organizationData.organization,
           role: primaryMembership?.role || "viewer",
@@ -296,6 +183,7 @@ const DashBoardHome = () => {
           totalMembers,
           onlineMembers,
           activeIncidents: activeIncidents.length,
+          criticalIncidents: severityCounts.critical,
         });
       } catch (error) {
         if (!isMounted) {
@@ -321,14 +209,98 @@ const DashBoardHome = () => {
     };
   }, [primaryMembership?.role, primaryOrganizationId]);
 
+  const topMetrics = [
+    {
+      id: 1,
+      label: "Active Incidents",
+      value: organizationSummary?.activeIncidents ?? 0,
+      change: "Current count",
+      changeColor: "text-subtle",
+      icon: AlertTriangle,
+      iconColor: "text-danger-soft",
+      iconFill: true,
+      borderClass: "",
+      bgClass: "",
+      valueColor: "text-danger-soft",
+    },
+    {
+      id: 2,
+      label: "Organization Members",
+      value: organizationSummary?.totalMembers ?? 0,
+      change: `${organizationSummary?.onlineMembers ?? 0} currently online`,
+      changeColor: "text-brand-strong",
+      icon: Building2,
+      iconColor: "text-brand-strong",
+      iconFill: false,
+      borderClass: "",
+      bgClass: "",
+      valueColor: "text-primary",
+    },
+    {
+      id: 3,
+      label: "Low/Med Severity",
+      value: (organizationSummary?.severityCounts?.low ?? 0) + (organizationSummary?.severityCounts?.medium ?? 0),
+      change: "Minor incidents",
+      changeColor: "text-subtle",
+      icon: BarChart3,
+      iconColor: "text-subtle",
+      iconFill: false,
+      borderClass: "",
+      bgClass: "",
+      valueColor: "text-primary",
+    },
+    {
+      id: 4,
+      label: "Critical (P1)",
+      value: organizationSummary?.severityCounts?.critical ?? 0,
+      change: "Immediate action",
+      changeColor: "text-danger-soft",
+      icon: AlertTriangle,
+      iconColor: "text-danger-soft pulse-glow",
+      iconFill: true,
+      borderClass: "border-danger-border-strong",
+      bgClass: "bg-danger-bg-subtle",
+      valueColor: "text-danger-soft",
+    },
+  ];
+
+  const getSeverityStyles = (severity) => {
+    switch (severity?.toLowerCase()) {
+      case 'critical':
+        return {
+          color: 'text-danger-soft',
+          bg: 'bg-danger-bg-subtle border-danger-border-strong',
+          text: 'Critical'
+        };
+      case 'high':
+        return {
+          color: 'text-semantic-warning',
+          bg: 'bg-semantic-warning/10 border-semantic-warning/20',
+          text: 'High'
+        };
+      case 'medium':
+        return {
+          color: 'text-brand-strong',
+          bg: 'bg-brand-muted border-brand/25',
+          text: 'Medium'
+        };
+      default:
+        return {
+          color: 'text-subtle',
+          bg: 'bg-surface-elevated border-border-primary',
+          text: severity?.charAt(0).toUpperCase() + severity?.slice(1) || 'Low'
+        };
+    }
+  };
+
   const getStatusIndicator = (status) => {
     switch (status) {
-      case "operational":
-        return "bg-semantic-success";
-      case "degraded":
-        return "bg-semantic-warning";
-      case "down":
+      case "open":
         return "bg-danger-soft";
+      case "investigating":
+        return "bg-semantic-warning";
+      case "resolved":
+        return "bg-semantic-success";
       default:
         return "bg-subtle";
     }
@@ -336,12 +308,12 @@ const DashBoardHome = () => {
 
   const getStatusTextColor = (status) => {
     switch (status) {
-      case "operational":
-        return "text-semantic-success";
-      case "degraded":
-        return "text-semantic-warning";
-      case "down":
+      case "open":
         return "text-danger-soft";
+      case "investigating":
+        return "text-semantic-warning";
+      case "resolved":
+        return "text-semantic-success";
       default:
         return "text-subtle";
     }
@@ -522,54 +494,63 @@ const DashBoardHome = () => {
                     <h3 className="text-[16px] sm:text-[18px] leading-[1.4] font-semibold text-primary">
                       Active Incidents
                     </h3>
-                    <a
+                    <Link
+                      to="/home/incident"
                       className="text-brand text-[12px] leading-none tracking-[0.01em] font-medium hover:underline"
-                      href="#"
                     >
                       View All
-                    </a>
+                    </Link>
                   </div>
                   <div className="divide-y divide-border-primary">
-                    {activeIncidents.map((incident) => (
-                      <div
-                        key={incident.id}
-                        className="p-4 hover:bg-surface-elevated transition-colors flex items-center gap-4"
-                      >
-                        <div
-                          className={`shrink-0 w-10 h-10 rounded-lg flex items-center justify-center ${incident.severityBg}`}
-                        >
-                          <span className={`font-bold ${incident.severityColor}`}>
-                            {incident.severity}
-                          </span>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1 flex-wrap">
-                            <span className="text-primary font-medium truncate">
-                              {incident.title}
-                            </span>
-                            <span
-                              className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded border shrink-0 ${incident.badgeBg}`}
+                    {activeIncidentsList.length > 0 ? (
+                      activeIncidentsList.map((incident) => {
+                        const styles = getSeverityStyles(incident.severity);
+                        return (
+                          <div
+                            key={incident._id}
+                            className="p-4 hover:bg-surface-elevated transition-colors flex items-center gap-4"
+                          >
+                            <div
+                              className={`shrink-0 w-10 h-10 rounded-lg flex items-center justify-center ${styles.bg}`}
                             >
-                              {incident.badgeText}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2 sm:gap-4 text-xs text-subtle">
-                            <span className="flex items-center gap-1 truncate">
-                              <User className="w-3 h-3 shrink-0" />{" "}
-                              <span className="truncate">
-                                {incident.assignee}
+                              <span className={`font-bold ${styles.color}`}>
+                                {incident.severity?.charAt(0).toUpperCase()}
                               </span>
-                            </span>
-                            <span className="flex items-center gap-1 shrink-0">
-                              <Clock className="w-3 h-3" /> {incident.timeAgo}
-                            </span>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                <span className="text-primary font-medium truncate">
+                                  {incident.title}
+                                </span>
+                                <span
+                                  className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded border shrink-0 ${styles.bg}`}
+                                >
+                                  {styles.text}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2 sm:gap-4 text-xs text-subtle">
+                                <span className="flex items-center gap-1 truncate">
+                                  <User className="w-3 h-3 shrink-0" />{" "}
+                                  <span className="truncate">
+                                    {incident.createdBy?.name || "Member"}
+                                  </span>
+                                </span>
+                                <span className="flex items-center gap-1 shrink-0">
+                                  <Clock className="w-3 h-3" /> {new Date(incident.createdAt).toLocaleDateString()}
+                                </span>
+                              </div>
+                            </div>
+                            <Link to="/home/incident_details" state={{ incidentId: incident._id }} className="p-2 hover:bg-surface-inset rounded-lg text-subtle">
+                              <ChevronRight className="w-5 h-5" />
+                            </Link>
                           </div>
-                        </div>
-                        <button className="p-2 hover:bg-surface-inset rounded-lg text-subtle">
-                          <ChevronRight className="w-5 h-5" />
-                        </button>
+                        );
+                      })
+                    ) : (
+                      <div className="p-8 text-center text-secondary">
+                        No active incidents found.
                       </div>
-                    ))}
+                    )}
                   </div>
                 </div>
 
@@ -578,48 +559,41 @@ const DashBoardHome = () => {
                     System Health
                   </h3>
                   <div className="space-y-4">
-                    {systemHealth.map((service) => (
-                      <div
-                        key={service.id}
-                        className="flex items-center justify-between"
-                      >
-                        <div className="flex items-center gap-3">
-                          <span
-                            className={`w-2 h-2 rounded-full ${getStatusIndicator(service.status)}`}
-                          ></span>
-                          <span className="text-sm font-medium text-primary">
-                            {service.name}
-                          </span>
-                        </div>
-                        <span
-                          className={`text-xs ${getStatusTextColor(service.status)}`}
-                        >
-                          {service.uptime}
-                        </span>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <span className={`w-2 h-2 rounded-full ${(organizationSummary?.severityCounts?.critical > 0 || organizationSummary?.severityCounts?.high > 0) ? "bg-danger-soft" : "bg-semantic-success"}`}></span>
+                        <span className="text-sm font-medium text-primary">Core Services</span>
                       </div>
-                    ))}
+                      <span className={`text-xs ${(organizationSummary?.severityCounts?.critical > 0 || organizationSummary?.severityCounts?.high > 0) ? "text-danger-soft" : "text-semantic-success"}`}>
+                        {(organizationSummary?.severityCounts?.critical > 0 || organizationSummary?.severityCounts?.high > 0) ? "Degraded" : "Operational"}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <span className={`w-2 h-2 rounded-full ${organizationSummary?.severityCounts?.critical > 0 ? "bg-danger-soft" : "bg-semantic-success"}`}></span>
+                        <span className="text-sm font-medium text-primary">Incident Pipeline</span>
+                      </div>
+                      <span className={`text-xs ${organizationSummary?.severityCounts?.critical > 0 ? "text-danger-soft" : "text-semantic-success"}`}>
+                        {organizationSummary?.severityCounts?.critical > 0 ? "Under Load" : "Healthy"}
+                      </span>
+                    </div>
                   </div>
                   <div className="mt-8 pt-6 border-t border-border-primary">
                     <div className="flex items-center justify-between mb-4">
                       <span className="text-xs text-subtle uppercase font-medium">
-                        On-Call Rotating
-                      </span>
-                      <span className="text-[10px] text-semantic-warning px-2 py-0.5 bg-semantic-warning/10 border border-semantic-warning/20 rounded-full font-bold">
-                        L1 Support
+                        On-Call Status
                       </span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <img
-                        alt="Portrait of a smiling professional in a dark shirt with cinematic lighting"
-                        className="w-10 h-10 rounded-full border border-border-primary"
-                        src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&h=150&fit=crop&crop=face"
-                      />
+                      <div className="w-10 h-10 rounded-full border border-border-primary flex items-center justify-center bg-surface-elevated">
+                        <User className="w-5 h-5 text-secondary" />
+                      </div>
                       <div>
                         <p className="text-sm font-medium text-primary">
-                          Sarah Connor
+                          {user?.name || "You"}
                         </p>
                         <p className="text-xs text-subtle">
-                          Shift ends in 4h 12m
+                          Active responder
                         </p>
                       </div>
                     </div>
@@ -658,35 +632,43 @@ const DashBoardHome = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-border-primary text-sm text-secondary">
-                      {resolvedIncidents.map((incident) => (
-                        <tr
-                          key={incident.id}
-                          className="hover:bg-surface-elevated transition-colors"
-                        >
-                          <td className="px-3 py-3 sm:px-4 sm:py-4 font-mono text-xs">
-                            {incident.id}
-                          </td>
-                          <td className="px-3 py-3 sm:px-4 sm:py-4 font-medium text-primary">
-                            {incident.title}
-                          </td>
-                          <td className="px-3 py-3 sm:px-4 sm:py-4">
-                            {incident.duration}
-                          </td>
-                          <td className="px-4 py-4 text-subtle">
-                            {incident.resolvedAt}
-                          </td>
-                          <td className="px-4 py-4">{incident.responder}</td>
-                          <td className="px-4 py-4">
-                            <span className="flex items-center gap-1.5 text-semantic-success text-xs">
-                              <CheckCircle2
-                                className="w-4 h-4"
-                                fill="currentColor"
-                              />
-                              Resolved
-                            </span>
+                      {resolvedIncidentsList.length > 0 ? (
+                        resolvedIncidentsList.map((incident) => (
+                          <tr
+                            key={incident._id}
+                            className="hover:bg-surface-elevated transition-colors"
+                          >
+                            <td className="px-3 py-3 sm:px-4 sm:py-4 font-mono text-xs">
+                              {incident._id?.slice(-8).toUpperCase()}
+                            </td>
+                            <td className="px-3 py-3 sm:px-4 sm:py-4 font-medium text-primary">
+                              {incident.title}
+                            </td>
+                            <td className="px-3 py-3 sm:px-4 sm:py-4">
+                              {new Date(incident.updatedAt).toLocaleDateString()}
+                            </td>
+                            <td className="px-4 py-4 text-subtle">
+                              {incident.resolvedAt ? new Date(incident.resolvedAt).toLocaleDateString() : 'N/A'}
+                            </td>
+                            <td className="px-4 py-4">{incident.createdBy?.name || "Member"}</td>
+                            <td className="px-4 py-4">
+                              <span className="flex items-center gap-1.5 text-semantic-success text-xs">
+                                <CheckCircle2
+                                  className="w-4 h-4"
+                                  fill="currentColor"
+                                />
+                                Resolved
+                              </span>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan="6" className="px-4 py-8 text-center text-secondary">
+                            No resolved incidents found.
                           </td>
                         </tr>
-                      ))}
+                      )}
                     </tbody>
                   </table>
                 </div>
@@ -821,15 +803,15 @@ const DashBoardHome = () => {
       )}
 
       <div className="fixed lg:bottom-4 right-4 sm:bottom-8 sm:right-8 flex items-center gap-2 sm:gap-3 bg-surface-elevated border border-border-primary rounded-full pl-2 pr-3 sm:pr-4 py-1.5 sm:py-2 shadow-2xl z-40 bottom-14 md:bottom-16">
-        <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-semantic-success/10 flex items-center justify-center">
-          <span className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-semantic-success pulse-glow block"></span>
+        <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center">
+          <span className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full pulse-glow block ${organizationSummary?.severityCounts?.critical > 0 ? "bg-danger-soft" : "bg-semantic-success"}`}></span>
         </div>
         <div className="flex flex-col">
           <span className="text-[8px] sm:text-[10px] text-subtle leading-none uppercase font-bold">
-            Global Status
+            Org Status
           </span>
           <span className="text-[10px] sm:text-xs text-primary font-medium">
-            99.98% Healthy
+            {organizationSummary?.activeIncidents > 0 ? `${organizationSummary.activeIncidents} Active Incidents` : "All Systems Healthy"}
           </span>
         </div>
       </div>
