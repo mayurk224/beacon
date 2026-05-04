@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
-import { authApi } from "./authApi";
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 const GOOGLE_INIT_RETRIES = 20;
@@ -44,8 +43,8 @@ const GoogleSignInButton = ({
 
       google.initialize({
         client_id: GOOGLE_CLIENT_ID,
-        callback: async (response) => {
-          if (!response.credential) {
+        callback: async ({ credential }) => {
+          if (!credential) {
             onError?.("Google did not return a sign-in credential.");
             return;
           }
@@ -53,15 +52,11 @@ const GoogleSignInButton = ({
           setIsSubmitting(true);
 
           try {
-            const { data } = await authApi.post("/google", {
-              credential: response.credential,
-            });
-
-            localStorage.setItem("isAuthenticated", "true");
-            onSuccess?.(data.user);
+            await onSuccess?.(credential);
           } catch (error) {
             const message =
               error.response?.data?.message ||
+              error.message ||
               "Google sign-in failed. Please try again.";
             onError?.(message);
           } finally {

@@ -1,13 +1,11 @@
-import { Search, Bell, Moon, Sun, Shield, Settings } from "lucide-react";
+import { Moon, Sun, Shield } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTheme } from 'next-themes'
-import { useEffect, useState } from 'react'
+import { useAuth } from "../auth/useAuth";
 
 export default function Navbar() {
   const { theme, resolvedTheme, setTheme } = useTheme()
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => setMounted(true), [])
+  const { user } = useAuth()
 
   const toggleTheme = (e) => {
     e.preventDefault()
@@ -34,24 +32,38 @@ export default function Navbar() {
           aria-label="Toggle theme"
           className="p-2 rounded-lg hover:bg-surface-interactive transition-colors text-muted hover:text-secondary"
           title="Toggle theme"
-          disabled={!mounted}
         >
-          {mounted && (resolvedTheme === 'dark' ? <Sun size={16} /> : <Moon size={16} />)}
+          {(resolvedTheme === 'dark' ? <Sun size={16} /> : <Moon size={16} />)}
         </button>
 
         {/* Divider */}
         <div className="w-px h-6 bg-border-primary hidden sm:block"></div>
+
+        <div className="hidden sm:flex flex-col items-end leading-tight">
+          <span className="text-sm font-medium text-primary">
+            {user?.name || "Signed-in user"}
+          </span>
+          <span className="text-xs text-subtle">
+            {user?.email || "No email available"}
+          </span>
+        </div>
 
         {/* Avatar */}
         <Link
           to={"/home/profile"}
           className="w-9 h-9 rounded-full bg-surface-interactive flex items-center justify-center text-sm font-medium cursor-pointer hover:ring-2 hover:ring-border-muted transition overflow-hidden"
         >
-          <img
-            src="https://plus.unsplash.com/premium_photo-1763856261042-b0931522b878?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHw0MXx8fGVufDB8fHx8fA%3D%3D"
-            alt="User avatar"
-            className="w-full h-full object-cover"
-          />
+          {user?.avatar ? (
+            <img
+              src={user.avatar}
+              alt={user.name || "User avatar"}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <span className="text-primary">
+              {user?.name?.charAt(0)?.toUpperCase() || "U"}
+            </span>
+          )}
         </Link>
       </div>
     </div>

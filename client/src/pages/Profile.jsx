@@ -1,28 +1,44 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   User,
   Mail,
-  Save,
   LogOut,
   Trash2,
   Loader2,
   Pencil,
   Image as ImageIcon,
 } from 'lucide-react';
+import { useAuth } from '../auth/useAuth';
 
 const Profile = () => {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
-  const [name, setName] = useState('John Doe');
-  const [email, setEmail] = useState('john@example.com');
-  const [bio, setBio] = useState('Frontend developer passionate about UI/UX.');
-  const [profilePic, setProfilePic] = useState(
-    'https://i.pravatar.cc/150?img=12'
-  );
+  const [draftName, setDraftName] = useState('');
+  const [draftEmail, setDraftEmail] = useState('');
+  const [draftBio, setDraftBio] = useState('');
+  const [draftProfilePic, setDraftProfilePic] = useState('');
 
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+
+  const displayName = isEditing ? draftName : user?.name || '';
+  const displayEmail = isEditing ? draftEmail : user?.email || '';
+  const displayBio = isEditing ? draftBio : user?.bio || '';
+  const displayProfilePic = isEditing ? draftProfilePic : user?.avatar || '';
+
+  const beginEditing = () => {
+    setDraftName(user?.name || '');
+    setDraftEmail(user?.email || '');
+    setDraftBio(user?.bio || '');
+    setDraftProfilePic(user?.avatar || '');
+    setIsEditing(true);
+  };
+
+  const stopEditing = () => {
+    setIsEditing(false);
+  };
 
   const handleSave = () => {
     setIsSaving(true);
@@ -30,12 +46,12 @@ const Profile = () => {
     setTimeout(() => {
       alert('Profile updated!');
       setIsSaving(false);
-      setIsEditing(false);
+      stopEditing();
     }, 1000);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('isAuthenticated');
+  const handleLogout = async () => {
+    await logout();
     navigate('/signin');
   };
 
@@ -54,7 +70,7 @@ const Profile = () => {
     const file = e.target.files[0];
     if (file) {
       const imageUrl = URL.createObjectURL(file);
-      setProfilePic(imageUrl);
+      setDraftProfilePic(imageUrl);
     }
   };
 
@@ -72,7 +88,7 @@ const Profile = () => {
           </div>
 
           <button
-            onClick={() => setIsEditing(!isEditing)}
+            onClick={() => (isEditing ? stopEditing() : beginEditing())}
             className="btn-outline"
           >
             <Pencil className="w-4 h-4" />
@@ -87,7 +103,12 @@ const Profile = () => {
           <div className="flex flex-col items-center gap-3">
             <div className="relative">
               <img
-                src={profilePic}
+                src={
+                  displayProfilePic ||
+                  `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                    displayName || 'User'
+                  )}&background=0f172a&color=ffffff`
+                }
                 alt="profile"
                 className="w-24 h-24 rounded-full object-cover border border-border-muted"
               />
@@ -113,9 +134,9 @@ const Profile = () => {
             <div className="relative">
               <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-subtle" />
               <input
-                value={name}
+                value={displayName}
                 disabled={!isEditing}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => setDraftName(e.target.value)}
                 className="input pl-9!"
               />
             </div>
@@ -129,9 +150,9 @@ const Profile = () => {
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-subtle" />
               <input
-                value={email}
+                value={displayEmail}
                 disabled={!isEditing}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => setDraftEmail(e.target.value)}
                 className="input pl-9!"
               />
             </div>
@@ -143,9 +164,9 @@ const Profile = () => {
               Bio
             </label>
             <textarea
-              value={bio}
+              value={displayBio}
               disabled={!isEditing}
-              onChange={(e) => setBio(e.target.value)}
+              onChange={(e) => setDraftBio(e.target.value)}
               rows={3}
               className="input"
             />

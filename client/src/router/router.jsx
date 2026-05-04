@@ -3,6 +3,7 @@ import Layout from "../layout/Layout";
 import MainLayout from "../landing/MainLayout";
 import SignIn from "../auth/SignIn";
 import SignUp from "../auth/SignUp";
+import RequireAuth from "../auth/RequireAuth";
 import DashBoardHome from "../pages/DashBoardHome";
 import DashBoardIncident from "../pages/DashBoardIncident";
 import DashBoardAlert from "../pages/DashBoardAlert";
@@ -21,107 +22,99 @@ import AdminUserManagement from "../admin/AdminUserManagement";
 import AdminActivity from "../admin/AdminActivity";
 import AdminRoles from "../admin/AdminRoles";
 
-
-
-
 export const router = createBrowserRouter([
-
-    // landingpage layout
-    {
-        path: "/",
-        element: <MainLayout />,
-        children: [
-
-        ]
-    },
-
-    {
+  {
+    path: "/",
+    element: <MainLayout />,
+    children: [],
+  },
+  {
+    element: <RequireAuth />,
+    children: [
+      {
         path: "/home",
         element: <Layout />,
         children: [
-            {
-                index: true,   // ✅ correct way for default route
-                element: <DashBoardHome />
-            },
-            {
-                path: "incidents",  // ✅ relative path
-                element: <DashBoardIncident />
-            },
-            {
-                path: "alerts",
-                element: <DashBoardAlert />
-            },
-            {
-                path: "analytics",
-                element: <DashBoardAnalytics />
-            },
-            {
-                path: "team",
-                element: <DashBoardTeam />
-            },
-            {
-                path: "member_details",
-                element: <DashBoardMemberDetails />
-            },
-            {
-                path: "alert_details",
-                element: <DashBoardAlertDetail />
-            },
-            {
-                path: "incident_details",
-                element: <DashBoardIncidentDetails />
-            },
-            {
-                path: "play_book",
-                element: <DashBoardPlayBook />
-            },
-            {
-                path: "create_incident",
-                element: <CreateIncident />
-            },
-            {
-                path: "user_settings",
-                element: <DashBoardSetting />
-            },
-            {
-                path: "profile",
-                element: <Profile />
-            }
-        ]
-    },
-
-    {
+          {
+            index: true,
+            element: <DashBoardHome />,
+          },
+          {
+            path: "incidents",
+            element: <DashBoardIncident />,
+          },
+          {
+            path: "alerts",
+            element: <DashBoardAlert />,
+          },
+          {
+            path: "analytics",
+            element: <DashBoardAnalytics />,
+          },
+          {
+            path: "team",
+            element: <DashBoardTeam />,
+          },
+          {
+            path: "member_details",
+            element: <DashBoardMemberDetails />,
+          },
+          {
+            path: "alert_details",
+            element: <DashBoardAlertDetail />,
+          },
+          {
+            path: "incident_details",
+            element: <DashBoardIncidentDetails />,
+          },
+          {
+            path: "play_book",
+            element: <DashBoardPlayBook />,
+          },
+          {
+            path: "create_incident",
+            element: <CreateIncident />,
+          },
+          {
+            path: "user_settings",
+            element: <DashBoardSetting />,
+          },
+          {
+            path: "profile",
+            element: <Profile />,
+          },
+        ],
+      },
+      {
         path: "/admin",
         element: <AdminMain />,
         children: [
-            {
-                index:true,
-                element: <AdminHome />
-            },
-            {
-                path:"users",
-                element:<AdminUserManagement/>
-            },
-            {
-                path:"activity",
-                element:<AdminActivity/>
-            },
-            {
-                path:"roles",
-                element:<AdminRoles/>
-            }
-        ]
-    },
-
-    // auth layout
-    {
-        path: "/signin",
-        element: <SignIn />
-    },
-    {
-        path: "/signup",
-        element: <SignUp />
-    },
-])
-
-
+          {
+            index: true,
+            element: <AdminHome />,
+          },
+          {
+            path: "users",
+            element: <AdminUserManagement />,
+          },
+          {
+            path: "activity",
+            element: <AdminActivity />,
+          },
+          {
+            path: "roles",
+            element: <AdminRoles />,
+          },
+        ],
+      },
+    ],
+  },
+  {
+    path: "/signin",
+    element: <SignIn />,
+  },
+  {
+    path: "/signup",
+    element: <SignUp />,
+  },
+]);

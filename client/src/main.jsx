@@ -4,12 +4,15 @@ import './index.css'
 import { RouterProvider } from 'react-router-dom'
 import { router } from './router/router'
 import { ThemeProvider } from 'next-themes'
+import { AuthProvider } from './auth/AuthContext'
 
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-      <RouterProvider router={router} />
-    </ThemeProvider>
+    <AuthProvider>
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <RouterProvider router={router} />
+      </ThemeProvider>
+    </AuthProvider>
   </StrictMode>,
 )

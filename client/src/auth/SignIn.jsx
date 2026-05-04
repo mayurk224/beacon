@@ -9,12 +9,13 @@ import {
   Mail,
   Loader2,
 } from "lucide-react";
-import { authApi } from "./authApi";
 import GoogleSignInButton from "./GoogleSignInButton";
+import { useAuth } from "./useAuth";
 
 const SignIn = () => {
   const rememberedEmail = localStorage.getItem("rememberedEmail") || "";
   const navigate = useNavigate();
+  const { login, loginWithGoogle } = useAuth();
   const [email, setEmail] = useState(rememberedEmail);
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -28,9 +29,7 @@ const SignIn = () => {
     setIsLoading(true);
 
     try {
-      await authApi.post("/login", { email, password });
-
-      localStorage.setItem("isAuthenticated", "true");
+      await login({ email, password });
       if (rememberMe) {
         localStorage.setItem("rememberedEmail", email);
       } else {
@@ -149,7 +148,10 @@ const SignIn = () => {
           <GoogleSignInButton
             label="Signing in with Google"
             disabled={isLoading}
-            onSuccess={() => navigate("/home")}
+            onSuccess={async (credential) => {
+              await loginWithGoogle(credential);
+              navigate("/home");
+            }}
             onError={setError}
           />
 
