@@ -2,6 +2,7 @@ import { Moon, Sun, Shield } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTheme } from 'next-themes'
 import { useAuth } from "../auth/useAuth";
+import OrganizationSwitcher from "./OrganizationSwitcher";
 
 export default function Navbar() {
   const { theme, resolvedTheme, setTheme } = useTheme()
@@ -17,6 +18,8 @@ export default function Navbar() {
     <div className="h-full flex items-center justify-end px-3 sm:px-6 gap-2 sm:gap-4 ">
       {/* Right Side */}
       <div className="flex items-center gap-2 sm:gap-4">
+        <OrganizationSwitcher />
+
         {/* Admin Panel */}
         <Link
           to="/admin"

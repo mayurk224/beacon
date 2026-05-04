@@ -23,6 +23,8 @@ import AdminHome from "../admin/AdminHome";
 import AdminUserManagement from "../admin/AdminUserManagement";
 import AdminActivity from "../admin/AdminActivity";
 import AdminRoles from "../admin/AdminRoles";
+import OrganizationsPage from "../pages/OrganizationsPage";
+import OrganizationDetailPage from "../pages/OrganizationDetailPage";
 
 export const router = createBrowserRouter([
   {
@@ -84,6 +86,14 @@ export const router = createBrowserRouter([
           {
             path: "profile",
             element: <Profile />,
+          },
+          {
+            path: "organizations",
+            element: <OrganizationsPage />,
+          },
+          {
+            path: "organizations/:id",
+            element: <OrganizationDetailPage />,
           },
         ],
       },

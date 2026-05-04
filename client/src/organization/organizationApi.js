@@ -49,3 +49,18 @@ export const handleOrganizationJoinRequest = async (requestId, status) => {
   );
   return data;
 };
+
+export const getOrganizations = async () => {
+  const { data } = await apiClient.get("/api/users/organization");
+  return data.organizations || [];
+};
+
+export const updateOrganization = async (id, payload) => {
+  const { data } = await apiClient.patch(`/api/users/organization/${id}`, payload);
+  return data.organization;
+};
+
+export const acceptInvite = async (token) => {
+  const { data } = await apiClient.post("/api/users/organization/user/invite/accept", { token });
+  return data;
+};
