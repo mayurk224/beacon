@@ -4,7 +4,7 @@ import { Brain, CloudUpload, Loader2, Tag, X } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "../auth/useAuth";
 import { getOrganizationById } from "../organization/organizationApi";
-import { createIncident } from "../incident/incidentApi";
+import { useIncident } from "../incident/useIncident";
 
 const severityOptions = [
   { id: "critical", label: "Critical", color: "text-danger-soft border-danger-soft/30 bg-semantic-error/10" },
@@ -16,6 +16,7 @@ const severityOptions = [
 const CreateIncident = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { createNewIncident } = useIncident();
   const primaryMembership = user?.memberships?.[0];
   const primaryOrganizationId =
     primaryMembership?.organization?._id || primaryMembership?.organization;
@@ -122,7 +123,7 @@ const CreateIncident = () => {
     setIsSubmitting(true);
 
     try {
-      const incident = await createIncident({
+      const incident = await createNewIncident({
         title: title.trim(),
         description: [description.trim(), tags.length ? `Tags: ${tags.join(", ")}` : ""]
           .filter(Boolean)

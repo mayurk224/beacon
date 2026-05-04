@@ -30,17 +30,18 @@ import {
   Loader2,
 } from 'lucide-react';
 import { useAuth } from '../auth/useAuth';
-import { getIncidentsForOrganization } from '../incident/incidentApi';
+import { useIncident } from '../incident/useIncident';
 
 const DashBoardIncident = () => {
   const { user } = useAuth();
   const primaryMembership = user?.memberships?.[0];
   const primaryOrganizationId = primaryMembership?.organization?._id || primaryMembership?.organization;
 
+  const { incidents: rawIncidents, loading: isLoading, fetchIncidents } = useIncident();
+
   // Tab state
   const [activeTab, setActiveTab] = useState('all');
   const [activePage, setActivePage] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSeverity, setSelectedSeverity] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
@@ -51,7 +52,6 @@ const DashBoardIncident = () => {
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
-  const [selectedIncident, setSelectedIncident] = useState(null);
 
   const tabs = [
     { id: 'all', label: 'All', count: 0 },
@@ -60,16 +60,6 @@ const DashBoardIncident = () => {
     { id: 'resolved', label: 'Resolved', count: 0 },
     { id: 'critical', label: 'Critical (P1)', count: 0 },
   ];
-
-  const [statsCards, setStatsCards] = useState([
-    { id: 1, label: 'Active Incidents', value: '0', icon: Timer, trend: 'Current active', trendIcon: TrendingDown, trendColor: 'text-emerald-500' },
-    { id: 2, label: 'Open Critical (P1)', value: '0', icon: AlertTriangle, iconColor: 'text-accent-orange', iconFill: true, subtitle: 'Immediate action required', subtitleColor: 'text-muted' },
-    { id: 3, label: 'Resolved', value: '0', icon: CheckCircle2, iconColor: 'text-brand-strong', trend: 'Total resolved', trendIcon: ArrowUp, trendColor: 'text-emerald-500' },
-  ]);
-
-  const [incidents, setIncidents] = useState([]);
-
-  const [recentActivities, setRecentActivities] = useState([]);
 
   const mapSeverityToClass = (sev) => {
     switch ((sev || '').toLowerCase()) {
@@ -90,14 +80,8 @@ const DashBoardIncident = () => {
     return 'bg-surface-interactive text-secondary';
   };
 
-  const normalizeIncident = (inc) => {
-    const severityMap = {
-      critical: 'SEV-1',
-      high: 'SEV-2',
-      medium: 'SEV-3',
-      low: 'SEV-4'
-    };
-
+  const normalizeIncident = useCallback((inc) => {
+    const severityMap = { critical: 'SEV-1', high: 'SEV-2', medium: 'SEV-3', low: 'SEV-4' };
     return {
       id: inc._id,
       name: inc.title,
@@ -118,51 +102,30 @@ const DashBoardIncident = () => {
       description: inc.description || '',
       tags: inc.tags || [],
     };
-  };
+  }, [user?._id]);
 
-  const fetchData = useCallback(async () => {
-    if (!primaryOrganizationId) return;
+  const incidents = useMemo(() => (rawIncidents || []).map(normalizeIncident), [rawIncidents, normalizeIncident]);
 
-    setIsLoading(true);
-    try {
-      const incidentsData = await getIncidentsForOrganization(primaryOrganizationId);
-      const normalized = (incidentsData || []).map(normalizeIncident);
-      setIncidents(normalized);
+  const statsCards = useMemo(() => {
+    const active = incidents.filter(i => !i.isResolved).length;
+    const critical = incidents.filter(i => i.severity === 'SEV-1' && !i.isResolved).length;
+    const resolved = incidents.filter(i => i.isResolved).length;
+    return [
+      { id: 1, label: 'Active Incidents', value: active.toString(), icon: Timer, trend: 'Current active', trendIcon: TrendingDown, trendColor: 'text-emerald-500' },
+      { id: 2, label: 'Open Critical (P1)', value: critical.toString().padStart(2, '0'), icon: AlertTriangle, iconColor: 'text-accent-orange', iconFill: true, subtitle: 'Immediate action required', subtitleColor: 'text-muted' },
+      { id: 3, label: 'Resolved', value: resolved.toString(), icon: CheckCircle2, iconColor: 'text-brand-strong', trend: 'Total resolved', trendIcon: ArrowUp, trendColor: 'text-emerald-500' },
+    ];
+  }, [incidents]);
 
-      // Update stats cards
-      const active = normalized.filter(i => !i.isResolved).length;
-      const critical = normalized.filter(i => i.severity === 'SEV-1' && !i.isResolved).length;
-      const resolved = normalized.filter(i => i.isResolved).length;
+  const recentActivities = useMemo(() =>
+    incidents
+      .filter(i => i.isResolved)
+      .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+      .slice(0, 3)
+      .map(i => ({ id: i.id, title: `#${i.id.slice(-6).toUpperCase()} Resolved`, description: i.name, timestamp: new Date(i.timestamp).toLocaleString(), status: 'resolved' }))
+  , [incidents]);
 
-      setStatsCards([
-        { id: 1, label: 'Active Incidents', value: active.toString(), icon: Timer, trend: 'Current active', trendIcon: TrendingDown, trendColor: 'text-emerald-500' },
-        { id: 2, label: 'Open Critical (P1)', value: critical.toString().padStart(2, '0'), icon: AlertTriangle, iconColor: 'text-accent-orange', iconFill: true, subtitle: 'Immediate action required', subtitleColor: 'text-muted' },
-        { id: 3, label: 'Resolved', value: resolved.toString(), icon: CheckCircle2, iconColor: 'text-brand-strong', trend: 'Total resolved', trendIcon: ArrowUp, trendColor: 'text-emerald-500' },
-      ]);
-
-      // Update recent activity with last 3 resolved incidents
-      const lastResolved = normalized
-        .filter(i => i.isResolved)
-        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-        .slice(0, 3)
-        .map(i => ({
-          id: i.id,
-          title: `#${i.id.slice(-6).toUpperCase()} Resolved`,
-          description: i.name,
-          timestamp: new Date(i.timestamp).toLocaleString(),
-          status: 'resolved'
-        }));
-      
-      setRecentActivities(lastResolved);
-
-    } catch (err) {
-      console.error("Error fetching incidents:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [primaryOrganizationId, user?._id]);
-
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => { fetchIncidents(primaryOrganizationId); }, [primaryOrganizationId, fetchIncidents]);
 
   // Filter incidents based on active tab, search, severity, status
   const getFilteredIncidents = () => {
@@ -280,7 +243,7 @@ const DashBoardIncident = () => {
   ];
 
   const handleRefresh = () => {
-    fetchData();
+    fetchIncidents(primaryOrganizationId);
   };
 
   const handleExport = () => {

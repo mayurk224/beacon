@@ -6,7 +6,6 @@ import {
   CheckCircle2,
   ChevronRight,
   Clock,
-  Loader2,
   MessageSquare,
   Send,
   User,
@@ -14,14 +13,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "../auth/useAuth";
-import {
-  addIncidentUpdate,
-  assignIncidentResponders,
-  getIncidentById,
-  getIncidentResponders,
-  getIncidentUpdates,
-  unassignIncidentResponders,
-} from "../incident/incidentApi";
+import { useIncident } from "../incident/useIncident";
 import { getOrganizationById } from "../organization/organizationApi";
 
 const severityColorMap = {
@@ -44,53 +36,34 @@ const DashBoardIncidentDetails = () => {
     primaryMembership?.organization?._id || primaryMembership?.organization;
   const canManageIncident = primaryMembership?.role !== "viewer";
 
-  const [incident, setIncident] = useState(null);
-  const [updates, setUpdates] = useState([]);
-  const [responders, setResponders] = useState([]);
+  const {
+    activeIncident: incident,
+    incidentUpdates: updates,
+    incidentResponders: responders,
+    loading,
+    fetchIncidentDetails,
+    postIncidentUpdate,
+    updateIncidentResponders,
+  } = useIncident();
+
   const [members, setMembers] = useState([]);
   const [activeTab, setActiveTab] = useState("overview");
   const [newUpdateMessage, setNewUpdateMessage] = useState("");
   const [nextStatus, setNextStatus] = useState("investigating");
   const [selectedResponderIds, setSelectedResponderIds] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [isSubmittingUpdate, setIsSubmittingUpdate] = useState(false);
   const [isSavingResponders, setIsSavingResponders] = useState(false);
 
-  const loadIncident = useCallback(async () => {
-    if (!incidentId) {
-      return;
+  const loadAll = useCallback(async () => {
+    if (!incidentId) return;
+    await fetchIncidentDetails(incidentId);
+    if (primaryOrganizationId) {
+      try {
+        const orgData = await getOrganizationById(primaryOrganizationId);
+        setMembers(orgData.members || []);
+      } catch (_) {}
     }
-
-    setIsLoading(true);
-    try {
-      const [incidentData, incidentUpdates, assignedResponders, organizationData] =
-        await Promise.all([
-          getIncidentById(incidentId),
-          getIncidentUpdates(incidentId),
-          getIncidentResponders(incidentId),
-          primaryOrganizationId
-            ? getOrganizationById(primaryOrganizationId)
-            : Promise.resolve({ members: [] }),
-        ]);
-
-      setIncident(incidentData);
-      setUpdates(incidentUpdates);
-      setResponders(assignedResponders);
-      setSelectedResponderIds(
-        assignedResponders.map((responder) => responder.userId),
-      );
-      setMembers(organizationData.members || []);
-      setNextStatus(
-        incidentData.status === "resolved" ? "resolved" : "investigating",
-      );
-    } catch (error) {
-      toast.error(
-        error.response?.data?.message || "Unable to load incident details.",
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  }, [incidentId, primaryOrganizationId]);
+  }, [incidentId, primaryOrganizationId, fetchIncidentDetails]);
 
   useEffect(() => {
     if (location.state?.incidentId) {
@@ -98,13 +71,19 @@ const DashBoardIncidentDetails = () => {
     }
   }, [location.state]);
 
-  useEffect(() => {
-    const run = async () => {
-      await loadIncident();
-    };
+  useEffect(() => { loadAll(); }, [loadAll]);
 
-    run();
-  }, [loadIncident]);
+  // Sync selectedResponderIds when responders list updates
+  useEffect(() => {
+    setSelectedResponderIds(responders.map((r) => r.userId));
+  }, [responders]);
+
+  // Sync nextStatus when incident status updates
+  useEffect(() => {
+    if (incident) {
+      setNextStatus(incident.status === "resolved" ? "resolved" : "investigating");
+    }
+  }, [incident?.status]);
 
   const parsedDescription = useMemo(() => {
     const rawDescription = incident?.description || "";
@@ -127,13 +106,13 @@ const DashBoardIncidentDetails = () => {
 
     setIsSubmittingUpdate(true);
     try {
-      await addIncidentUpdate(incidentId, {
+      await postIncidentUpdate(incidentId, {
         message: newUpdateMessage.trim(),
         status: nextStatus,
       });
       toast.success("Incident update posted.");
       setNewUpdateMessage("");
-      await loadIncident();
+      await loadAll();
     } catch (error) {
       toast.error(
         error.response?.data?.message ||
@@ -165,14 +144,8 @@ const DashBoardIncidentDetails = () => {
 
     setIsSavingResponders(true);
     try {
-      if (toAssign.length > 0) {
-        await assignIncidentResponders(incidentId, toAssign);
-      }
-      if (toUnassign.length > 0) {
-        await unassignIncidentResponders(incidentId, toUnassign);
-      }
+      await updateIncidentResponders(incidentId, { assignIds: toAssign, unassignIds: toUnassign });
       toast.success("Responder assignments updated.");
-      await loadIncident();
     } catch (error) {
       toast.error(
         error.response?.data?.message || "Unable to update responders.",
@@ -195,11 +168,11 @@ const DashBoardIncidentDetails = () => {
     );
   }
 
-  if (isLoading) {
+  if (loading && !incident) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-surface-header text-primary">
         <div className="flex items-center gap-2 text-sm text-muted">
-          <Loader2 className="w-4 h-4 animate-spin" />
+          <div className="w-4 h-4 border-2 border-brand-strong border-t-transparent rounded-full animate-spin" />
           Loading incident details...
         </div>
       </div>
