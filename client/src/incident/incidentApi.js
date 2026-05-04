@@ -1,13 +1,7 @@
-import axios from "axios";
-import { API_BASE_URL } from "../auth/authApi";
-
-export const incidentApi = axios.create({
-  baseURL: `${API_BASE_URL}/api/incidents`,
-  withCredentials: true,
-});
+import { apiClient } from "../lib/apiClient";
 
 export const getIncidentsForOrganization = async (organizationId) => {
-  const { data } = await incidentApi.get("/all", {
+  const { data } = await apiClient.get("/incidents/all", {
     params: {
       organizationId,
       limit: 100,
@@ -15,4 +9,47 @@ export const getIncidentsForOrganization = async (organizationId) => {
   });
 
   return data.incidents || [];
+};
+
+export const createIncident = async (payload) => {
+  const { data } = await apiClient.post("/incidents/create", payload);
+  return data.incident;
+};
+
+export const getIncidentById = async (incidentId) => {
+  const { data } = await apiClient.get(`/incidents/${incidentId}`);
+  return data.incident;
+};
+
+export const getIncidentUpdates = async (incidentId) => {
+  const { data } = await apiClient.get(`/incidents/${incidentId}/updates`, {
+    params: {
+      limit: 100,
+    },
+  });
+  return data.updates || [];
+};
+
+export const addIncidentUpdate = async (incidentId, payload) => {
+  const { data } = await apiClient.post(`/incidents/${incidentId}/update`, payload);
+  return data.update;
+};
+
+export const getIncidentResponders = async (incidentId) => {
+  const { data } = await apiClient.get(`/incidents/${incidentId}/responders`);
+  return data.responders || [];
+};
+
+export const assignIncidentResponders = async (incidentId, userIds) => {
+  const { data } = await apiClient.post(`/incidents/${incidentId}/assign`, {
+    userIds,
+  });
+  return data;
+};
+
+export const unassignIncidentResponders = async (incidentId, userIds) => {
+  const { data } = await apiClient.post(`/incidents/${incidentId}/unassign`, {
+    userIds,
+  });
+  return data;
 };

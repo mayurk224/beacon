@@ -69,14 +69,7 @@ const DashBoardIncident = () => {
 
   const [incidents, setIncidents] = useState([]);
 
-  const [onCallTeam, setOnCallTeam] = useState([
-    { id: 1, name: user?.name || 'You', role: 'Primary', roleColor: 'text-emerald-500', initials: user?.name?.split(' ').map(n => n[0]).join('') || 'U', imageUrl: '', hasShield: true },
-  ]);
-
   const [recentActivities, setRecentActivities] = useState([]);
-
-  // API base (swap to env var when ready)
-  const API_BASE = '/api';
 
   const mapSeverityToClass = (sev) => {
     switch ((sev || '').toLowerCase()) {
@@ -112,14 +105,16 @@ const DashBoardIncident = () => {
       severityColor: mapSeverityToClass(inc.severity),
       status: inc.status?.charAt(0).toUpperCase() + inc.status?.slice(1) || 'Open',
       statusClass: mapStatusToClass(inc.status),
-      assignee: inc.assignee?.name || (inc.assignee ? 'Assigned' : 'Unassigned'),
-      assigneeInitials: inc.assignee?.name?.split(' ').map(n => n[0]).join('') || null,
-      assigneeClass: inc.assignee ? 'bg-brand-strong text-on-brand' : 'bg-surface-interactive text-secondary',
+      assignee: inc.assignedUsers?.[0]?.name || (inc.assignedUsers?.length ? 'Assigned' : 'Unassigned'),
+      assigneeInitials: inc.assignedUsers?.[0]?.name?.split(' ').map(n => n[0]).join('') || null,
+      assigneeClass: inc.assignedUsers?.length ? 'bg-brand-strong text-on-brand' : 'bg-surface-interactive text-secondary',
       timeAgo: new Date(inc.createdAt).toLocaleDateString(),
       timestamp: inc.createdAt,
       isResolved: inc.status === 'resolved',
-      isUnassigned: !inc.assignee,
-      assignedToMe: inc.assignee?._id === user?._id || inc.assignee === user?._id,
+      isUnassigned: !inc.assignedUsers?.length,
+      assignedToMe: (inc.assignedUsers || []).some(
+        (assignee) => assignee?._id === user?._id || assignee === user?._id,
+      ),
       description: inc.description || '',
       tags: inc.tags || [],
     };
@@ -285,8 +280,7 @@ const DashBoardIncident = () => {
   ];
 
   const handleRefresh = () => {
-    setIsLoading(true);
-    setTimeout(() => setIsLoading(false), 1000);
+    fetchData();
   };
 
   const handleExport = () => {

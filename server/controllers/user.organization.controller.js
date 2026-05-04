@@ -313,7 +313,7 @@ export const getOrganizationById = async (req, res) => {
         // 4. Get members with specific roles in THIS organization
         const members = await userModel.find({
             "memberships.organization": id,
-        }).select("name avatar memberships lastLoginAt");
+        }).select("name email avatar memberships lastLoginAt");
 
         // 5. Format members list
         const formattedMembers = members.map((m) => {
@@ -324,6 +324,7 @@ export const getOrganizationById = async (req, res) => {
             return {
                 userId: m._id,
                 name: m.name,
+                email: m.email,
                 avatar: m.avatar,
                 role: membership.role,
                 joinedAt: membership.joinedAt,

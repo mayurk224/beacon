@@ -1,481 +1,472 @@
-import React, { useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  Search,
-  Bell,
-  HelpCircle,
-  Settings,
-  UserPlus,
-  MoreVertical,
-  Send,
-  X,
-  ChevronLeft,
-  ChevronRight,
-  Mail,
-  User,
-  Shield,
-  Eye,
-  Edit2,
-  CheckCircle,
-  Clock,
-  Power,
-  Filter,
-  Download,
-  RefreshCw,
-  Loader2,
   AlertCircle,
-  Users,
-  Key,
-  Trash2,
+  CheckCircle,
+  Edit2,
+  Eye,
+  Filter,
+  Loader2,
+  Mail,
+  MoreVertical,
+  RefreshCw,
+  Send,
+  Shield,
+  User,
+  UserPlus,
   UserX,
-} from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { useAuth } from '../auth/useAuth';
-import { getOrganizationById } from '../organization/organizationApi';
+  Users,
+  X,
+} from "lucide-react";
+import { toast } from "sonner";
+import { useAuth } from "../auth/useAuth";
+import {
+  getOrganizationById,
+  getOrganizationJoinRequests,
+  handleOrganizationJoinRequest,
+  removeOrganizationMember,
+  sendOrganizationInvite,
+  updateOrganizationMemberRole,
+} from "../organization/organizationApi";
+
+const roleLabelMap = {
+  admin: "Admin",
+  responder: "Responder",
+  viewer: "Viewer",
+};
 
 const DashBoardTeam = () => {
-  const [searchTerm, setSearchTerm] = useState('');
+  const { user } = useAuth();
+  const primaryMembership = user?.memberships?.[0];
+  const primaryOrganizationId =
+    primaryMembership?.organization?._id || primaryMembership?.organization;
+  const currentUserRole = primaryMembership?.role || "viewer";
+  const canManageMembers = currentUserRole === "admin";
+
+  const [organization, setOrganization] = useState(null);
+  const [teamMembers, setTeamMembers] = useState([]);
+  const [joinRequests, setJoinRequests] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedRoleFilter, setSelectedRoleFilter] = useState("all");
+  const [selectedStatusFilter, setSelectedStatusFilter] = useState("all");
+  const [isLoading, setIsLoading] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [showPermissionsMenu, setShowPermissionsMenu] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [inviteEmails, setInviteEmails] = useState('');
-  const [inviteRole, setInviteRole] = useState('editor');
-  const [selectedRoleFilter, setSelectedRoleFilter] = useState('all');
-  const [selectedStatusFilter, setSelectedStatusFilter] = useState('all');
-  const [isLoading, setIsLoading] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteRole, setInviteRole] = useState("responder");
+  const [isSendingInvite, setIsSendingInvite] = useState(false);
+  const [isHandlingJoinRequest, setIsHandlingJoinRequest] = useState("");
+  const [memberActionKey, setMemberActionKey] = useState("");
 
-  const { user } = useAuth();
-  const primaryMembership = user?.memberships?.[0];
-  const primaryOrganizationId = primaryMembership?.organization?._id || primaryMembership?.organization;
+  const loadTeamData = useCallback(async () => {
+    if (!primaryOrganizationId) {
+      setOrganization(null);
+      setTeamMembers([]);
+      setJoinRequests([]);
+      return;
+    }
 
-  const [teamMembers, setTeamMembers] = useState([]);
+    setIsLoading(true);
+    try {
+      const [organizationData, requests] = await Promise.all([
+        getOrganizationById(primaryOrganizationId),
+        canManageMembers
+          ? getOrganizationJoinRequests(primaryOrganizationId)
+          : Promise.resolve([]),
+      ]);
 
-  React.useEffect(() => {
-    const loadTeam = async () => {
-      if (!primaryOrganizationId) return;
-      setIsLoading(true);
-      try {
-        const data = await getOrganizationById(primaryOrganizationId);
-        if (data.members) {
-          const members = data.members.map(m => {
-            const memberUser = m.user || m;
-            const role = m.role || 'Member';
-            return {
-              id: memberUser._id,
-              name: memberUser.name,
-              role: role.charAt(0).toUpperCase() + role.slice(1),
-              email: memberUser.email,
-              userId: memberUser._id.slice(-8).toUpperCase(),
-              userRole: role === 'owner' ? 'Admin' : (role === 'admin' ? 'Admin' : 'Editor'),
-              status: (Date.now() - new Date(memberUser.lastLoginAt || 0).getTime() < 15 * 60 * 1000) ? 'active' : 'offline',
-              avatar: null,
-              initial: memberUser.name?.split(' ').map(n => n[0]).join('') || 'U',
-              lastActive: memberUser.lastLoginAt,
-              department: 'Engineering',
-            };
-          });
-          setTeamMembers(members);
-        }
-      } catch (error) {
-        console.error("Error loading team:", error);
-      } finally {
-        setIsLoading(false);
-      }
+      setOrganization(organizationData.organization);
+      setTeamMembers(
+        (organizationData.members || []).map((member) => ({
+          id: member.userId,
+          name: member.name,
+          email: member.email || "",
+          role: member.role,
+          status:
+            member.lastLoginAt &&
+            Date.now() - new Date(member.lastLoginAt).getTime() < 15 * 60 * 1000
+              ? "active"
+              : "offline",
+          initial:
+            member.name
+              ?.split(" ")
+              .map((part) => part[0])
+              .join("") || "U",
+          joinedAt: member.joinedAt,
+          lastLoginAt: member.lastLoginAt,
+        })),
+      );
+      setJoinRequests(requests.filter((request) => request.status === "pending"));
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Unable to load team details.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }, [canManageMembers, primaryOrganizationId]);
+
+  useEffect(() => {
+    const run = async () => {
+      await loadTeamData();
     };
-    loadTeam();
-  }, [primaryOrganizationId]);
 
-  const getStatusConfig = (status) => {
-    switch (status) {
-      case 'active':
-        return { color: 'text-semantic-success', bg: 'bg-semantic-success', label: 'Active', shadow: 'shadow-[0_0_8px_color-mix(in_srgb,var(--semantic-success)_50%,transparent)]' };
-      case 'offline':
-        return { color: 'text-subtle', bg: 'bg-surface-interactive', label: 'Offline', shadow: '' };
-      case 'away':
-        return { color: 'text-semantic-warning', bg: 'bg-semantic-warning', label: 'Away', shadow: 'shadow-[0_0_8px_color-mix(in_srgb,var(--semantic-warning)_30%,transparent)]' };
-      case 'invited':
-        return { color: 'text-semantic-warning', bg: 'bg-semantic-warning', label: 'Invited', shadow: 'shadow-[0_0_8px_color-mix(in_srgb,var(--semantic-warning)_30%,transparent)]' };
-      default:
-        return { color: 'text-subtle', bg: 'bg-surface-interactive', label: 'Unknown', shadow: '' };
-    }
-  };
+    run();
+  }, [loadTeamData]);
 
-  const getRoleBadgeStyle = (role) => {
-    switch (role) {
-      case 'Admin':
-        return 'border border-brand-muted bg-brand-muted text-brand-strong';
-      case 'Editor':
-        return 'border border-border-primary bg-surface-card text-muted';
-      case 'Viewer':
-        return 'border border-border-primary bg-transparent text-subtle';
-      default:
-        return 'border border-border-primary bg-transparent text-subtle';
-    }
-  };
-
-  // Apply filters
-  const filteredMembers = teamMembers.filter(member => {
-    const matchesSearch = member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      member.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (member.userRole && member.userRole.toLowerCase().includes(searchTerm.toLowerCase()));
-    
-    const matchesRole = selectedRoleFilter === 'all' || member.userRole.toLowerCase() === selectedRoleFilter;
-    const matchesStatus = selectedStatusFilter === 'all' || member.status === selectedStatusFilter;
-    
-    return matchesSearch && matchesRole && matchesStatus;
-  });
-
-  const itemsPerPage = 5;
-  const totalPages = Math.ceil(filteredMembers.length / itemsPerPage);
-  const paginatedMembers = filteredMembers.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+  const filteredMembers = useMemo(
+    () =>
+      teamMembers.filter((member) => {
+        const matchesSearch =
+          member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          member.email.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesRole =
+          selectedRoleFilter === "all" || member.role === selectedRoleFilter;
+        const matchesStatus =
+          selectedStatusFilter === "all" || member.status === selectedStatusFilter;
+        return matchesSearch && matchesRole && matchesStatus;
+      }),
+    [teamMembers, searchTerm, selectedRoleFilter, selectedStatusFilter],
   );
 
-  const handleInvite = () => {
-    const emails = inviteEmails.split(',').map(e => e.trim()).filter(e => e);
-    // Secure logging: Redacted emails in log
-    console.log(`Inviting ${emails.length} team members with role: ${inviteRole}`);
-    setShowInviteModal(false);
-    setInviteEmails('');
-    setInviteRole('editor');
+  const roleStats = useMemo(
+    () => ({
+      admin: teamMembers.filter((member) => member.role === "admin").length,
+      responder: teamMembers.filter((member) => member.role === "responder").length,
+      viewer: teamMembers.filter((member) => member.role === "viewer").length,
+    }),
+    [teamMembers],
+  );
+
+  const getStatusConfig = (status) => {
+    if (status === "active") {
+      return { dot: "bg-semantic-success", text: "text-semantic-success", label: "Active" };
+    }
+    return { dot: "bg-surface-interactive", text: "text-subtle", label: "Offline" };
   };
 
-  const handleRefresh = () => {
-    setIsLoading(true);
-    setTimeout(() => setIsLoading(false), 1000);
+  const handleInvite = async () => {
+    if (!inviteEmail.trim()) {
+      toast.error("Email is required.");
+      return;
+    }
+
+    setIsSendingInvite(true);
+    try {
+      await sendOrganizationInvite({
+        email: inviteEmail.trim(),
+        role: inviteRole,
+        organizationId: primaryOrganizationId,
+      });
+      toast.success("Invite sent successfully.");
+      setInviteEmail("");
+      setInviteRole("responder");
+      setShowInviteModal(false);
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message ||
+          error.response?.data?.errors?.[0]?.message ||
+          "Unable to send invite.",
+      );
+    } finally {
+      setIsSendingInvite(false);
+    }
   };
 
-  const handleExport = () => {
-    console.log('Exporting team members...');
+  const handleChangeRole = async (memberId, role) => {
+    setMemberActionKey(`${memberId}-${role}`);
+    try {
+      await updateOrganizationMemberRole(primaryOrganizationId, memberId, role);
+      toast.success("Member role updated.");
+      setShowPermissionsMenu(null);
+      await loadTeamData();
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Unable to update member role.",
+      );
+    } finally {
+      setMemberActionKey("");
+    }
   };
 
-  const handleChangeRole = (memberId, newRole) => {
-    console.log(`Changing role for member ${memberId} to ${newRole}`);
-    setShowPermissionsMenu(null);
+  const handleRemoveMember = async (memberId) => {
+    setMemberActionKey(`${memberId}-remove`);
+    try {
+      await removeOrganizationMember(primaryOrganizationId, memberId);
+      toast.success("Member removed.");
+      setShowPermissionsMenu(null);
+      await loadTeamData();
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Unable to remove member.",
+      );
+    } finally {
+      setMemberActionKey("");
+    }
   };
 
-  const handleRemoveMember = (memberId) => {
-    console.log(`Removing member ${memberId}`);
-    setShowPermissionsMenu(null);
+  const handleJoinRequest = async (requestId, status) => {
+    setIsHandlingJoinRequest(`${requestId}-${status}`);
+    try {
+      await handleOrganizationJoinRequest(requestId, status);
+      toast.success(`Join request ${status}.`);
+      await loadTeamData();
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Unable to update join request.",
+      );
+    } finally {
+      setIsHandlingJoinRequest("");
+    }
   };
 
-  const getRoleStats = () => {
-    const stats = {
-      Admin: teamMembers.filter(m => m.userRole === 'Admin').length,
-      Editor: teamMembers.filter(m => m.userRole === 'Editor').length,
-      Viewer: teamMembers.filter(m => m.userRole === 'Viewer').length,
-    };
-    return stats;
-  };
-
-  const roleStats = getRoleStats();
-
-  const PermissionsMenu = ({ member, onClose }) => (
+  const PermissionsMenu = ({ member }) => (
     <div className="absolute right-0 mt-2 w-56 bg-surface-elevated border border-border-primary rounded-lg shadow-2xl z-50 overflow-hidden">
       <div className="p-2 border-b border-border-primary">
         <div className="px-2 py-1">
           <p className="text-[12px] font-medium text-primary">{member.name}</p>
-          <p className="text-[10px] text-subtle">Current role: {member.userRole}</p>
+          <p className="text-[10px] text-subtle">
+            Current role: {roleLabelMap[member.role]}
+          </p>
         </div>
       </div>
       <div className="p-2">
-        <div className="text-[11px] font-medium text-subtle uppercase tracking-wider px-2 py-1">
-          Change Role
-        </div>
-        <button
-          onClick={() => handleChangeRole(member.id, 'Admin')}
-          className="w-full flex items-center gap-3 px-2 py-2 rounded text-[13px] text-primary hover:bg-surface-interactive transition-colors"
-        >
-          <Shield className="w-4 h-4 text-brand-soft" />
-          <span>Admin</span>
-          {member.userRole === 'Admin' && <CheckCircle className="w-3.5 h-3.5 ml-auto text-success-bright" />}
-        </button>
-        <button
-          onClick={() => handleChangeRole(member.id, 'Editor')}
-          className="w-full flex items-center gap-3 px-2 py-2 rounded text-[13px] text-primary hover:bg-surface-interactive transition-colors"
-        >
-          <Edit2 className="w-4 h-4 text-chip-sky-bg" />
-          <span>Editor</span>
-          {member.userRole === 'Editor' && <CheckCircle className="w-3.5 h-3.5 ml-auto text-success-bright" />}
-        </button>
-        <button
-          onClick={() => handleChangeRole(member.id, 'Viewer')}
-          className="w-full flex items-center gap-3 px-2 py-2 rounded text-[13px] text-primary hover:bg-surface-interactive transition-colors"
-        >
-          <Eye className="w-4 h-4 text-subtle" />
-          <span>Viewer</span>
-          {member.userRole === 'Viewer' && <CheckCircle className="w-3.5 h-3.5 ml-auto text-success-bright" />}
-        </button>
+        {["admin", "responder", "viewer"].map((role) => (
+          <button
+            key={role}
+            onClick={() => handleChangeRole(member.id, role)}
+            disabled={Boolean(memberActionKey)}
+            className="w-full flex items-center gap-3 px-2 py-2 rounded text-[13px] text-primary hover:bg-surface-interactive transition-colors"
+          >
+            {role === "admin" && <Shield className="w-4 h-4 text-brand-soft" />}
+            {role === "responder" && <Edit2 className="w-4 h-4 text-chip-sky-bg" />}
+            {role === "viewer" && <Eye className="w-4 h-4 text-subtle" />}
+            <span>{roleLabelMap[role]}</span>
+            {member.role === role && (
+              <CheckCircle className="w-3.5 h-3.5 ml-auto text-success-bright" />
+            )}
+            {memberActionKey === `${member.id}-${role}` && (
+              <Loader2 className="w-3.5 h-3.5 ml-auto animate-spin" />
+            )}
+          </button>
+        ))}
       </div>
       <div className="p-2 border-t border-border-primary">
         <button
           onClick={() => handleRemoveMember(member.id)}
+          disabled={Boolean(memberActionKey)}
           className="w-full flex items-center gap-3 px-2 py-2 rounded text-[13px] text-semantic-error hover:bg-semantic-error/10 transition-colors"
         >
-          <UserX className="w-4 h-4" />
+          {memberActionKey === `${member.id}-remove` ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <UserX className="w-4 h-4" />
+          )}
           <span>Remove from team</span>
         </button>
       </div>
     </div>
   );
 
-  const FilterModal = () => (
-    <div className="fixed inset-0 bg-overlay-scrim backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-surface-card border border-border-primary rounded-xl w-full max-w-md shadow-2xl overflow-hidden">
-        <div className="px-5 py-4 border-b border-border-primary flex items-center justify-between">
-          <h3 className="text-[16px] font-semibold text-primary">Filter Team Members</h3>
-          <button onClick={() => setShowFilterModal(false)} className="text-subtle hover:text-primary">
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-        <div className="p-5 flex flex-col gap-4">
-          <div>
-            <label className="text-[11px] font-medium text-subtle uppercase tracking-wider">Role</label>
-            <select 
-              value={selectedRoleFilter}
-              onChange={(e) => setSelectedRoleFilter(e.target.value)}
-              className="mt-1 w-full bg-surface border border-border-primary rounded-lg p-2 text-[13px] text-primary focus:border-brand-soft focus:outline-none"
-            >
-              <option value="all">All Roles</option>
-              <option value="admin">Admin</option>
-              <option value="editor">Editor</option>
-              <option value="viewer">Viewer</option>
-            </select>
-          </div>
-          <div>
-            <label className="text-[11px] font-medium text-subtle uppercase tracking-wider">Status</label>
-            <select 
-              value={selectedStatusFilter}
-              onChange={(e) => setSelectedStatusFilter(e.target.value)}
-              className="mt-1 w-full bg-surface border border-border-primary rounded-lg p-2 text-[13px] text-primary focus:border-brand-soft focus:outline-none"
-            >
-              <option value="all">All Statuses</option>
-              <option value="active">Active</option>
-              <option value="away">Away</option>
-              <option value="offline">Offline</option>
-              <option value="invited">Invited</option>
-            </select>
-          </div>
-        </div>
-        <div className="px-5 py-4 border-t border-border-primary bg-surface-card flex justify-end gap-3">
-          <button 
-            onClick={() => {
-              setSelectedRoleFilter('all');
-              setSelectedStatusFilter('all');
-              setShowFilterModal(false);
-            }} 
-            className="btn-outline"
-          >
-            Reset
-          </button>
-          <button 
-            onClick={() => setShowFilterModal(false)} 
-            className="btn-primary"
-          >
-            Apply Filters
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-
   return (
     <div className="text-primary min-h-screen w-full">
-      {/* Main Content */}
       <div className="p-4 sm:p-6 overflow-x-auto">
-        {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
           <div>
-            <h1 className="text-[22px] sm:text-[24px] leading-7.5 sm:leading-8 tracking-[-0.02em] font-semibold text-primary mb-1">
+            <h1 className="text-[22px] sm:text-[24px] font-semibold text-primary mb-1">
               Team Management
             </h1>
-            <p className="text-[12px] sm:text-[13px] leading-4.5 font-medium text-tertiary">
-              Manage workspace members and role permissions.
+            <p className="text-[12px] sm:text-[13px] font-medium text-tertiary">
+              Manage workspace members for {organization?.name || "your organization"}.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-            <button 
-              onClick={() => setShowFilterModal(true)}
-              className="btn-outline"
-            >
-              <Filter className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              <span className="max-md:hidden xs:inline">Filter</span>
+            <button onClick={() => setShowFilterModal(true)} className="btn-outline">
+              <Filter className="w-4 h-4" />
+              Filter
             </button>
-            <button 
-              onClick={handleRefresh}
-              className="btn-outline"
-            >
-              {isLoading ? <Loader2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
-              <span className="max-md:hidden xs:inline">Refresh</span>
+            <button onClick={loadTeamData} className="btn-outline" disabled={isLoading}>
+              {isLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <RefreshCw className="w-4 h-4" />
+              )}
+              Refresh
             </button>
             <button
               onClick={() => setShowInviteModal(true)}
               className="btn-primary"
+              disabled={!canManageMembers}
             >
-              <UserPlus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              <span className="max-md:hidden xs:inline">Invite Member</span>
+              <UserPlus className="w-4 h-4" />
+              Invite Member
             </button>
           </div>
         </div>
 
-        {/* Stats Cards - Responsive Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6">
-          <div className="bg-surface-card border border-border-primary rounded-lg p-3 sm:p-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] sm:text-[11px] font-medium text-subtle uppercase tracking-wider">Total</span>
-              <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-soft" />
-            </div>
-            <div className="text-[20px] sm:text-[24px] font-bold text-primary">{teamMembers.length}</div>
+        {!primaryOrganizationId ? (
+          <div className="rounded-xl border border-border-primary bg-surface-card p-6 text-sm text-muted">
+            Join or create an organization before managing members.
           </div>
-          <div className="bg-surface-card border border-border-primary rounded-lg p-3 sm:p-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] sm:text-[11px] font-medium text-subtle uppercase tracking-wider">Admins</span>
-              <Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-soft" />
+        ) : (
+          <>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6">
+              <div className="bg-surface-card border border-border-primary rounded-lg p-3 sm:p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[10px] sm:text-[11px] font-medium text-subtle uppercase tracking-wider">Total</span>
+                  <Users className="w-4 h-4 text-brand-soft" />
+                </div>
+                <div className="text-[20px] sm:text-[24px] font-bold text-primary">{teamMembers.length}</div>
+              </div>
+              <div className="bg-surface-card border border-border-primary rounded-lg p-3 sm:p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[10px] sm:text-[11px] font-medium text-subtle uppercase tracking-wider">Admins</span>
+                  <Shield className="w-4 h-4 text-brand-soft" />
+                </div>
+                <div className="text-[20px] sm:text-[24px] font-bold text-primary">{roleStats.admin}</div>
+              </div>
+              <div className="bg-surface-card border border-border-primary rounded-lg p-3 sm:p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[10px] sm:text-[11px] font-medium text-subtle uppercase tracking-wider">Responders</span>
+                  <Edit2 className="w-4 h-4 text-brand-soft" />
+                </div>
+                <div className="text-[20px] sm:text-[24px] font-bold text-primary">{roleStats.responder}</div>
+              </div>
+              <div className="bg-surface-card border border-border-primary rounded-lg p-3 sm:p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[10px] sm:text-[11px] font-medium text-subtle uppercase tracking-wider">Viewers</span>
+                  <Eye className="w-4 h-4 text-brand-soft" />
+                </div>
+                <div className="text-[20px] sm:text-[24px] font-bold text-primary">{roleStats.viewer}</div>
+              </div>
             </div>
-            <div className="text-[20px] sm:text-[24px] font-bold text-primary">{roleStats.Admin}</div>
-          </div>
-          <div className="bg-surface-card border border-border-primary rounded-lg p-3 sm:p-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] sm:text-[11px] font-medium text-subtle uppercase tracking-wider">Editors</span>
-              <Edit2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-soft" />
-            </div>
-            <div className="text-[20px] sm:text-[24px] font-bold text-primary">{roleStats.Editor}</div>
-          </div>
-          <div className="bg-surface-card border border-border-primary rounded-lg p-3 sm:p-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] sm:text-[11px] font-medium text-subtle uppercase tracking-wider">Viewers</span>
-              <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-soft" />
-            </div>
-            <div className="text-[20px] sm:text-[24px] font-bold text-primary">{roleStats.Viewer}</div>
-          </div>
-        </div>
 
-        {/* Search Bar - Responsive */}
-        <div className="mb-5">
-          <div className="relative max-w-full sm:max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-subtle" />
-            <input
-              type="text"
-              placeholder="Search team members..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="input pl-9!"
-            />
-          </div>
-        </div>
+            {canManageMembers && joinRequests.length > 0 && (
+              <div className="mb-6 rounded-xl border border-border-primary bg-surface-card p-4">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h2 className="text-base font-semibold">Pending Join Requests</h2>
+                    <p className="text-xs text-muted mt-1">
+                      Review people waiting to access this organization.
+                    </p>
+                  </div>
+                  <span className="rounded-full bg-surface-elevated px-3 py-1 text-xs text-primary">
+                    {joinRequests.length}
+                  </span>
+                </div>
+                <div className="space-y-3">
+                  {joinRequests.map((request) => (
+                    <div
+                      key={request._id}
+                      className="flex flex-col gap-3 rounded-lg border border-border-primary p-4 sm:flex-row sm:items-center sm:justify-between"
+                    >
+                      <div>
+                        <div className="text-sm text-primary">{request.user?.name}</div>
+                        <div className="text-xs text-muted">{request.user?.email}</div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          className="btn-outline"
+                          onClick={() => handleJoinRequest(request._id, "declined")}
+                          disabled={Boolean(isHandlingJoinRequest)}
+                        >
+                          {isHandlingJoinRequest === `${request._id}-declined` && (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          )}
+                          Decline
+                        </button>
+                        <button
+                          className="btn-primary"
+                          onClick={() => handleJoinRequest(request._id, "accepted")}
+                          disabled={Boolean(isHandlingJoinRequest)}
+                        >
+                          {isHandlingJoinRequest === `${request._id}-accepted` && (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          )}
+                          Approve
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
-        {/* Team List Table - Responsive with overflow-x-auto */}
-        <div className="bg-surface-card border border-border-primary rounded-lg overflow-hidden">
-          <div className="overflow-x-auto">
-            {/* Table - Responsive column widths */}
-            <div className="min-w-200 md:min-w-full">
-              {/* Table Header */}
-              <div className="grid grid-cols-[50px_minmax(150px,1fr)_minmax(180px,1fr)_100px_100px_80px] gap-3 sm:gap-4 p-3 sm:p-4 border-b border-border-primary bg-surface-header text-[10px] sm:text-[11px] font-medium text-subtle uppercase tracking-wider">
-                <div className="w-8"></div>
+            <div className="mb-5">
+              <div className="relative max-w-full sm:max-w-md">
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-subtle" />
+                <input
+                  type="text"
+                  placeholder="Search team members..."
+                  value={searchTerm}
+                  onChange={(event) => setSearchTerm(event.target.value)}
+                  className="input pl-9!"
+                />
+              </div>
+            </div>
+
+            <div className="bg-surface-card border border-border-primary rounded-lg overflow-hidden">
+              <div className="grid grid-cols-[minmax(180px,1fr)_minmax(180px,1fr)_100px_100px_80px] gap-4 p-4 border-b border-border-primary bg-surface-header text-[11px] font-medium text-subtle uppercase tracking-wider">
                 <div>Member</div>
-                <div>Email / ID</div>
+                <div>Email</div>
                 <div>Role</div>
                 <div>Status</div>
                 <div className="text-right">Actions</div>
               </div>
 
-              {/* Table Body */}
               <div className="divide-y divide-border-primary">
-                {paginatedMembers.length === 0 ? (
+                {filteredMembers.length === 0 ? (
                   <div className="text-center py-12">
                     <AlertCircle className="w-12 h-12 text-subtle mx-auto mb-3" />
                     <p className="text-tertiary">No team members found</p>
-                    <p className="text-subtle text-sm mt-1">Try adjusting your filters</p>
                   </div>
                 ) : (
-                  paginatedMembers.map((member) => {
+                  filteredMembers.map((member) => {
                     const statusConfig = getStatusConfig(member.status);
                     return (
                       <div
                         key={member.id}
-                        className={`grid grid-cols-[50px_minmax(150px,1fr)_minmax(180px,1fr)_100px_100px_80px] gap-3 sm:gap-4 p-3 sm:p-4 items-center hover:bg-surface-elevated transition-colors group ${
-                          member.status === 'invited' ? 'bg-surface-elevated/50' : ''
-                        } relative`}
+                        className="grid grid-cols-[minmax(180px,1fr)_minmax(180px,1fr)_100px_100px_80px] gap-4 p-4 items-center hover:bg-surface-elevated transition-colors relative"
                       >
-                        {/* Avatar */}
-                        <Link to={'/home/member_details'} state={{ memberId: member.id }} className="w-8 h-8 rounded-full overflow-hidden border border-border-primary shrink-0">
-                          {member.avatar ? (
-                            <img src={member.avatar} alt={member.name} className="w-full h-full object-cover" />
-                          ) : member.initial ? (
-                            <div className="w-full h-full bg-surface-panel text-brand-soft flex items-center justify-center text-[13px] font-medium">
-                              {member.initial}
-                            </div>
-                          ) : member.status === 'invited' ? (
-                            <div className="w-full h-full border border-semantic-warning/50 border-dashed flex items-center justify-center">
-                              <Mail className="w-4 h-4 text-semantic-warning" />
-                            </div>
-                          ) : (
-                            <div className="w-full h-full bg-surface-interactive text-tertiary flex items-center justify-center text-[13px] font-medium">
-                              <User className="w-4 h-4" />
-                            </div>
-                          )}
-                        </Link>
-
-                        {/* Member Info */}
-                        <Link to={'/home/member_details'} state={{ memberId: member.id }} className="block">
-                          <div className={`text-[13px] sm:text-[14px] font-medium text-primary ${member.status === 'invited' ? 'italic' : ''} truncate`}>
-                            {member.name}
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-full border border-border-primary bg-surface-panel text-brand-soft flex items-center justify-center text-[13px] font-medium">
+                            {member.initial}
                           </div>
-                          <div className="text-[10px] sm:text-[11px] font-mono text-subtle mt-0.5 truncate">
-                            {member.role}
+                          <div>
+                            <div className="text-[14px] font-medium text-primary">{member.name}</div>
+                            <div className="text-[11px] text-subtle">
+                              Joined {member.joinedAt ? new Date(member.joinedAt).toLocaleDateString() : "recently"}
+                            </div>
                           </div>
-                          {member.status === 'invited' && member.invitedAt && (
-                            <div className="text-[9px] sm:text-[10px] font-mono text-semantic-warning/70 mt-0.5">
-                              Sent {member.invitedAt}
-                            </div>
-                          )}
-                        </Link>
-
-                        {/* Email / ID */}
-                        <Link to={'/home/member_details'} state={{ memberId: member.id }} className="text-[10px] sm:text-[11px] font-mono text-tertiary block truncate">
-                          {member.email}
-                          {member.userId && (
-                            <div className="text-[9px] sm:text-[10px] text-subtle mt-0.5 truncate">
-                              ID: {member.userId}
-                            </div>
-                          )}
-                        </Link>
-
-                        {/* Role Badge */}
-                        <Link to={'/home/member_details'} state={{ memberId: member.id }}>
-                          <span className={`inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-mono whitespace-nowrap ${getRoleBadgeStyle(member.userRole)}`}>
-                            {member.userRole === 'Admin' && <Shield className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" />}
-                            {member.userRole === 'Editor' && <Edit2 className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" />}
-                            {member.userRole === 'Viewer' && <Eye className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1" />}
-                            <span className="hidden sm:inline">{member.userRole}</span>
-                            <span className="sm:hidden">{member.userRole.charAt(0)}</span>
+                        </div>
+                        <div className="text-[11px] font-mono text-tertiary">
+                          {member.email || "Email not exposed by this endpoint"}
+                        </div>
+                        <div>
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono border border-border-primary bg-surface-card text-muted">
+                            {roleLabelMap[member.role]}
                           </span>
-                        </Link>
-
-                        {/* Status */}
-                        <Link to={'/home/member_details'} state={{ memberId: member.id }}>
-                          <div className="flex items-center gap-1.5">
-                            <div className={`w-1.5 h-1.5 rounded-full ${statusConfig.bg} ${statusConfig.shadow}`}></div>
-                            <span className={`text-[10px] sm:text-[11px] font-medium ${statusConfig.color} hidden sm:inline`}>
-                              {statusConfig.label}
-                            </span>
-                            <span className={`text-[10px] font-medium ${statusConfig.color} sm:hidden`}>
-                              {statusConfig.label.charAt(0)}
-                            </span>
-                          </div>
-                        </Link>
-
-                        {/* Actions */}
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <div className={`w-1.5 h-1.5 rounded-full ${statusConfig.dot}`}></div>
+                          <span className={`text-[11px] font-medium ${statusConfig.text}`}>
+                            {statusConfig.label}
+                          </span>
+                        </div>
                         <div className="flex justify-end relative">
                           <button
-                            onClick={() => setShowPermissionsMenu(showPermissionsMenu === member.id ? null : member.id)}
+                            onClick={() =>
+                              setShowPermissionsMenu(
+                                showPermissionsMenu === member.id ? null : member.id,
+                              )
+                            }
                             className="p-1 text-subtle hover:text-primary rounded hover:bg-surface-interactive transition-colors"
+                            disabled={!canManageMembers}
                           >
                             <MoreVertical className="w-4 h-4" />
                           </button>
-                          {showPermissionsMenu === member.id && (
-                            <PermissionsMenu member={member} onClose={() => setShowPermissionsMenu(null)} />
+                          {showPermissionsMenu === member.id && canManageMembers && (
+                            <PermissionsMenu member={member} />
                           )}
                         </div>
                       </div>
@@ -484,63 +475,16 @@ const DashBoardTeam = () => {
                 )}
               </div>
             </div>
-          </div>
 
-          {/* Pagination Footer - Responsive */}
-          {filteredMembers.length > 0 && (
-            <div className="px-3 sm:px-4 py-3 border-t border-border-primary bg-surface-header flex flex-col sm:flex-row justify-between items-center gap-3 text-[10px] sm:text-[11px] font-mono text-subtle">
-              <div className="text-center sm:text-left">
-                Showing {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, filteredMembers.length)} of {filteredMembers.length} members
+            {!canManageMembers && (
+              <div className="mt-4 rounded-xl border border-border-primary bg-surface-card p-4 text-sm text-muted">
+                Your current role is `viewer`, so the server will block member invites and permission changes.
               </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                  disabled={currentPage === 1}
-                  className="p-1 rounded hover:text-primary hover:bg-surface-interactive disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </button>
-                <div className="flex gap-1">
-                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                    let pageNum;
-                    if (totalPages <= 5) {
-                      pageNum = i + 1;
-                    } else if (currentPage <= 3) {
-                      pageNum = i + 1;
-                    } else if (currentPage >= totalPages - 2) {
-                      pageNum = totalPages - 4 + i;
-                    } else {
-                      pageNum = currentPage - 2 + i;
-                    }
-                    return (
-                      <button
-                        key={pageNum}
-                        onClick={() => setCurrentPage(pageNum)}
-                        className={`px-3 py-1 rounded text-[11px] sm:text-[12px] transition-colors ${
-                          currentPage === pageNum
-                            ? 'bg-brand text-on-brand'
-                            : 'text-subtle hover:bg-surface-elevated hover:text-primary'
-                        }`}
-                      >
-                        {pageNum}
-                      </button>
-                    );
-                  })}
-                </div>
-                <button
-                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                  disabled={currentPage === totalPages || totalPages === 0}
-                  className="p-1 rounded hover:text-primary hover:bg-surface-interactive disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
+            )}
+          </>
+        )}
       </div>
 
-      {/* Invite Modal - Responsive */}
       {showInviteModal && (
         <div className="fixed inset-0 bg-overlay-scrim backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-surface-card border border-border-primary rounded-xl w-full max-w-md shadow-2xl overflow-hidden mx-4">
@@ -552,25 +496,27 @@ const DashBoardTeam = () => {
             </div>
             <div className="p-4 sm:p-5 flex flex-col gap-4">
               <div className="flex flex-col gap-1.5">
-                <label className="text-[11px] font-medium text-subtle uppercase tracking-wider">Email Addresses</label>
-                <textarea
-                  value={inviteEmails}
-                  onChange={(e) => setInviteEmails(e.target.value)}
-                  className="input-secondary resize-none text-start"
-                  placeholder="jane@company.com, john@company.com"
-                />
-                <span className="text-[10px] font-mono text-subtle">Separate multiple emails with commas.</span>
+                <label className="text-[11px] font-medium text-subtle uppercase tracking-wider">Email Address</label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-subtle" />
+                  <input
+                    value={inviteEmail}
+                    onChange={(event) => setInviteEmail(event.target.value)}
+                    className="input pl-9!"
+                    placeholder="jane@company.com"
+                  />
+                </div>
               </div>
               <div className="flex flex-col gap-1.5">
                 <label className="text-[11px] font-medium text-subtle uppercase tracking-wider">Assign Role</label>
                 <select
                   value={inviteRole}
-                  onChange={(e) => setInviteRole(e.target.value)}
+                  onChange={(event) => setInviteRole(event.target.value)}
                   className="input-secondary"
                 >
-                  <option value="admin">Admin - Full access to all resources</option>
-                  <option value="editor">Editor - Can view and modify incidents</option>
-                  <option value="viewer">Viewer - Read-only access</option>
+                  <option value="admin">Admin</option>
+                  <option value="responder">Responder</option>
+                  <option value="viewer">Viewer</option>
                 </select>
               </div>
             </div>
@@ -578,17 +524,73 @@ const DashBoardTeam = () => {
               <button onClick={() => setShowInviteModal(false)} className="btn-outline">
                 Cancel
               </button>
-              <button onClick={handleInvite} className="btn-primary">
-                <Send className="w-4 h-4" />
-                Send Invites
+              <button onClick={handleInvite} className="btn-primary" disabled={isSendingInvite}>
+                {isSendingInvite ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Send className="w-4 h-4" />
+                )}
+                Send Invite
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Filter Modal */}
-      {showFilterModal && <FilterModal />}
+      {showFilterModal && (
+        <div className="fixed inset-0 bg-overlay-scrim backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-surface-card border border-border-primary rounded-xl w-full max-w-md shadow-2xl overflow-hidden">
+            <div className="px-5 py-4 border-b border-border-primary flex items-center justify-between">
+              <h3 className="text-[16px] font-semibold text-primary">Filter Team Members</h3>
+              <button onClick={() => setShowFilterModal(false)} className="text-subtle hover:text-primary">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-5 flex flex-col gap-4">
+              <div>
+                <label className="text-[11px] font-medium text-subtle uppercase tracking-wider">Role</label>
+                <select
+                  value={selectedRoleFilter}
+                  onChange={(event) => setSelectedRoleFilter(event.target.value)}
+                  className="mt-1 w-full bg-surface border border-border-primary rounded-lg p-2 text-[13px] text-primary focus:border-brand-soft focus:outline-none"
+                >
+                  <option value="all">All Roles</option>
+                  <option value="admin">Admin</option>
+                  <option value="responder">Responder</option>
+                  <option value="viewer">Viewer</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-[11px] font-medium text-subtle uppercase tracking-wider">Status</label>
+                <select
+                  value={selectedStatusFilter}
+                  onChange={(event) => setSelectedStatusFilter(event.target.value)}
+                  className="mt-1 w-full bg-surface border border-border-primary rounded-lg p-2 text-[13px] text-primary focus:border-brand-soft focus:outline-none"
+                >
+                  <option value="all">All Statuses</option>
+                  <option value="active">Active</option>
+                  <option value="offline">Offline</option>
+                </select>
+              </div>
+            </div>
+            <div className="px-5 py-4 border-t border-border-primary bg-surface-card flex justify-end gap-3">
+              <button
+                onClick={() => {
+                  setSelectedRoleFilter("all");
+                  setSelectedStatusFilter("all");
+                  setShowFilterModal(false);
+                }}
+                className="btn-outline"
+              >
+                Reset
+              </button>
+              <button onClick={() => setShowFilterModal(false)} className="btn-primary">
+                Apply Filters
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

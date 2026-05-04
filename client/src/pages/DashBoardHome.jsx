@@ -495,7 +495,7 @@ const DashBoardHome = () => {
                       Active Incidents
                     </h3>
                     <Link
-                      to="/home/incident"
+                      to="/home/incidents"
                       className="text-brand text-[12px] leading-none tracking-[0.01em] font-medium hover:underline"
                     >
                       View All

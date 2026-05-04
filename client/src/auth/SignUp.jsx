@@ -13,9 +13,11 @@ import {
 } from "lucide-react";
 import { authApi } from "./authApi";
 import GoogleSignInButton from "./GoogleSignInButton";
+import { useAuth } from "./useAuth";
 
 const SignUp = () => {
   const navigate = useNavigate();
+  const { loginWithGoogle } = useAuth();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -60,7 +62,7 @@ const SignUp = () => {
     setIsLoading(true);
 
     try {
-      const response = await authApi.post("/signup", {
+      const response = await authApi.post("/auth/signup", {
         name,
         email,
         password,
@@ -208,7 +210,10 @@ const SignUp = () => {
           <GoogleSignInButton
             label="Signing in with Google"
             disabled={isLoading}
-            onSuccess={() => navigate("/home")}
+            onSuccess={async (credential) => {
+              await loginWithGoogle(credential);
+              navigate("/home");
+            }}
             onError={setError}
           />
 
