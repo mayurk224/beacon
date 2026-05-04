@@ -8,6 +8,8 @@ import {
   Mail,
   Trash2,
   User,
+  Monitor,
+  Globe,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "../auth/useAuth";
@@ -17,6 +19,8 @@ import {
   getProfile,
   updateAvatar,
   updateProfile,
+  getActiveSessions,
+  logoutAllSessions,
 } from "../profile/profileApi";
 
 const initialPasswordState = {
@@ -36,6 +40,8 @@ const Profile = () => {
   const [isRemovingAvatar, setIsRemovingAvatar] = useState(false);
   const [passwordForm, setPasswordForm] = useState(initialPasswordState);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [sessions, setSessions] = useState([]);
+  const [isLoadingSessions, setIsLoadingSessions] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -57,7 +63,26 @@ const Profile = () => {
       }
     };
 
+    const loadSessions = async () => {
+      setIsLoadingSessions(true);
+      try {
+        const data = await getActiveSessions();
+        if (isMounted) {
+          setSessions(data.sessions || []);
+        }
+      } catch (error) {
+        if (isMounted) {
+          toast.error(error.response?.data?.message || "Unable to load active sessions.");
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoadingSessions(false);
+        }
+      }
+    };
+
     loadProfile();
+    loadSessions();
 
     return () => {
       isMounted = false;
@@ -103,6 +128,18 @@ const Profile = () => {
   const handleLogout = async () => {
     await logout();
     navigate("/signin");
+  };
+
+  const handleLogoutAll = async () => {
+    try {
+      await logoutAllSessions();
+      toast.success("Logged out of all sessions.");
+      handleLogout();
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Unable to logout of all sessions."
+      );
+    }
   };
 
   const handleImageChange = async (event) => {
@@ -327,6 +364,48 @@ const Profile = () => {
               Update Password
             </button>
           </form>
+
+          <div className="h-px bg-border-primary" />
+
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-base font-semibold">Active Sessions</h2>
+                <p className="text-xs text-muted mt-1">
+                  You're signed in on these devices.
+                </p>
+              </div>
+              <button onClick={handleLogoutAll} className="text-xs text-danger-soft hover:text-danger">
+                Logout all
+              </button>
+            </div>
+
+            {isLoadingSessions ? (
+              <div className="flex justify-center p-4">
+                <Loader2 className="w-5 h-5 animate-spin text-subtle" />
+              </div>
+            ) : (
+              <div className="flex flex-col gap-3">
+                {sessions.map((session) => (
+                  <div key={session.id} className="flex items-center gap-3 p-3 rounded-md bg-surface-base border border-border-muted">
+                    <Monitor className="w-5 h-5 text-tertiary" />
+                    <div className="flex-1 flex flex-col">
+                      <p className="text-sm font-medium">{session.userAgent || "Unknown Device"}</p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <Globe className="w-3 h-3 text-muted" />
+                        <span className="text-[11px] text-muted">{session.ip || "Unknown IP"}</span>
+                        <span className="text-[11px] text-muted">•</span>
+                        <span className="text-[11px] text-muted">Started {new Date(session.createdAt).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                {sessions.length === 0 && !isLoadingSessions && (
+                  <p className="text-sm text-muted text-center py-4">No active sessions found.</p>
+                )}
+              </div>
+            )}
+          </div>
 
           <div className="h-px bg-border-primary" />
 

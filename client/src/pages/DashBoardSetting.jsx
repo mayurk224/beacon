@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   User,
   Mail,
@@ -7,27 +7,72 @@ import {
   LogOut,
   Eye,
   EyeOff,
+  Loader2,
 } from 'lucide-react';
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { useAuth } from "../auth/useAuth";
+import { updateProfile, changePassword as apiChangePassword, logoutAllSessions } from "../profile/profileApi";
 
 const DashBoardSetting = () => {
-  const [name, setName] = useState('Sarah Jenkins');
-  const [email, setEmail] = useState('sarah.jenkins@platform.os');
+  const navigate = useNavigate();
+  const { user, logout, setAuthenticatedUser } = useAuth();
+  
+  const [name, setName] = useState(user?.name || '');
+  const [email, setEmail] = useState(user?.email || '');
   const [showPassword, setShowPassword] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({ currentPassword: "", newPassword: "" });
+  const [isSaving, setIsSaving] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
 
-  const handleSave = () => {
-    alert('Profile updated!');
+  useEffect(() => {
+    if (user) {
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      setName(user.name || '');
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      setEmail(user.email || '');
+    }
+  }, [user]);
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const nextUser = await updateProfile({ name: name.trim() });
+      setAuthenticatedUser(nextUser);
+      toast.success('Profile updated!');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to update profile.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const handleChangePassword = () => {
-    alert('Password changed!');
+  const handleChangePassword = async () => {
+    if (!passwordForm.currentPassword || !passwordForm.newPassword) {
+      toast.error('Please enter current and new password.');
+      return;
+    }
+    setIsChangingPassword(true);
+    try {
+      await apiChangePassword(passwordForm);
+      toast.success('Password changed! Please log in again.');
+      await logout();
+      navigate('/signin');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to change password.');
+    } finally {
+      setIsChangingPassword(false);
+      setPasswordForm({ currentPassword: "", newPassword: "" });
+    }
   };
 
   const handleDelete = () => {
-    alert('Account deleted!');
+    toast.error('Account deletion is not currently supported.');
   };
 
-  const handleLogout = () => {
-    alert('Logged out!');
+  const handleLogout = async () => {
+    await logout();
+    navigate('/signin');
   };
 
   return (
@@ -73,8 +118,10 @@ const DashBoardSetting = () => {
 
           <button
             onClick={handleSave}
+            disabled={isSaving}
             className="btn-primary"
           >
+            {isSaving && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
             Save Changes
           </button>
         </div>
@@ -83,24 +130,39 @@ const DashBoardSetting = () => {
         <div className="space-y-4 border-t border-border-primary pt-6">
           <h3 className="text-sm font-medium text-tertiary">Password</h3>
 
-          <div className="relative">
-            <input
-              type={showPassword ? 'text' : 'password'}
-              placeholder="New password"
-              className="w-full bg-surface border border-border-primary rounded-lg p-2 text-sm"
-            />
-            <button
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-subtle"
-            >
-              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-            </button>
+          <div className="space-y-3">
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Current password"
+                value={passwordForm.currentPassword}
+                onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
+                className="w-full bg-surface border border-border-primary rounded-lg p-2 text-sm pr-10"
+              />
+            </div>
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                placeholder="New password"
+                value={passwordForm.newPassword}
+                onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+                className="w-full bg-surface border border-border-primary rounded-lg p-2 text-sm pr-10"
+              />
+              <button
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-subtle"
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
           </div>
 
           <button
             onClick={handleChangePassword}
+            disabled={isChangingPassword}
             className="btn-outline"
           >
+            {isChangingPassword && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
             Change Password
           </button>
         </div>

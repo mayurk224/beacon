@@ -5,7 +5,7 @@ export const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";
 const buildUrl = (path) => `${API_BASE_URL}${path}`;
 
 const isRefreshRequest = (config) =>
-  config?.url?.includes("/auth/refresh-token");
+  config?.url?.includes("/api/auth/refresh-token");
 
 export const publicApi = axios.create({
   baseURL: API_BASE_URL,
@@ -21,8 +21,8 @@ let refreshRequest = null;
 
 const refreshSession = async () => {
   if (!refreshRequest) {
-    refreshRequest = axios.post(
-      buildUrl("/auth/refresh-token"),
+    refreshRequest = publicApi.post(
+      "/api/auth/refresh-token",
       {},
       { withCredentials: true },
     );

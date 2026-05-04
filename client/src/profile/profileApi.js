@@ -32,3 +32,13 @@ export const changePassword = async (payload) => {
   const { data } = await apiClient.post("/api/users/profile/password", payload);
   return data;
 };
+
+export const getActiveSessions = async () => {
+  const { data } = await apiClient.get("/api/users/profile/sessions");
+  return data;
+};
+
+export const logoutAllSessions = async () => {
+  const { data } = await apiClient.post("/api/users/profile/logout");
+  return data;
+};

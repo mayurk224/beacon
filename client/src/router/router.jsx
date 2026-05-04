@@ -3,6 +3,8 @@ import Layout from "../layout/Layout";
 import MainLayout from "../landing/MainLayout";
 import SignIn from "../auth/SignIn";
 import SignUp from "../auth/SignUp";
+import ForgotPassword from "../auth/ForgotPassword";
+import ResetPassword from "../auth/ResetPassword";
 import RequireAuth from "../auth/RequireAuth";
 import DashBoardHome from "../pages/DashBoardHome";
 import DashBoardIncident from "../pages/DashBoardIncident";
@@ -116,5 +118,13 @@ export const router = createBrowserRouter([
   {
     path: "/signup",
     element: <SignUp />,
+  },
+  {
+    path: "/forgot-password",
+    element: <ForgotPassword />,
+  },
+  {
+    path: "/reset-password",
+    element: <ResetPassword />,
   },
 ]);

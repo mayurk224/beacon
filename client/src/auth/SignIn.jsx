@@ -21,11 +21,15 @@ const SignIn = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showResend, setShowResend] = useState(false);
+  const [resendSuccess, setResendSuccess] = useState("");
   const [rememberMe, setRememberMe] = useState(Boolean(rememberedEmail));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setResendSuccess("");
+    setShowResend(false);
     setIsLoading(true);
 
     try {
@@ -43,6 +47,29 @@ const SignIn = () => {
         err.response?.data?.errors?.[0]?.message ||
         "Unable to sign in right now. Please try again.";
       setError(message);
+      
+      if (err.response?.status === 403 && message.toLowerCase().includes("verify your email")) {
+        setShowResend(true);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    setIsLoading(true);
+    setError("");
+    setResendSuccess("");
+    try {
+      const { authApi } = await import("./authApi");
+      await authApi.post("/api/auth/resend-verification", { email });
+      setResendSuccess("Verification email sent! Please check your inbox.");
+      setShowResend(false);
+    } catch (err) {
+      setError(
+        err.response?.data?.message ||
+        "Failed to resend verification email. Please try again."
+      );
     } finally {
       setIsLoading(false);
     }
@@ -65,12 +92,33 @@ const SignIn = () => {
 
         {/* Login Card */}
         <div className="bg-surface-header border border-border-muted rounded-lg p-6 flex flex-col gap-4">
-          {error && (
-            <div className="bg-semantic-error/10 border border-semantic-error/25 rounded p-3 flex items-start gap-2">
-              <AlertCircle className="w-5 h-5 text-danger-soft mt-0.5 shrink-0" />
-              <p className="text-[13px] leading-4.5 font-medium text-danger-soft">
-                {error}
+          
+          {resendSuccess && (
+            <div className="bg-semantic-success/12 border border-semantic-success/30 rounded p-3 flex items-start gap-2">
+              <p className="text-[13px] leading-4.5 font-medium text-success-bright">
+                {resendSuccess}
               </p>
+            </div>
+          )}
+
+          {error && (
+            <div className="bg-semantic-error/10 border border-semantic-error/25 rounded p-3 flex flex-col gap-2">
+              <div className="flex items-start gap-2">
+                <AlertCircle className="w-5 h-5 text-danger-soft mt-0.5 shrink-0" />
+                <p className="text-[13px] leading-4.5 font-medium text-danger-soft">
+                  {error}
+                </p>
+              </div>
+              {showResend && (
+                <button
+                  type="button"
+                  onClick={handleResendVerification}
+                  disabled={isLoading}
+                  className="text-[12px] font-medium text-danger-soft hover:text-danger-strong self-start underline"
+                >
+                  Resend verification email
+                </button>
+              )}
             </div>
           )}
 
@@ -117,15 +165,23 @@ const SignIn = () => {
               </div>
             </div>
 
-            <label className="flex items-center gap-2 text-[12px] text-tertiary">
-              <input
-                type="checkbox"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-                className="h-4 w-4 rounded border border-border-primary bg-surface-card accent-brand-strong"
-              />
-              Remember my email
-            </label>
+            <div className="flex items-center justify-between">
+              <label className="flex items-center gap-2 text-[12px] text-tertiary">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="h-4 w-4 rounded border border-border-primary bg-surface-card accent-brand-strong"
+                />
+                Remember my email
+              </label>
+              <Link
+                to="/forgot-password"
+                className="text-[12px] text-brand-soft hover:text-brand-strong font-medium transition-colors"
+              >
+                Forgot password?
+              </Link>
+            </div>
 
             <button
               type="submit"
