@@ -74,3 +74,13 @@ export const getIncidentUpdatesValidation = [
         .optional()
         .isInt({ min: 1, max: 100 }).withMessage("Limit must be between 1 and 100"),
 ];
+
+export const assignUsersValidation = [
+    param("id")
+        .custom((value) => mongoose.Types.ObjectId.isValid(value)).withMessage("Invalid incident ID"),
+    body("userIds")
+        .isArray({ min: 1 }).withMessage("userIds must be a non-empty array")
+        .custom((value) => {
+            return value.every((id) => mongoose.Types.ObjectId.isValid(id));
+        }).withMessage("One or more user IDs are invalid"),
+];
