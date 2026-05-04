@@ -182,3 +182,60 @@ export const unassignUsersFromIncident = async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+
+export const getIncidentResponders = async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        message: "Validation failed",
+        errors: errors.array().map((err) => ({ field: err.path, message: err.msg })),
+      });
+    }
+
+    const { id } = req.params;
+    const userId = req.userId;
+
+    // 🔹 Get incident with populated responders
+    const incident = await incidentModel.findById(id)
+      .populate("assignedUsers", "name email avatar memberships")
+      .lean();
+
+    if (!incident) {
+      return res.status(404).json({ message: "Incident not found" });
+    }
+
+    // 🔹 Check requester belongs to org (using .some for performance on lean object)
+    const requester = await userModel.findOne({
+      _id: userId,
+      "memberships.organization": incident.organization,
+    }).lean();
+
+    if (!requester) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    // 🔹 Format responders
+    const responders = incident.assignedUsers.map((u) => {
+      const membership = u.memberships.find(
+        (m) => m.organization.toString() === incident.organization.toString()
+      );
+
+      return {
+        userId: u._id,
+        name: u.name,
+        email: u.email,
+        avatar: u.avatar,
+        role: membership?.role || "unknown",
+      };
+    });
+
+    return res.status(200).json({
+      responders,
+    });
+
+  } catch (error) {
+    console.error("Get Responders Error:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};

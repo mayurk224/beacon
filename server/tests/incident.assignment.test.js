@@ -207,4 +207,54 @@ describe('Incident Assignment API', () => {
       expect(res.body.message).toEqual('None of the specified users are currently assigned');
     });
   });
+
+  describe('GET /api/incidents/:id/responders', () => {
+    it('should get responders successfully', async () => {
+      const { incident, responder1, responder2, token } = await setupTestData('responder');
+      incident.assignedUsers = [responder1._id, responder2._id];
+      await incident.save();
+
+      const res = await request(app)
+        .get(`/api/incidents/${incident._id}/responders`)
+        .set('Cookie', [`accessToken=${token}`]);
+
+      expect(res.statusCode).toEqual(200);
+      expect(res.body.responders).toHaveLength(2);
+      expect(res.body.responders[0]).toHaveProperty('name');
+      expect(res.body.responders[0]).toHaveProperty('role');
+      expect(res.body.responders.map(r => r.userId)).toContain(responder1._id.toString());
+      expect(res.body.responders.map(r => r.userId)).toContain(responder2._id.toString());
+    });
+
+    it('should fail if user is not in the organization', async () => {
+      const { incident } = await setupTestData('responder');
+      
+      const otherUser = await userModel.create({
+        name: 'Other User',
+        email: 'other@example.com',
+        password: 'Password123!',
+        isEmailVerified: true,
+        memberships: [],
+      });
+      const otherToken = createToken(otherUser._id);
+
+      const res = await request(app)
+        .get(`/api/incidents/${incident._id}/responders`)
+        .set('Cookie', [`accessToken=${otherToken}`]);
+
+      expect(res.statusCode).toEqual(403);
+      expect(res.body.message).toEqual('Access denied');
+    });
+
+    it('should fail with invalid incident ID', async () => {
+      const { token } = await setupTestData('responder');
+
+      const res = await request(app)
+        .get('/api/incidents/invalid-id/responders')
+        .set('Cookie', [`accessToken=${token}`]);
+
+      expect(res.statusCode).toEqual(400);
+      expect(res.body.message).toEqual('Validation failed');
+    });
+  });
 });
