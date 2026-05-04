@@ -1,7 +1,7 @@
 import { apiClient } from "../lib/apiClient";
 
 export const getIncidentsForOrganization = async (organizationId) => {
-  const { data } = await apiClient.get("/incidents/all", {
+  const { data } = await apiClient.get("/api/incidents/all", {
     params: {
       organizationId,
       limit: 100,
@@ -12,17 +12,17 @@ export const getIncidentsForOrganization = async (organizationId) => {
 };
 
 export const createIncident = async (payload) => {
-  const { data } = await apiClient.post("/incidents/create", payload);
+  const { data } = await apiClient.post("/api/incidents/create", payload);
   return data.incident;
 };
 
 export const getIncidentById = async (incidentId) => {
-  const { data } = await apiClient.get(`/incidents/${incidentId}`);
+  const { data } = await apiClient.get(`/api/incidents/${incidentId}`);
   return data.incident;
 };
 
 export const getIncidentUpdates = async (incidentId) => {
-  const { data } = await apiClient.get(`/incidents/${incidentId}/updates`, {
+  const { data } = await apiClient.get(`/api/incidents/${incidentId}/updates`, {
     params: {
       limit: 100,
     },
@@ -31,24 +31,24 @@ export const getIncidentUpdates = async (incidentId) => {
 };
 
 export const addIncidentUpdate = async (incidentId, payload) => {
-  const { data } = await apiClient.post(`/incidents/${incidentId}/update`, payload);
+  const { data } = await apiClient.post(`/api/incidents/${incidentId}/update`, payload);
   return data.update;
 };
 
 export const getIncidentResponders = async (incidentId) => {
-  const { data } = await apiClient.get(`/incidents/${incidentId}/responders`);
+  const { data } = await apiClient.get(`/api/incidents/${incidentId}/responders`);
   return data.responders || [];
 };
 
 export const assignIncidentResponders = async (incidentId, userIds) => {
-  const { data } = await apiClient.post(`/incidents/${incidentId}/assign`, {
+  const { data } = await apiClient.post(`/api/incidents/${incidentId}/assign`, {
     userIds,
   });
   return data;
 };
 
 export const unassignIncidentResponders = async (incidentId, userIds) => {
-  const { data } = await apiClient.post(`/incidents/${incidentId}/unassign`, {
+  const { data } = await apiClient.post(`/api/incidents/${incidentId}/unassign`, {
     userIds,
   });
   return data;

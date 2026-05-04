@@ -1,12 +1,12 @@
 import { apiClient } from "../lib/apiClient";
 
 export const getProfile = async () => {
-  const { data } = await apiClient.get("/users/profile");
+  const { data } = await apiClient.get("/api/users/profile");
   return data.user;
 };
 
 export const updateProfile = async (payload) => {
-  const { data } = await apiClient.patch("/users/profile", payload);
+  const { data } = await apiClient.patch("/api/users/profile", payload);
   return data.user;
 };
 
@@ -14,7 +14,7 @@ export const updateAvatar = async (file) => {
   const formData = new FormData();
   formData.append("avatar", file);
 
-  const { data } = await apiClient.post("/users/profile/avatar", formData, {
+  const { data } = await apiClient.post("/api/users/profile/avatar", formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
@@ -24,11 +24,11 @@ export const updateAvatar = async (file) => {
 };
 
 export const deleteAvatar = async () => {
-  const { data } = await apiClient.delete("/users/profile/avatar");
+  const { data } = await apiClient.delete("/api/users/profile/avatar");
   return data.user;
 };
 
 export const changePassword = async (payload) => {
-  const { data } = await apiClient.post("/users/profile/password", payload);
+  const { data } = await apiClient.post("/api/users/profile/password", payload);
   return data;
 };
