@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   AlertTriangle,
   Timer,
@@ -9,13 +10,20 @@ import {
   CheckCircle2,
   ArrowRight,
   Plus,
+  X,
+  Loader2,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
 import { useAuth } from "../auth/useAuth";
+import { createOrganization } from "../organization/organizationApi";
 
 const DashBoardHome = () => {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const hasOrganizations = Boolean(user?.memberships?.length);
+  const [isCreateOrgOpen, setIsCreateOrgOpen] = useState(false);
+  const [organizationName, setOrganizationName] = useState("");
+  const [isSubmittingOrganization, setIsSubmittingOrganization] = useState(false);
 
   const topMetrics = [
     {
@@ -140,6 +148,44 @@ const DashBoardHome = () => {
     },
   ];
 
+  const closeCreateOrganizationModal = () => {
+    if (isSubmittingOrganization) {
+      return;
+    }
+
+    setIsCreateOrgOpen(false);
+    setOrganizationName("");
+  };
+
+  const handleCreateOrganization = async (event) => {
+    event.preventDefault();
+
+    const trimmedName = organizationName.trim();
+    if (!trimmedName) {
+      toast.error("Organization name is required.");
+      return;
+    }
+
+    setIsSubmittingOrganization(true);
+
+    try {
+      const organization = await createOrganization({ name: trimmedName });
+      await refreshUser();
+      closeCreateOrganizationModal();
+      toast.success(
+        `${organization?.name || trimmedName} was created successfully.`
+      );
+    } catch (error) {
+      const message =
+        error.response?.data?.message ||
+        error.response?.data?.errors?.[0]?.message ||
+        "Unable to create organization right now. Please try again.";
+      toast.error(message);
+    } finally {
+      setIsSubmittingOrganization(false);
+    }
+  };
+
   const getStatusIndicator = (status) => {
     switch (status) {
       case "operational":
@@ -203,13 +249,14 @@ const DashBoardHome = () => {
                     <ArrowRight className="w-4 h-4" />
                     Join Organization
                   </Link>
-                  <Link
-                    to="/home/team"
+                  <button
+                    type="button"
+                    onClick={() => setIsCreateOrgOpen(true)}
                     className="btn-outline inline-flex items-center justify-center gap-2"
                   >
                     <Plus className="w-4 h-4" />
                     Create Organization
-                  </Link>
+                  </button>
                 </div>
               </div>
             </div>
@@ -424,7 +471,70 @@ const DashBoardHome = () => {
         </div>
       </main>
 
-      <div className="fixed lg:bottom-4 right-4 sm:bottom-8 sm:right-8 flex items-center gap-2 sm:gap-3 bg-surface-elevated border border-border-primary rounded-full pl-2 pr-3 sm:pr-4 py-1.5 sm:py-2 shadow-2xl z-50 bottom-14 md:bottom-16">
+      {isCreateOrgOpen && (
+        <div className="fixed inset-0 z-50 bg-overlay-scrim backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-md rounded-2xl border border-border-primary bg-surface-widget shadow-2xl overflow-hidden">
+            <div className="flex items-start justify-between gap-4 border-b border-border-primary px-5 py-4">
+              <div>
+                <h3 className="text-lg font-semibold text-primary">
+                  Create organization
+                </h3>
+                <p className="mt-1 text-sm text-secondary">
+                  Start a new workspace for your team and incident operations.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={closeCreateOrganizationModal}
+                className="rounded-lg p-2 text-subtle hover:bg-surface-elevated hover:text-primary transition-colors"
+                disabled={isSubmittingOrganization}
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateOrganization} className="px-5 py-5">
+              <label className="block text-[11px] font-medium text-tertiary uppercase tracking-wider mb-2">
+                Organization Name
+              </label>
+              <input
+                type="text"
+                value={organizationName}
+                onChange={(event) => setOrganizationName(event.target.value)}
+                placeholder="Acme Security"
+                className="input w-full"
+                minLength={2}
+                maxLength={100}
+                autoFocus
+                disabled={isSubmittingOrganization}
+              />
+
+              <div className="mt-5 flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={closeCreateOrganizationModal}
+                  className="btn-outline"
+                  disabled={isSubmittingOrganization}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn-primary"
+                  disabled={isSubmittingOrganization}
+                >
+                  {isSubmittingOrganization && (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  )}
+                  Create Organization
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      <div className="fixed lg:bottom-4 right-4 sm:bottom-8 sm:right-8 flex items-center gap-2 sm:gap-3 bg-surface-elevated border border-border-primary rounded-full pl-2 pr-3 sm:pr-4 py-1.5 sm:py-2 shadow-2xl z-40 bottom-14 md:bottom-16">
         <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-semantic-success/10 flex items-center justify-center">
           <span className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-semantic-success pulse-glow block"></span>
         </div>

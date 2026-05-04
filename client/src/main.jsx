@@ -5,6 +5,7 @@ import { RouterProvider } from 'react-router-dom'
 import { router } from './router/router'
 import { ThemeProvider } from 'next-themes'
 import { AuthProvider } from './auth/AuthContext'
+import { Toaster } from 'sonner'
 
 
 createRoot(document.getElementById('root')).render(
@@ -12,6 +13,7 @@ createRoot(document.getElementById('root')).render(
     <AuthProvider>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
         <RouterProvider router={router} />
+        <Toaster richColors position="top-right" />
       </ThemeProvider>
     </AuthProvider>
   </StrictMode>,
